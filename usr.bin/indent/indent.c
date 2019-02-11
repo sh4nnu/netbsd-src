@@ -1050,8 +1050,10 @@ check_type:
 						}
 					}
 				} else {
-					if (dec_ind && s_code != e_code)
-						dump_line();
+					if (dec_ind && s_code != e_code) {
+					    *e_code = '\0';
+					    dump_line();
+					}
 					dec_ind = 0;
 					ps.want_blank = false;
 				}
