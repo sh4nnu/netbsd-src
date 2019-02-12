@@ -171,15 +171,15 @@ main(int argc, char **argv)
 
 	scase = ps.pcase = false;
 	squest = 0;
-	sc_end = 0;
-	bp_save = 0;
-	be_save = 0;
+	sc_end = NULL;
+	bp_save = NULL;
+	be_save = NULL;
 
-	output = 0;
+	output = NULL;
 
 
 
-	/*--------------------------------------------------*\
+		/*--------------------------------------------------*\
         |   		COMMAND LINE SCAN		 |
         \*--------------------------------------------------*/
 
@@ -354,7 +354,7 @@ main(int argc, char **argv)
 
 			case lbrace:	/* this is a brace that starts the
 					 * compound stmt */
-				if (sc_end == 0) {	/* ignore buffering if a
+				if (sc_end == NULL) {	/* ignore buffering if a
 							 * comment wasn't stored
 							 * up */
 					ps.search_brace = false;
@@ -369,8 +369,8 @@ main(int argc, char **argv)
 				}
 			case comment:	/* we have a comment, so we must copy
 					 * it into the buffer */
-				if (!flushed_nl || sc_end != 0) {
-					if (sc_end == 0) {	/* if this is the first
+				if (!flushed_nl || sc_end != NULL) {
+					if (sc_end == NULL) {	/* if this is the first
 								 * comment, we must set
 								 * up the buffer */
 						save_com[0] = save_com[1] = ' ';
@@ -419,7 +419,7 @@ main(int argc, char **argv)
 					&& e_code != s_code && e_code[-1] == '}'))
 					force_nl = false;
 
-				if (sc_end == 0) {	/* ignore buffering if
+				if (sc_end == NULL) {	/* ignore buffering if
 							 * comment wasn't saved
 							 * up */
 					ps.search_brace = false;
@@ -459,7 +459,7 @@ main(int argc, char **argv)
 				*sc_end++ = ' ';	/* add trailing blank,
 							 * just in case */
 				buf_end = sc_end;
-				sc_end = 0;
+				sc_end = NULL;
 				break;
 			}	/* end of switch */
 			if (type_code != 0)	/* we must make this check,
@@ -1173,9 +1173,8 @@ check_type:
 
 				while (e_lab > s_lab && (e_lab[-1] == ' ' || e_lab[-1] == '\t'))
 					e_lab--;
-				if (e_lab - s_lab == com_end && bp_save == 0) {	/* comment on
-										 * preprocessor line */
-					if (sc_end == 0)	/* if this is the first
+				if (e_lab - s_lab == com_end && bp_save == NULL) {	/* comment on preprocessor line */
+					if (sc_end == NULL)	/* if this is the first
 								 * comment, we must set
 								 * up the buffer */
 						sc_end = &(save_com[0]);
@@ -1202,7 +1201,7 @@ check_type:
 					*sc_end++ = ' ';	/* add trailing blank,
 								 * just in case */
 					buf_end = sc_end;
-					sc_end = 0;
+					sc_end = NULL;
 				}
 				*e_lab = '\0';	/* null terminate line */
 				ps.pcase = false;
@@ -1310,7 +1309,7 @@ bakcopy(void)
 		err(1, "%s", bakfile);
 	/* now the original input file will be the output */
 	output = fopen(in_name, "w");
-	if (output == 0) {
+	if (output == NULL) {
 		unlink(bakfile);
 		err(1, "%s", in_name);
 	}
