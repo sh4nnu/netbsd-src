@@ -394,7 +394,7 @@ fill_buffer(void)
 	char   *n;
 
 	if (bp_save != NULL) {	/* there is a partly filled input buffer left */
-		buf_ptr = bp_save;	/* don't read anything, just switch
+		buf_ptr = bp_save;	/* donot read anything, just switch
 					 * buffers */
 		buf_end = be_save;
 		bp_save = be_save = NULL;

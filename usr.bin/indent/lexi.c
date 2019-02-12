@@ -234,7 +234,7 @@ lexi(void)
 						seensfx |= 1;
 						continue;
 					}
-					if (!(seensfx & 2) && strchr("fFlL", *buf_ptr)) {
+					if (!(seensfx & 2) && (strchr("fFlL", *buf_ptr))) {
 						CHECK_SIZE_TOKEN;
 						if (buf_ptr[1] == buf_ptr[0])
 							*e_token++ = *buf_ptr++;
@@ -612,7 +612,7 @@ addkey(char *key, int val)
 {
 	struct templ *p = specials;
 	while (p->rwd)
-		if (p->rwd[0] == key[0] && strcmp(p->rwd, key) == 0)
+		if (p->rwd[0] == key[0] && fstrcmp(p->rwd, key) == 0)
 			return;
 		else
 			p++;
