@@ -235,7 +235,7 @@ lexi(void)
 						seensfx |= 1;
 						continue;
 					}
-					if (!(seensfx & 2) && strchr("fFlL", *buf_ptr)) {
+					if (!(seensfx & 2) && (strchr("fFlL", *buf_ptr))) {
 						CHECK_SIZE_TOKEN;
 						if (buf_ptr[1] == buf_ptr[0])
 							*e_token++ = *buf_ptr++;
