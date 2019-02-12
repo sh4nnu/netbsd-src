@@ -241,7 +241,7 @@ EXTERN struct fstate
         scomf,			/* Same line comment font */
         bodyf;			/* major body font */
 
-#define STACK_SIZE 150
+#define STACK_SIZE 256
 
 EXTERN struct parser_state {
 	int     last_token;

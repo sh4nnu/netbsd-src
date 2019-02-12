@@ -72,6 +72,7 @@ __RCSID("$NetBSD: parse.c,v 1.7 2003/08/07 11:14:09 agc Exp $");
 #endif
 #endif				/* not lint */
 
+#include <err.h>
 #include <stdio.h>
 #include "indent_globs.h"
 #include "indent_codes.h"
@@ -231,6 +232,9 @@ parse(int tk)
 
 	}			/* end of switch */
 
+	if (ps.tos >= STACKSIZE)
+		errx(1, "Parser stack overflow.")
+	
 	reduce();		/* see if any reduction can be done */
 
 #ifdef debug
