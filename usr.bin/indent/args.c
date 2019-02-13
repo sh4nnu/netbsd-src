@@ -458,7 +458,12 @@ found:
 		case KEY:
 			if (*param_start == 0)
 				goto need_param;
-			add_typename(param_start);
+			{
+				char	*str = strdup(param_start);
+				if(str == NULL)
+					err(1,NULL);
+				add_typename(str);
+			}
 			break;
 
 		case KEY_FILE:
@@ -498,6 +503,7 @@ add_typedefs_from_file(const char *str)
 {
     FILE *file;
     char line[BUFSIZ];
+	char *copy;
 
     if ((file = fopen(str, "r")) == NULL) {
 		fprintf(stderr, "indent: cannot open file %s\n", str);
@@ -506,7 +512,10 @@ add_typedefs_from_file(const char *str)
     while ((fgets(line, BUFSIZ, file)) != NULL) {
 		/* Remove trailing whitespace */
 		line[strcspn(line, " \t\n\r")] = '\0';
-		add_typename(line);
+		if ((copy = strdup(line)) == NULL) {
+	    	err(1, NULL);
+		}
+		add_typename(copy);
     }
     fclose(file);
 }
