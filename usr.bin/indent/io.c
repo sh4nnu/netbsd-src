@@ -549,18 +549,15 @@ pad_output(int current, int target)
  *
  */
 int
-count_spaces(int current, char *buffer)
+count_spaces_until(int cur, char *buffer, char *end)
 /*
  * this routine figures out where the character position will be after
  * printing the text in buffer starting at column "current"
  */
 {
 	char   *buf;		/* used to look thru buffer */
-	int     cur;		/* current character counter */
 
-	cur = current;
-
-	for (buf = buffer; *buf != '\0'; ++buf) {
+	for (buf = buffer; *buf != '\0' && buf != end; ++buf) {
 		switch (*buf) {
 
 		case '\n':
@@ -584,7 +581,11 @@ count_spaces(int current, char *buffer)
 	return (cur);
 }
 
-
+int
+count_spaces(int cur, char *buffer)
+{
+	return (count_spaces_until(cur, buffer, NULL));
+}
 int     found_err;
 
 void
