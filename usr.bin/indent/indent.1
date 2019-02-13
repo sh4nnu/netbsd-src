@@ -61,7 +61,7 @@
 .\"
 .\"	from: @(#)indent.1	8.1 (Berkeley) 7/1/93
 .\"
-.Dd February 24, 2016
+.Dd February 13, 2019
 .Dt INDENT 1
 .Os
 .Sh NAME
@@ -97,10 +97,12 @@
 .Op Fl npro
 .Op Fl pcs | Fl npcs
 .Op Fl psl | Fl npsl
+.Op Fl sac | Fl nsac
 .Op Fl \&sc | Fl nsc
 .Op Fl sob | Fl nsob
 .Op Fl \&st
 .Op Fl troff
+.Op Fl U Ns Ar file
 .Op Fl ut | Fl nut
 .Op Fl v | Fl \&nv
 .Sh DESCRIPTION
@@ -386,6 +388,11 @@ the names of procedures being defined are placed in
 column 1 \- their types, if any, will be left on the previous lines.
 Default:
 .Fl psl .
+.It Fl sac , nsac
+Control whether parenthesized type names in casts are followed by a space or
+not.
+The default is
+.Fl nsac .
 .It Fl \&sc , nsc
 Enables (disables) the placement of asterisks (`*'s) at the left edge of all
 comments.
@@ -434,6 +441,10 @@ listing in much the same spirit as
 .Xr vgrind 1 .
 If the output file is not specified, the default is standard output,
 rather than formatting in place.
+.It Fl U Ns Ar file
+Adds type names from
+.Ar file
+to the list of type keywords.
 .It Fl ut , nut
 Enables (disables) the use of tab characters in the output.
 Tabs are assumed to be aligned on columns divisible by 8.
