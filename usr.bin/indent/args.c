@@ -1,6 +1,6 @@
 /*	$NetBSD: args.c,v 1.13 2016/02/22 21:20:29 ginsbach Exp $	*/
 
-/*
+/*	
  * Copyright (c) 1980, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
