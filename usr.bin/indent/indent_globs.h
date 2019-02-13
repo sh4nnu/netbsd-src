@@ -253,10 +253,10 @@ EXTERN struct parser_state {
 				 * comment. In that case, the first non-blank
 				 * char should be lined up with the comment / */
 	int     comment_delta, n_comment_delta;
-	int     cast_mask;	/* indicates which close parens close off
-				 * casts */
-	int     sizeof_mask;	/* indicates which close parens close off
-				 * sizeof''s */
+	int     cast_mask;	/* indicates which close parens potentially
+				 * close off casts */
+	int     not_cast_mask;	/* indicates which close parens definitely
+				 * close off sizeof''s */
 	int     block_init;	/* true iff inside a block initialization */
 	int     block_init_level;	/* The level of brace nesting in an
 					 * initialization */
@@ -325,8 +325,7 @@ EXTERN struct parser_state {
 	int     else_if;	/* True iff else if pairs should be handled
 				 * specially */
 	int     decl_indent;	/* column to indent declared identifiers to */
-	int     its_a_keyword;
-	int     sizeof_keyword;
+	int     keyword;	/* the type of a keyword or 0 */
 	int     dumped_decl_indent;
 	float   case_indent;	/* The distance to indent case labels from the
 				 * switch statement */
