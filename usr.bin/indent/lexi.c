@@ -317,19 +317,10 @@ lexi(struct parser_state *state)
 			state->last_u_d = true;
 			return (decl);
 		}
-		/*
-		 * Operator after identifier is binary unless last token was 'struct'
-		 */
-		state->last_u_d = (state->last_token == structure);
-
-		p = bsearch(s_token,
-	    	specials,
-		    sizeof(specials) / sizeof(specials[0]),
 		    sizeof(specials[0]),
 		    strcmp_type);
 		if (p == NULL) {	/* not a special keyword... */
 		    char *u;
-
 		    /* ... so maybe a type_t or a typedef */
 		    if ((auto_typedefs && ((u = strrchr(s_token, '_')) != NULL) &&
 		        strcmp(u, "_t") == 0) || (typename_top >= 0 &&
@@ -337,12 +328,11 @@ lexi(struct parser_state *state)
 				    sizeof(typenames[0]), strcmp_type))) {
 				state->keyword = 4;	/* a type name */
 				state->last_u_d = true;
-	    	    goto found_auto_typedef;
 	    	    goto found_typename;
 					}
 		} else {		
-			state->keyword = p->rwcode;
-			state->last_u_d = true;
+			ps.keyword = p->rwcode;
+			ps.last_u_d = true;
 			switch (p->rwcode) {
 			case 7:/* it is a switch */
 				return (swstmt);
@@ -354,7 +344,7 @@ lexi(struct parser_state *state)
 				
 			case 4:/* one of the declaration keywords */
 				found_typename:
-				if (state->p_l_follow) {
+				if (ps.p_l_follow) {
 					/* inside parens: cast, param list, offsetof or sizeof */
 					state->cast_mask |= (1 << state->p_l_follow) & ~state->not_cast_mask;
 				}
@@ -678,7 +668,6 @@ void
 add_typename(const char *key)
 {
     int comparison;
-	const char *copy;
 
     if (typename_top + 1 >= typename_count) {
 		typenames = realloc((void *)typenames,
@@ -687,17 +676,16 @@ add_typename(const char *key)
 		    err(1, NULL);
     }
     if (typename_top == -1)
-		typenames[++typename_top] = copy = strdup(key);
+		typenames[++typename_top] = key;
     else if ((comparison = strcmp(key, typenames[typename_top])) >= 0) {
 		/* take advantage of sorted input */
-		if (comparison == 0) /* remove duplicates */
-			return;
-		typenames[++typename_top] = copy = strdup(key);
+		if (comparison != 0)	/* remove duplicates */
+	    	typenames[++typename_top] = key;
     }
     else {
 		int p;
 
-		for (p = 0; (comparison = strcmp(key, typenames[p])) > 0; p++)
+		for (p = 0; (comparison = strcmp(key, typenames[p])) >= 0; p++)
 		    /* find place for the new key */;
 		if (comparison == 0)	/* remove duplicates */	
 			return;

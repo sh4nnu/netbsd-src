@@ -369,7 +369,7 @@ void set_defaults(void);
 void set_option(char *);
 void add_typename(const char *);
 void alloc_typenames(void);
-void set_profile(const char *);
+void set_profile(void);
 char *chfont(struct fstate *, struct fstate *, char *);
 int lexi(struct parser_state *);
 void reduce(void);
