@@ -630,6 +630,7 @@ void
 add_typename(const char *key)
 {
     int comparison;
+	const char *copy;
 
     if (typename_top + 1 >= typename_count) {
 		typenames = realloc((void *)typenames,
@@ -638,11 +639,12 @@ add_typename(const char *key)
 		    err(1, NULL);
     }
     if (typename_top == -1)
-		typenames[++typename_top] = key;
+		typenames[++typename_top] = copy = strdup(key);
     else if ((comparison = strcmp(key, typenames[typename_top])) >= 0) {
 		/* take advantage of sorted input */
-		if (comparison != 0)	/* remove duplicates */
-	    	typenames[++typename_top] = key;
+		if (comparison == 0) /* remove duplicates */
+			return;
+		typenames[++typename_top] = copy = strdup(key);
     }
     else {
 		int p;
@@ -653,10 +655,13 @@ add_typename(const char *key)
 			return;
 		memmove(&typenames[p + 1], &typenames[p],
 		    sizeof(typenames[0]) * (++typename_top - p));
-		typenames[p] = key;
+		typenames[p] = copy = strdup(key);
 	}
 	p->rwd = key;
 	p->rwcode = val;
 	p[1].rwd = NULL;
 	p[1].rwcode = 0;
+
+	if (copy == NULL)
+		err(1, NULL);
 }
