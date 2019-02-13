@@ -222,9 +222,9 @@ EXTERN int     extra_expression_indent; /* True if continuation lines from the
 					 * "for(e;e;e)" should be indented an extra
 					 * tab stop so that they don't conflict with
 					 * the code that follows */
-EXTERN int    use_tabs;			/* set true to use tabs for spacing,
+EXTERN int     use_tabs;			/* set true to use tabs for spacing,
 					 * false uses all spaces */
-
+EXTERN int     spoace_after_cast; /* "b = (int) a" vs "b = (int)a" */	  
 /* -troff font state information */
 
 struct fstate {
