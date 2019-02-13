@@ -93,39 +93,49 @@ struct templ {
 	int		rwcode;
 };
 
-struct templ specials[16384] =
+/*
+ * This table has to be sorted alphabetically, because it'll be used in binary
+ * search. For the same reason, string must be the first thing in struct templ.
+ */
+struct templ specials[] =
 {
-	{"switch", 7},
-	{"case", 8},
 	{"break", 9},
-	{"struct", 3},
-	{"union", 3},
-	{"enum", 3},
-	{"default", 8},
-	{"int", 4},
+	{"case", 8},
 	{"char", 4},
-	{"float", 4},
-	{"double", 4},
-	{"long", 4},
-	{"short", 4},
-	{"typedef", 4},
-	{"unsigned", 4},
-	{"register", 4},
-	{"static", 4},
-	{"global", 4},
-	{"extern", 4},
-	{"void", 4},
-	{"goto", 9},
-	{"return", 9},
-	{"if", 5},
-	{"while", 5},
-	{"for", 5},
-	{"else", 6},
+	{"const", 4},
+	{"default", 8},
 	{"do", 6},
-	{"sizeof", 2},
+	{"double", 4},
+	{"else", 6},
+	{"enum", 3},
+	{"extern", 4},
+	{"float", 4},
+	{"for", 5},
+	{"global", 4},
+	{"goto", 9},
+	{"if", 5},
+	{"int", 4},
+	{"long", 4},
 	{"offsetof", 1},
+	{"register", 4},
+	{"return", 9},
+	{"short", 4},
+	{"sizeof", 2},
+	{"static", 4},
+	{"struct", 3},
+	{"switch", 7},
+	{"typedef", 4},
+	{"union", 3},
+	{"unsigned", 4},
+	{"void", 4},
+	{"volatile", 4},
+	{"while", 5},
 	{0, 0}
 };
+
+const char **typenames;
+int         typename_count;
+int         typename_top = -1;
 
 char    chartype[128] =
 {				/* this is used to facilitate the decision of
@@ -149,6 +159,11 @@ char    chartype[128] =
 	1, 1, 1, 0, 3, 0, 3, 0
 };
 
+static int
+strcmp_type(const void *e1, const void *e2)
+{
+    return (strcmp(e1, *(const char * const *)e2));
+}
 
 
 
@@ -182,8 +197,7 @@ lexi(void)
 		/*
 		 * we have a character or number
 		 */
-		const char *j;	/* used for searching thru list of
-				 * reserved words */
+		
 		struct templ *p;
 
 		if (isdigit((unsigned char)*buf_ptr) ||
@@ -270,28 +284,25 @@ lexi(void)
 					 * binary */
 		last_code = ident;	/* Remember that this is the code we
 					 * will return */
+		p = bsearch(s_token,
+	    	specials,
+		    sizeof(specials) / sizeof(specials[0]),
+		    sizeof(specials[0]),
+		    strcmp_type);
+		if (p == NULL) {	/* not a special keyword... */
+		    char *u;
 
-		/*
-		 * This loop will check if the token is a keyword.
-		 */
-		for (p = specials; (j = p->rwd) != NULL; p++) {
-			char   *pt = s_token;	/* point at scanned token */
-			if (*j++ != *pt++ || *j++ != *pt++)
-				continue;	/* This test depends on the
-						 * fact that identifiers are
-						 * always at least 1 character
-						 * long (ie. the first two
-						 * bytes of the identifier are
-						 * always meaningful) */
-			if (pt[-1] == 0)
-				break;	/* If its a one-character identifier */
-			while (*pt++ == *j)
-				if (*j++ == 0)
-					goto found_keyword;	/* I wish that C had a
-								 * multi-level break... */
-		}
-		if (p->rwd) {	/* we have a keyword */
-	found_keyword:
+		    /* ... so maybe a type_t or a typedef */
+		    if ((auto_typedefs && ((u = strrchr(s_token, '_')) != NULL) &&
+		        strcmp(u, "_t") == 0) || (typename_top >= 0 &&
+				  bsearch(s_token, typenames, typename_top + 1,
+				    sizeof(typenames[0]), strcmp_type))) {
+				ps.keyword = 4;	/* a type name */
+				ps.last_u_d = true;
+	    	    goto found_auto_typedef;
+	    	    goto found_typename;
+					}
+		} else {		
 			ps.keyword = p->rwcode;
 			ps.last_u_d = true;
 			switch (p->rwcode) {
@@ -310,6 +321,7 @@ lexi(void)
 				 * 'struct'
 				 */
 			case 4:/* one of the declaration keywords */
+				found_typename:
 				if (ps.p_l_follow) {
 					/* inside parens: cast, param list, offsetof or sizeof */
 					ps.cast_mask |= (1 << ps.p_l_follow) & ~ps.not_cast_mask;
@@ -603,25 +615,43 @@ stop_lit:
 	*e_token = '\0';	/* null terminate the token */
 	return (code);
 }
-/*
- * Add the given keyword to the keyword table, using val as the keyword type
- */
+
 void
-addkey(char *key, int val)
+alloc_typenames(void)
 {
-	struct templ *p = specials;
-	while (p->rwd)
-		if (p->rwd[0] == key[0] && fstrcmp(p->rwd, key) == 0)
+	typenames = (const char **)malloc(sizeof(typenames[0]) *
+        (typename_count = 16));
+    if (typenames == NULL)
+		err(1, NULL);
+}
+
+void
+add_typename(const char *key)
+{
+    int comparison;
+
+    if (typename_top + 1 >= typename_count) {
+		typenames = realloc((void *)typenames,
+		    sizeof(typenames[0]) * (typename_count *= 2));
+		if (typenames == NULL)
+		    err(1, NULL);
+    }
+    if (typename_top == -1)
+		typenames[++typename_top] = key;
+    else if ((comparison = strcmp(key, typenames[typename_top])) >= 0) {
+		/* take advantage of sorted input */
+		if (comparison != 0)	/* remove duplicates */
+	    	typenames[++typename_top] = key;
+    }
+    else {
+		int p;
+
+		for (p = 0; (comparison = strcmp(key, typenames[p])) >= 0; p++)
+		    /* find place for the new key */;
+		if (comparison == 0)	/* remove duplicates */	
 			return;
-		else
-			p++;
-	if (p >= specials + sizeof specials / sizeof(specials[0])) {
-		fprintf(stderr, "indent: typedef table overflow\n");
-		exit(1);
+		memmove(&typenames[p + 1], &typenames[p],
+		    sizeof(typenames[0]) * (++typename_top - p));
+		typenames[p] = key;
 	}
-		
-	p->rwd = key;
-	p->rwcode = val;
-	p[1].rwd = NULL;
-	p[1].rwcode = 0;
 }

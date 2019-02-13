@@ -145,6 +145,7 @@ main(int argc, char **argv)
 	labbuf = (char *) malloc(bufsize);
 	codebuf = (char *) malloc(bufsize);
 	tokenbuf = (char *) malloc(bufsize);
+	alloc_typenames();
 	l_com = combuf + bufsize - 5;
 	l_lab = labbuf + bufsize - 5;
 	l_code = codebuf + bufsize - 5;

@@ -442,7 +442,7 @@ found:
 				char   *str;
 
 				str = strdup(param_start);
-				addkey(str, 4);
+				add_typename(str);
 			}
 			break;
 
@@ -488,6 +488,7 @@ add_typedefs_from_file(const char *str)
 {
     FILE *file;
     char line[BUFSIZ];
+	char *copy;
 
     if ((file = fopen(str, "r")) == NULL) {
 		fprintf(stderr, "indent: cannot open file %s\n", str);
@@ -495,8 +496,11 @@ add_typedefs_from_file(const char *str)
     }
     while ((fgets(line, BUFSIZ, file)) != NULL) {
 		/* Remove trailing whitespace */
-		*(line + strcspn(line, " \t\n\r")) = '\0';
-		addkey(strdup(line), 4);
+		line[strcspn(line, " \t\n\r")] = '\0';
+		if ((copy = strdup(line)) == NULL) {
+	    	err(1, NULL);
+		}
+		add_typename(copy);
     }
     fclose(file);
 }

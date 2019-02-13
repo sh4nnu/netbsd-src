@@ -341,6 +341,7 @@ EXTERN int     rparen_count;
 EXTERN struct parser_state state_stack[5];
 EXTERN struct parser_state match_state[5];
 
+
 int compute_code_target(void);
 int compute_label_target(void);
 int count_spaces(int, char *);
@@ -353,7 +354,8 @@ int pad_output(int, int);
 void scan_profile(FILE *);
 void set_defaults(void);
 void set_option(char *);
-void addkey(char *, int);
+void add_typename(const char *);
+void alloc_typenames(void);
 void set_profile(void);
 char *chfont(struct fstate *, struct fstate *, char *);
 void parsefont(struct fstate *, const char *);
