@@ -126,10 +126,10 @@ main(int argc, char **argv)
 	int     type_code;	/* the type of token, returned by lexi */
 
 	int     last_else = 0;	/* true iff last keyword was an else */
+	const char *profile_name = NULL;
 
-
-	/*-----------------------------------------------*\
-        |		      INITIALIZATION		      |
+		/*-----------------------------------------------*\
+    	    |		      INITIALIZATION		      |
         \*-----------------------------------------------*/
 
 	if (!setlocale(LC_ALL, ""))
@@ -226,9 +226,11 @@ main(int argc, char **argv)
 	for (i = 1; i < argc; ++i)
 		if (strcmp(argv[i], "-npro") == 0)
 			break;
+	else if (argv[i][0] == '-' && argv[i][1] == 'P' && argv[i][2] != '\0')
+	    profile_name = argv[i];	/* non-empty -P (set profile) */
 	set_defaults();
 	if (i >= argc)
-		set_profile();
+		set_profile(profile_name);
 
 	for (i = 1; i < argc; ++i) {
 
