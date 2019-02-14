@@ -599,6 +599,58 @@ diag(int level, const char *msg, ...)
 }
 
 void
+diag4(int level, const char *msg, int a, int b)
+{
+    if (level)
+	found_err = 1;
+    if (output == stdout) {
+	fprintf(stdout, "/**INDENT** %s@%d: ", level == 0 ? "Warning" : "Error", line_no);
+	fprintf(stdout, msg, a, b);
+	fprintf(stdout, " */\n");
+    }
+    else {
+	fprintf(stderr, "%s@%d: ", level == 0 ? "Warning" : "Error", line_no);
+	fprintf(stderr, msg, a, b);
+	fprintf(stderr, "\n");
+    }
+}
+
+void
+diag3(int level, const char *msg, int a)
+{
+    if (level)
+	found_err = 1;
+    if (output == stdout) {
+	fprintf(stdout, "/**INDENT** %s@%d: ", level == 0 ? "Warning" : "Error", line_no);
+	fprintf(stdout, msg, a);
+	fprintf(stdout, " */\n");
+    }
+    else {
+	fprintf(stderr, "%s@%d: ", level == 0 ? "Warning" : "Error", line_no);
+	fprintf(stderr, msg, a);
+	fprintf(stderr, "\n");
+    }
+}
+
+void
+diag2(int level, const char *msg)
+{
+    if (level)
+	found_err = 1;
+    if (output == stdout) {
+	fprintf(stdout, "/**INDENT** %s@%d: ", level == 0 ? "Warning" : "Error", line_no);
+	fprintf(stdout, "%s", msg);
+	fprintf(stdout, " */\n");
+    }
+    else {
+	fprintf(stderr, "%s@%d: ", level == 0 ? "Warning" : "Error", line_no);
+	fprintf(stderr, "%s", msg);
+	fprintf(stderr, "\n");
+    }
+}
+
+
+void
 writefdef(struct fstate *f, int nm)
 {
 	fprintf(output, ".ds f%c %s\n.nr s%c %d\n",
