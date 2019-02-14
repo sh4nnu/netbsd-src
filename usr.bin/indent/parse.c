@@ -331,6 +331,7 @@ reduce(void)
 				/* <switch> <stmt> */
 				case_ind = ps.cstk[ps.tos - 1];
 
+				/* FALLTHROUGH */
 			case decl:	/* finish of a declaration */
 			case elsehead:
 				/* <<if> <stmt> else> <stmt> */
