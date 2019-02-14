@@ -990,8 +990,11 @@ check_type:
 			}
 			goto copy_id;	/* move the token into line */
 
-		case decl:	/* we have a declaration type (int, register,
-				 * etc.) */
+		case storage:
+		    prefix_blankline_requested = 0;
+		    goto copy_id;
+
+		case decl:
 			parse(decl);	/* let parser worry about indentation */
 			if (ps.last_token == rparen && ps.tos <= 1) {
 				if (s_code != e_code) {
