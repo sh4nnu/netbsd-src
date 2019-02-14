@@ -1240,7 +1240,6 @@ check_type:
 			/* this is a biggie */
 			if (flushed_nl) {	/* we should force a broken
 						 * line here */
-				flushed_nl = false;
 				dump_line();
 				ps.want_blank = false;	/* don't insert blank at
 							 * line start */

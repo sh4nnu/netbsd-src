@@ -277,7 +277,7 @@ dump_line(void)
 					while (e_com > com_st
 					&& isspace((unsigned char)e_com[-1]))
 						e_com--;
-					cur_col = pad_output(cur_col, target);
+					(void)pad_output(cur_col, target);
 					
 					fwrite(com_st,
 					    e_com - com_st, 1, output);
