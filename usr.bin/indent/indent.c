@@ -1011,7 +1011,7 @@ check_type:
 			}
 			goto copy_id;	/* move the token into line */
 		
-		case type_def;
+		case type_def:
 		case storage:
 		    prefix_blankline_requested = 0;
 		    goto copy_id;
