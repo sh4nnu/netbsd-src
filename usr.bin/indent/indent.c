@@ -580,7 +580,7 @@ check_type:
 					indent_declaration(dec_ind, tabs_to_var);
 				ps.dumped_decl_indent = true;
 			}
-			if (ps.want_blank && *token != '[' &&
+			else if (ps.want_blank && *token != '[' &&
 			    (ps.last_token != ident && ps.last_token != funcname || 
 				proc_calls_space ||
 		    	/* offsetof (1) is never allowed a space; sizeof (2) gets
@@ -590,7 +590,7 @@ check_type:
 				*e_code++ = ' ';
 			
 			ps.want_blank = false;
-			
+
 			if (!troff)
 				*e_code++ = token[0];
 			ps.paren_indents[ps.p_l_follow - 1] = count_spaces_until(1, s_code, e_code) - 1;
