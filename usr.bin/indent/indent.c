@@ -217,7 +217,7 @@ main(int argc, char **argv)
 	    profile_name = argv[i];	/* non-empty -P (set profile) */
 	set_defaults();
 	if (i >= argc)
-		set_profile();
+		set_profile(profile_name);
 
 	for (i = 1; i < argc; ++i) {
 
