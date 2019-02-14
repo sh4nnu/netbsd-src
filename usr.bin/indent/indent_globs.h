@@ -156,7 +156,6 @@ EXTERN char   *bp_save;			/* saved value of buf_ptr when taking input
 EXTERN char   *be_save;			/* similarly saved value of buf_end */
 
 
-EXTERN int     pointer_as_binop;
 EXTERN int     blanklines_after_declarations;
 EXTERN int     blanklines_before_blockcomments;
 EXTERN int     blanklines_after_procs;

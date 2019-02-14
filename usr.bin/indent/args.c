@@ -281,9 +281,6 @@ struct pro {
 		"npsl", PRO_BOOL, true, OFF, &procnames_start_line
 	},
 	{
-		"nps", PRO_BOOL, false, OFF, &pointer_as_binop
-	},
-	{
 		"nsac", PRO_BOOL, false, OFF, &space_after_cast
 	},
 	{
@@ -303,9 +300,6 @@ struct pro {
 	},
 	{
 		"psl", PRO_BOOL, true, ON, &procnames_start_line
-	},
-	{
-		"ps", PRO_BOOL, false, ON, &pointer_as_binop
 	},
 	{
 		"sac", PRO_BOOL, false, ON, &space_after_cast
