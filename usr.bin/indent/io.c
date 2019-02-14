@@ -259,13 +259,13 @@ dump_line(void)
 					target += ps.comment_delta;
 					while (*com_st == '\t')	/* consider original indentation in
 											 * case this is a box comment */
-		    			com_st++, target += 8;
+		    			com_st++, target += tabsize;
 					while (target <= 0)
 						if (*com_st == ' ')
 							target++, com_st++;
 						else
 							if (*com_st == '\t')
-								target = ((target - 1) & ~7) + 9, com_st++;
+								target = tabsize * (1 + (target - 1) / tabsize) + 1, com_st++;
 							else
 								target = 1;
 					if (cur_col > target) {	/* if comment can't fit
@@ -494,16 +494,19 @@ fill_buffer(void)
 int
 pad_output(int current, int target)
 {
-	int     curr;		/* internal column pointer */
-	int     tcur;
+
 
 	if (troff)
 		fprintf(output, "\\h'|%dp'", (target - 1) * 7);
 	else {
+		int curr; /* internal column pointer */ 
+
 		if (current >= target)
 			return (current);	/* line is already long enough */
 		curr = current;
 		if (use_tabs) {
+			int tcurr;
+
 			while ((tcur = ((curr - 1) & tabmask) + tabsize + 1) <= target) {
 				putc('\t', output);
 				curr = tcur;
@@ -552,7 +555,7 @@ count_spaces_until(int cur, char *buffer, char *end)
 			break;
 
 		case '\t':
-			cur = ((cur - 1) & tabmask) + tabsize + 1;
+			cur = ;
 			break;
 
 		case 010:	/* backspace */

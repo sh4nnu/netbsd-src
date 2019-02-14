@@ -73,9 +73,6 @@
 #define label_offset 2		/* number of levels a label is placed to left
 				 * of code */
 
-#define tabsize 8		/* the size of a tab */
-#define tabmask 0177770		/* mask used when figuring length of lines
-				 * with tabs */
 
 
 #define false 0
@@ -224,7 +221,9 @@ EXTERN int     extra_expression_indent; /* True if continuation lines from the
 					 * the code that follows */
 EXTERN int     use_tabs;			/* set true to use tabs for spacing,
 					 * false uses all spaces */
-EXTERN int     spoace_after_cast; /* "b = (int) a" vs "b = (int)a" */	  
+EXTERN int     space_after_cast; /* "b = (int) a" vs "b = (int)a" */	  
+EXTERN int	   tabsize;	/* the size of a tab */
+
 /* -troff font state information */
 
 struct fstate {

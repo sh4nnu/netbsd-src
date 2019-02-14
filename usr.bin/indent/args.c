@@ -320,6 +320,9 @@ struct pro {
 		"st", PRO_SPECIAL, 0, STDIN, 0
 	},
 	{
+		"ts", PRO_INT, 8, 0, &tabsize
+	},
+	{
 		"troff", PRO_BOOL, false, ON, &troff
 	},
 	{
