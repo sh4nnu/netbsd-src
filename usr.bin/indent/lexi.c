@@ -374,16 +374,15 @@ lexi(struct parser_state *state)
 				return (ident);
 			}	/* end of switch */
 		}		/* end of if (found_it) */
-		if (*buf_ptr == '(' && state->tos <= 1 && state->ind_level == 0 &&
-			state->in_parameter_declaration == 0 && state->block_init == 0) {
+		if (*buf_ptr == '(' && ps.tos <= 1 && ps.ind_level == 0 &&
+			ps.in_parameter_declaration == 0 && ps.block_init == 0) {
 			char   *tp = buf_ptr;
 			while (tp < buf_end)
 				if (*tp++ == ')' && (*tp == ';' || *tp == ','))
 					goto not_proc;
-			strncpy(state->procname, token, sizeof state->procname - 1);
-			if (state->in_decl)	
-				state->in_parameter_declaration = 1;
-			return (funcname);
+			strncpy(ps.procname, token, sizeof ps.procname - 1);
+			ps.in_parameter_declaration = 1;
+			return (last_code = funcname);
 	not_proc:	;
 		}
 		/*

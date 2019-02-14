@@ -599,6 +599,14 @@ check_type:
 		    		nitems(ps.paren_indents));
 				ps.p_l_follow--;
 	    	}
+			if (ps.want_blank && *token != '[' &&
+			    (ps.last_token != ident && ps.last_token != funcname || 
+				proc_calls_space ||
+		    	/* offsetof (1) is never allowed a space; sizeof (2) gets
+		    	 * one iff -bs; all other keywords (>2) always get a space
+		     	* before lparen */
+				ps.keyword + Bill_Shannon > 2))
+				*e_code++ = ' ';
 			
 			if (*token == '[')
 				/* not a function pointer declaration or a function call */;
@@ -1049,25 +1057,31 @@ check_type:
 
 		case funcname:
 		case ident:	/* got an identifier or constant */
-			if (ps.in_decl) {
-				if (type_code == funcname) {
-		    		ps.in_decl = false;
-		    		if (procnames_start_line && s_code != e_code) {
+			if (ps.in_decl) {	/* if we are in a declaration,
+						 * we must indent identifier */
+				if (type_code != funcname || !procnames_start_line) {
+					if (!ps.block_init && !ps.dumped_decl_indent) {
+						if (troff) {
+							if (ps.want_blank)
+								*e_code++ = ' ';
+							sprintf(e_code, "\n.De %dp+\200p\n", dec_ind * 7);
+							e_code += strlen(e_code);
+						} else 
+							indent_declaration(dec_ind, tabs_to_var);
+						ps.dumped_decl_indent = true;
+						ps.want_blank = false;
+					}
+				} else {
+					if (ps.want_blank && !(procnames_start_line &&
+						type_code == funcname))
+						*e_code++ = ' ';
+					ps.want_blank = false;
+					if (dec_ind && s_code != e_code) {
 					    *e_code = '\0';
 					    dump_line();
 					}
-					else if (ps.want_blank) {
-					*e_code++ = ' ';
-		    		}
-		    		ps.want_blank = false;
-				}
-				else if (!ps.block_init && !ps.dumped_decl_indent &&
-		    		ps.paren_level == 0) { /* if we are in a declaration, we
-										    * must indent identifier */
+					dec_ind = 0;
 
-					indent_declaration(dec_ind, tabs_to_var);
-		    		ps.dumped_decl_indent = true;
-		    		ps.want_blank = false;
 				}
 			} else
 				if (sp_sw && ps.p_l_follow == 0) {
@@ -1078,15 +1092,22 @@ check_type:
 					parse(hd_type);
 				}
 	copy_id:
-			{
-				int len = e_token - s_token;
-
-				CHECK_SIZE_CODE(len + 1);
-				if (ps.want_blank)
-				    *e_code++ = ' ';
-				memcpy(e_code, s_token, len);
-				e_code += len;
-			}
+			if (ps.want_blank)
+				*e_code++ = ' ';
+			if (troff && ps.keyword) {
+				e_code = chfont(&bodyf, &keywordf, e_code);
+				for (t_ptr = token; *t_ptr; ++t_ptr) {
+					CHECK_SIZE_CODE;
+					*e_code++ = keywordf.allcaps
+					    ? toupper((unsigned char)*t_ptr)
+					    : *t_ptr;
+				}
+				e_code = chfont(&keywordf, &bodyf, e_code);
+			} else
+				for (t_ptr = token; *t_ptr; ++t_ptr) {
+					CHECK_SIZE_CODE;
+					*e_code++ = *t_ptr;
+				}
 			if (type_code != funcname)
 				ps.want_blank = true;
 			break;
