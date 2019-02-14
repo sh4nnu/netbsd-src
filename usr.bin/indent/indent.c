@@ -580,7 +580,7 @@ check_type:
 			
 			ps.want_blank = false;
 			if (ps.in_decl && !ps.block_init && !ps.dumped_decl_indent &&
-				!is_procname) {
+				!is_procname && ps.paren_level == 0) {
 				/* function pointer declarations. */
 				if (troff) {
 				sprintf(e_code, "\n.Du %dp+\200p \"%s\"\n", dec_ind * 7, token);
@@ -591,7 +591,7 @@ check_type:
 			}
 			if (!troff)
 				*e_code++ = token[0];
-			ps.paren_indents[ps.p_l_follow - 1] = e_code - s_code;
+			ps.paren_indents[ps.p_l_follow - 1] = count_spaces_until(1, s_code, e_code) - 1;
 			if (sp_sw && ps.p_l_follow == 1 && extra_expression_indent
 			    && ps.paren_indents[0] < 2 * ps.ind_size)
 				ps.paren_indents[0] = 2 * ps.ind_size;
@@ -655,7 +655,7 @@ check_type:
 
 		case unary_op:	/* this could be any unary operation */
 			if (!ps.dumped_decl_indent && ps.in_decl && !is_procname &&
-				!ps.block_init) {
+				!ps.block_init && ps.paren_level == 0) {
 				/* pointer declarations */
 			if (troff) {
 			    if (ps.want_blank)
@@ -797,7 +797,7 @@ check_type:
 			ps.just_saw_decl--;
 
 			if (ps.in_decl && s_code == e_code && !ps.block_init &&
-				!ps.dumped_decl_indent) {
+				!ps.dumped_decl_indent && ps.paren_level == 0) {
 				/* indent stray semicolons in declarations */
 				indent_declaration(dec_ind - 1, tabs_to_var);
 				ps.dumped_decl_indent = true;
@@ -1028,7 +1028,7 @@ check_type:
 			if (ps.in_decl) {	/* if we are in a declaration,
 						 * we must indent identifier */
 				if (type_code != funcname || !procnames_start_line) {
-					if (!ps.block_init && !ps.dumped_decl_indent) {
+					if (!ps.block_init && !ps.dumped_decl_indent && ps.paren_level == 0) {
 						if (troff) {
 							if (ps.want_blank)
 								*e_code++ = ' ';
@@ -1102,7 +1102,7 @@ check_type:
 								 * comma if comma does
 								 * not start the line */
 			if (ps.in_decl && is_procname == 0 && !ps.block_init &&
-				!ps.dumped_decl_indent) {
+				!ps.dumped_decl_indent && ps.paren_level == 0) {
 				/* indent leading commas and not the actual identifiers */
 				indent_declaration(dec_ind - 1, tabs_to_var);
 				ps.dumped_decl_indent = true;
