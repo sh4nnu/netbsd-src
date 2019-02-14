@@ -86,8 +86,9 @@ __RCSID("$NetBSD: lexi.c,v 1.14 2016/06/05 18:35:32 dholland Exp $");
 #include "indent_codes.h"
 
 #define alphanum 1
+#ifdef undef
 #define opchar 3
-
+#endif
 struct templ {
 	const char	*rwd;
 	int		rwcode;
