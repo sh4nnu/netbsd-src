@@ -235,6 +235,7 @@ dump_line(void)
 									break;
 								case '\\':
 									putc('\\', output);
+									/* add a backslash to escape the '\' */
 								default:
 									putc(*follow, output);
 								}
