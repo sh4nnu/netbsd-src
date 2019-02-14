@@ -473,7 +473,7 @@ found:
 		if (!isdigit((unsigned char)*param_start)) {
 	need_param:
 			errx(1, "%s: ``%s'' requires a parameter",
-			     option_source, arg - 1);
+			     option_source, p->p_name);
 		}
 		*p->p_obj = atoi(param_start);
 		break;
