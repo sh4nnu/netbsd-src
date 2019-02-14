@@ -77,6 +77,7 @@ __RCSID("$NetBSD: pr_comment.c,v 1.10 2016/02/25 13:23:27 ginsbach Exp $");
 #include <string.h>
 #include <ctype.h>
 #include "indent_globs.h"
+#include "indent_codes.h"
 
 /*
  * NAME:
@@ -212,7 +213,7 @@ pr_comment(void)
 		char       *t = e_com;
 		e_com = s_com + 2;
 		*e_com = 0;
-		if (blanklines_before_blockcomments)
+		if (blanklines_before_blockcomments && ps.last_token != lbrace)
 		    prefix_blankline_requested = 1;
 		dump_line();
 		e_com = s_com = t;
