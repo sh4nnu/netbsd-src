@@ -205,7 +205,7 @@ parse(int tk)
 
 	case rbrace:		/* scanned a } */
 		/* stack should have <lbrace> <stmt> or <lbrace> <stmtl> */
-		if (ps.p_stack[ps.tos - 1] == lbrace) {
+		if (ps.tos > 0 && ps.p_stack[ps.tos - 1] == lbrace) {
 			ps.ind_level = ps.i_l_follow = ps.il[--ps.tos];
 			ps.p_stack[ps.tos] = stmt;
 		} else
