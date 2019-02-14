@@ -634,7 +634,7 @@ parsefont(struct fstate *f, const char *s0)
 {
 	const char *s = s0;
 	int     sizedelta = 0;
-	memset(f, 0, sizeof *f);
+	memset(f, '\0', sizeof(*f);
 	while (*s) {
 		if (isdigit((unsigned char)*s))
 			f->size = f->size * 10 + *s - '0';
