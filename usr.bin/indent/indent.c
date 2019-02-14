@@ -347,8 +347,10 @@ main(int argc, char **argv)
 						 * follows the if, or whatever */
 			switch (type_code) {
 			case newline:
-                if (sc_end != NULL)
-                    goto sw_buffer; /* dump comment, if any */
+                if (sc_end != NULL) { /* dump comment, if any */
+					*sc_end++ = '\n'; /* newlines are needed in this case */
+				    goto sw_buffer;
+				}
 				++line_no;
 				flushed_nl = true;
 			case form_feed:
