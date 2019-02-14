@@ -125,7 +125,14 @@ parse(int tk)
 
 	case ifstmt:		/* scanned if (...) */
 		if (ps.p_stack[ps.tos] == elsehead && ps.else_if)	/* "else if ..." */
-			ps.i_l_follow = ps.il[ps.tos];
+			/*
+			 * Note that the stack pointer here is decremented, effectively
+			 * reducing "else if" to "if". This saves a lot of stack space
+			 * in case of a long "if-else-if ... else-if" sequence.
+			 */
+			ps.i_l_follow = ps.il[ps.tos--];
+		/* the rest is the same as for dolit and forstmt */
+
 	case dolit:		/* 'do' */
 	case forstmt:		/* for (...) */
 		ps.p_stack[++ps.tos] = tk;
