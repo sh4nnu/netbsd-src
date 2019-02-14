@@ -378,6 +378,7 @@ lexi(void)
 
 			case 10:/*storage class specifier */
 				return(storage);
+
 			case 11: /* typedef */
 				return (type_def);
 			default:	/* all others are treated like any
