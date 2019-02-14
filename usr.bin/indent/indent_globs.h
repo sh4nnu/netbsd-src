@@ -352,7 +352,6 @@ EXTERN struct parser_state {
 }       ps;
 
 EXTERN int     ifdef_level;
-EXTERN int     rparen_count;
 EXTERN struct parser_state state_stack[5];
 EXTERN struct parser_state match_state[5];
 
