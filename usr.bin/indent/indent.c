@@ -989,7 +989,8 @@ check_type:
 				parse(dolit);
 			}
 			goto copy_id;	/* move the token into line */
-
+		
+		case typr_def;
 		case storage:
 		    prefix_blankline_requested = 0;
 		    goto copy_id;
@@ -1009,7 +1010,7 @@ check_type:
 			ps.in_or_st = true;	/* this might be a structure
 						 * or initialization
 						 * declaration */
-			ps.in_decl = ps.decl_on_line = true;
+			ps.in_decl = ps.decl_on_line = ps.last_token != type_def;
 			if ( /* !ps.in_or_st && */ ps.dec_nest <= 0)
 				ps.just_saw_decl = 2;
 			prefix_blankline_requested = 0;
