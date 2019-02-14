@@ -570,11 +570,12 @@ check_type:
 				ps.p_l_follow--;
 	    	}
 			if (ps.want_blank && *token != '[' &&
-			    (ps.last_token != ident || proc_calls_space ||
+			    (ps.last_token != ident && ps.last_token != funcname || 
+				proc_calls_space ||
 		    	/* offsetof (1) is never allowed a space; sizeof (2) gets
 		    	 * one iff -bs; all other keywords (>2) always get a space
 		     	* before lparen */
-					(ps.keyword + Bill_Shannon > 2)))
+				ps.keyword + Bill_Shannon > 2))
 				*e_code++ = ' ';
 			
 			ps.want_blank = false;
@@ -612,7 +613,6 @@ check_type:
 			break;
 
 		case rparen:	/* got a ')' or ']' */
-			rparen_count--;
 			if (ps.cast_mask & (1 << ps.p_l_follow) & ~ps.not_cast_mask) {
 				ps.last_u_d = true;
 				ps.cast_mask &= (1 << ps.p_l_follow) - 1;
@@ -788,7 +788,7 @@ check_type:
 			scase = false; /* these will only need resetting in a
 					 		* error */
 			squest = 0;
-			if (ps.last_token == rparen && rparen_count == 0)
+			if (ps.last_token == rparen)
 				ps.in_parameter_declaration = 0;
 			ps.cast_mask = 0;
 			ps.not_cast_mask = 0;
@@ -895,6 +895,7 @@ check_type:
 				    && ps.in_parameter_declaration)
 					postfix_blankline_requested = 1;
 				ps.in_parameter_declaration = 0;
+				ps.in_decl = false;
 			}
 			dec_ind = 0;
 			parse(lbrace);	/* let parser know about this */
@@ -993,7 +994,6 @@ check_type:
 				 * etc.) */
 			parse(decl);	/* let parser worry about indentation */
 			if (ps.last_token == rparen && ps.tos <= 1) {
-				ps.in_parameter_declaration = 1;
 				if (s_code != e_code) {
 					dump_line();
 					ps.want_blank = 0;
@@ -1020,10 +1020,11 @@ check_type:
 			tabs_to_var = (use_tabs ? ps.decl_indent > 0 : 0);
 			goto copy_id;
 
+		case funcname:
 		case ident:	/* got an identifier or constant */
 			if (ps.in_decl) {	/* if we are in a declaration,
 						 * we must indent identifier */
-				if (is_procname == 0 || !procnames_start_line) {
+				if (type_code != funcname || !procnames_start_line) {
 					if (!ps.block_init && !ps.dumped_decl_indent) {
 						if (troff) {
 							if (ps.want_blank)
@@ -1036,12 +1037,16 @@ check_type:
 						ps.want_blank = false;
 					}
 				} else {
+					if (ps.want_blank && !(procnames_start_line &&
+						type_code == funcname))
+						*e_code++ = ' ';
+					ps.want_blank = false;
 					if (dec_ind && s_code != e_code) {
 					    *e_code = '\0';
 					    dump_line();
 					}
 					dec_ind = 0;
-					ps.want_blank = false;
+
 				}
 			} else
 				if (sp_sw && ps.p_l_follow == 0) {
@@ -1068,7 +1073,8 @@ check_type:
 					CHECK_SIZE_CODE;
 					*e_code++ = *t_ptr;
 				}
-			ps.want_blank = true;
+			if (type_code != funcname)
+				ps.want_blank = true;
 			break;
 
 		case strpfx:

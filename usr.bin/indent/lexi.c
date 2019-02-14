@@ -379,14 +379,15 @@ lexi(void)
 				return (ident);
 			}	/* end of switch */
 		}		/* end of if (found_it) */
-		if (*buf_ptr == '(' && ps.tos <= 1 && ps.ind_level == 0) {
+		if (*buf_ptr == '(' && ps.tos <= 1 && ps.ind_level == 0 &&
+			ps.in_parameter_declaration == 0 && ps.block_init == 0) {
 			char   *tp = buf_ptr;
 			while (tp < buf_end)
 				if (*tp++ == ')' && (*tp == ';' || *tp == ','))
 					goto not_proc;
 			strncpy(ps.procname, token, sizeof ps.procname - 1);
 			ps.in_parameter_declaration = 1;
-			rparen_count = 1;
+			return (last_code = funcname);
 	not_proc:	;
 		}
 		/*
