@@ -880,7 +880,12 @@ check_type:
 			if (ps.in_decl && ps.in_or_st) {	/* this is either a
 								 * structure declaration
 								 * or an init */
-				di_stack[ps.dec_nest++] = dec_ind;
+				di_stack[ps.dec_nest] = dec_ind;
+				if (++ps.dec_nest == nitems(di_stack)) {
+		    		diag3(0, "Reached internal limit of %d struct levels",
+					nitems(di_stack));
+		    	ps.dec_nest--;
+				}
 				/* ?		dec_ind = 0; */
 			} else {
 				ps.decl_on_line = false;	/* we can't be in the
