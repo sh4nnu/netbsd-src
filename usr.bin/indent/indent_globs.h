@@ -360,7 +360,7 @@ void set_profile(const char *);
 char *chfont(struct fstate *, struct fstate *, char *);
 void parsefont(struct fstate *, const char *);
 void writefdef(struct fstate *, int);
-int lexi(void);
+int lexi(struct parser_state *);
 void reduce(void);
 void parse(int);
 void pr_comment(void);
