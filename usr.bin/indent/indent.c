@@ -810,7 +810,6 @@ check_type:
 							 * far into a label */
 			e_code = s_code;
 			*e_lab++ = ':';
-			*e_lab++ = ' ';
 			*e_lab = '\0';
 
 			force_nl = ps.pcase = scase;	/* ps.pcase will be used
