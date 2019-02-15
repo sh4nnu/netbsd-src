@@ -558,11 +558,12 @@ check_type:
 						 * off by a ; or '}' */
 			if (s_com != e_com) {	/* the turkey has embedded a
 						 * comment in a line. fix it */
+				int len = e_com - s_com;
+
+				CHECK_SIZE_CODE(len + 3);
 				*e_code++ = ' ';
-				for (t_ptr = s_com; *t_ptr; ++t_ptr) {
-					CHECK_SIZE_CODE;
-					*e_code++ = *t_ptr;
-				}
+				memcpy(e_code, s_com, len);
+				e_code += len;
 				*e_code++ = ' ';
 				*e_code = '\0';	/* null terminate code sect */
 				ps.want_blank = false;
@@ -580,7 +581,10 @@ check_type:
 		/*-----------------------------------------------------*\
 		|	   do switch on type of token scanned		|
 		\*-----------------------------------------------------*/
-		CHECK_SIZE_CODE;
+		CHECK_SIZE_CODE(3);		/* maximum number of increments of e_code
+								 * before the next CHECK_SIZE_CODE or
+								 * dump_line() is 2. After that there's the
+								 * final increment for the null character. */
 		switch (type_code) {	/* now, decide what to do with the
 					 * token */
 
@@ -922,7 +926,12 @@ check_type:
 			if (ps.in_decl && ps.in_or_st) {	/* this is either a
 								 * structure declaration
 								 * or an init */
-				di_stack[ps.dec_nest++] = dec_ind;
+				di_stack[ps.dec_nest] = dec_ind;
+				if (++ps.dec_nest == nitems(di_stack)) {
+		    		diag3(0, "Reached internal limit of %d struct levels",
+					nitems(di_stack));
+		    	ps.dec_nest--;
+				}
 				/* ?		dec_ind = 0; */
 			} else {
 				ps.decl_on_line = false;	/* we can't be in the
