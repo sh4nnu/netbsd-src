@@ -359,21 +359,37 @@ set_profile(const char *profile_name)
 void
 scan_profile(FILE *f)
 {
-	int     i;
-	char   *p;
-	char    buf[BUFSIZ];
-
+	int		comment, i;
+  char	*p;
+  char        buf[BUFSIZ];
 	while (1) {
-		for (p = buf; (i = getc(f)) != EOF && (*p = i) > ' '; ++p);
-		if (p != buf) {
-			*p++ = 0;
-			if (verbose)
-				printf("profile: %s\n", buf);
-			set_option(buf);
-		} else
-			if (i == EOF)
-				return;
+		p = buf;
+		comment = 0;
+		while ((i = getc(f)) != EOF) {
+	    if (i == '*' && !comment && p > buf && p[-1] == '/') {
+				comment = p - buf;
+				*p++ = i;
+	    } else if (i == '/' && comment && p > buf && p[-1] == '*') {
+				p = buf + comment - 1;
+				comment = 0;
+	    } else if (isspace(i)) {
+	    } else if (isspace((unsigned char)i)) {
+				if (p > buf && !comment)
+		    	break;
+	    } else {
+				*p++ = i;
+	    }
 	}
+	if (p != buf) {
+	    *p++ = 0;
+	    if (verbose)
+				printf("profile: %s\n", buf);
+	    set_option(buf);
+	}
+	else if (i == EOF)
+	    return;
+	}
+	
 }
 
 

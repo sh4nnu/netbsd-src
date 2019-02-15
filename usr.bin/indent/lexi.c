@@ -202,7 +202,7 @@ lexi(struct parser_state *state)
 	}
 
 	/* Scan an alphanumeric token */
-	if (chartype[(int) *buf_ptr] == alphanum ||
+	if (chartype[*buf_ptr & 127] == alphanum ||
 	    (buf_ptr[0] == '.' && isdigit((unsigned char)buf_ptr[1]))) {
 		/*
 		 * we have a character or number
@@ -225,7 +225,7 @@ lexi(struct parser_state *state)
 			    	in_base = BASE_2;
 				else if (buf_ptr[1] == 'x' || buf_ptr[1] == 'X')
 				    in_base = BASE_16;
-				else if (isdigit(buf_ptr[1]))
+				else if (isdigit((unsigned char)buf_ptr[1]))
 				    in_base = BASE_8;
     		}
 	    	switch (in_base) {
@@ -303,7 +303,7 @@ lexi(struct parser_state *state)
 				}
 			}
 		} else
-			while (chartype[(int) *buf_ptr] == alphanum) {	/* copy it over */
+			while (chartype[*buf_ptr & 127] == alphanum) {	/* copy it over */
 				CHECK_SIZE_TOKEN;
 				*e_token++ = *buf_ptr++;
 				if (buf_ptr >= buf_end)
@@ -592,7 +592,7 @@ stop_lit:
 		if (state->in_or_st)
 			state->block_init = 1;
 #ifdef undef
-		if (chartype[*buf_ptr] == opchar) {	/* we have two char
+		if (chartype[*buf_ptr & 127] == opchar) {	/* we have two char
 							 * assignment */
 			e_token[-1] = *buf_ptr++;
 			if ((e_token[-1] == '<' || e_token[-1] == '>') && e_token[-1] == *buf_ptr)
