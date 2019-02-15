@@ -1256,10 +1256,10 @@ check_type:
 						*sc_end++ = ' ';
 						--line_no;
 					}
+					if (sc_end - save_com + com_end - com_start > sc_size)
+						errx(1, "input too long");
 					memmove(sc_end, s_lab + com_start, com_end - com_start);
 					sc_end += com_end - com_start;
-					if (sc_end >= &save_com[sc_size])
-						errx(1, "imput too long");
 					e_lab = s_lab + com_start;
 					while (e_lab > s_lab && (e_lab[-1] == ' ' || e_lab[-1] == '\t'))
 						e_lab--;
