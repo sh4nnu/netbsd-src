@@ -503,7 +503,7 @@ main(int argc, char **argv)
 		    		while (*buf_ptr == ' ' || *buf_ptr == '\t') {
 						*sc_end++ = *buf_ptr++;
 						if (sc_end >= &save_com[sc_size]) {
-			    			abort();
+			    			errx(1, "input too long");
 						}
 		    		}
 		    		if (buf_ptr >= buf_end) {
@@ -1238,7 +1238,7 @@ check_type:
 					memmove(sc_end, s_lab + com_start, com_end - com_start);
 					sc_end += com_end - com_start;
 					if (sc_end >= &save_com[sc_size])
-						abort();
+						errx(1, "imput too long");
 					e_lab = s_lab + com_start;
 					while (e_lab > s_lab && (e_lab[-1] == ' ' || e_lab[-1] == '\t'))
 						e_lab--;
