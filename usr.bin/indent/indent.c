@@ -1032,10 +1032,13 @@ check_type:
 			}
 			goto copy_id;	/* move the token into line */
 		
-		case typr_def;
+		case type_def;
 		case storage:
 		    prefix_blankline_requested = 0;
 		    goto copy_id;
+		case structure:
+		    if (ps.p_l_follow > 0)
+				goto copy_id;
 
 		case decl:
 			parse(decl);	/* let parser worry about indentation */

@@ -103,3 +103,4 @@
 #define storage     34
 #define funcname    35
 #define type_def    36
+#define structure   37
