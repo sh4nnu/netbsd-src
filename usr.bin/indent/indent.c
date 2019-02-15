@@ -1050,6 +1050,9 @@ check_type:
 		case storage:
 		    prefix_blankline_requested = 0;
 		    goto copy_id;
+		case structure:
+		    if (ps.p_l_follow > 0)
+				goto copy_id;
 
 		case decl:
 			parse(decl);	/* let parser worry about indentation */
