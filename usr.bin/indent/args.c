@@ -389,11 +389,12 @@ scan_profile(FILE *f)
 			*p++ = 0;
 			if (verbose)
 				printf("profile: %s\n", buf);
-			set_option(buf);
-		} else
-			if (i == EOF)
-				return;
+	    set_option(buf);
 	}
+	else if (i == EOF)
+	    return;
+	}
+	
 }
 
 
