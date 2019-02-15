@@ -143,11 +143,13 @@ pr_comment(void)
 		ps.com_col = 1;
 	} else {
 		if (*buf_ptr == '-' || *buf_ptr == '*' || *buf_ptr == '\n') {
-			ps.box_com = true;	/* a comment with a '-', '*'
-						 * or newline immediately
-						 * after the start comment is
-						 * assumed to be a boxed
-						 * comment */
+			ps.box_com = true;	/* A comment with a '-' or '*' immediately
+						 * after the /+* is assumed to be a boxed
+						 * comment. A comment with a newline
+						 * immediately after the /+* is assumed to
+						 * be a block comment and is treated as a
+						 * box comment unless format_block_comments
+						 * is nonzero (the default). */
 			break_delim = false;
 		}
 		if ( /* ps.bl_line && */ (s_lab == e_lab) && (s_code == e_code)) {
@@ -186,8 +188,10 @@ pr_comment(void)
 	 	 * The comment we're about to read usually comes from in_buffer,
 		 * unless it has been copied into save_com.
 	 	 */
-		char *start = buf_ptr >= save_com && buf_ptr < save_com + sc_size ? bp_save : buf_ptr;
-		ps.n_comment_delta = 1 - count_spaces_until(1, in_buffer, start - 2);
+		char *start;
+		
+		start = buf_ptr >= save_com && buf_ptr < save_com + sc_size ? sc_buf : in_buffer;
+		ps.n_comment_delta = 1 - count_spaces_until(1, start, buf_ptr - 2);
 	} else {
 		ps.n_comment_delta = 0;
 		while (*buf_ptr == ' ' || *buf_ptr == '\t')
