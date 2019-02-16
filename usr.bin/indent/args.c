@@ -91,7 +91,6 @@ __RCSID("$NetBSD: args.c,v 1.13 2016/02/22 21:20:29 ginsbach Exp $");
 #define	PRO_SPECIAL	1	/* special case */
 #define	PRO_BOOL	2	/* boolean */
 #define	PRO_INT		3	/* integer */
-#define PRO_FONT	4	/* troff font */
 
 /* profile specials for booleans */
 #define	ON		1	/* turn it on */
@@ -204,28 +203,10 @@ struct pro {
 		"fbs", PRO_BOOL, true, ON, &opt.function_brace_split
 	},
 	{
-		"fbc", PRO_FONT, 0, 0, (int *) &fstate.blkcomf
-	},
-	{
-		"fbx", PRO_FONT, 0, 0, (int *) &fstate.boxcomf
-	},
-	{
-		"fb", PRO_FONT, 0, 0, (int *) &fstate.bodyf
-	},
-	{
 		"fc1", PRO_BOOL, true, ON, &opt.format_col1_comments
 	},
 	{
 		"fcb", PRO_BOOL, true, ON, &opt.format_block_comments,
-	},
-	{
-		"fc", PRO_FONT, 0, 0, (int *) &fstate.scomf
-	},
-	{
-		"fk", PRO_FONT, 0, 0, (int *) &fstate.keywordf
-	},
-	{
-		"fs", PRO_FONT, 0, 0, (int *) &fstate.stringf
 	},
 	{
 		"ip", PRO_BOOL, true, ON, &opt.indent_parameters
@@ -345,9 +326,6 @@ struct pro {
 		"ts", PRO_INT, 8, 0, &opt.tabsize
 	},
 	{
-		"troff", PRO_BOOL, false, ON, &opt.troff
-	},
-	{
 		"ut", PRO_BOOL, true, ON, &opt.use_tabs
 	},
 	{
@@ -445,7 +423,7 @@ set_defaults(void)
          */
 	ps.case_indent = 0.0;	/* -cli0.0 */
 	for (p = pro; p->p_name; p++)
-		if (p->p_type != PRO_SPECIAL && p->p_type != PRO_FONT)
+		if (p->p_type != PRO_SPECIAL)
 			*p->p_obj = p->p_default;
 }
 
@@ -518,10 +496,6 @@ found:
 			     option_source, p->p_name);
 		}
 		*p->p_obj = atoi(param_start);
-		break;
-
-	case PRO_FONT:
-		parsefont((struct fstate *) p->p_obj, param_start);
 		break;
 
 	default:
