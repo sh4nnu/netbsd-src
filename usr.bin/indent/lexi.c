@@ -223,6 +223,7 @@ lexi(struct parser_state *state)
 
 	/* Scan an alphanumeric token */
 	if (isalnum((unsigned char)*buf_ptr) ||
+		*buf_ptr == '_' || *buf_ptr == '$' ||
 	    (buf_ptr[0] == '.' && isdigit((unsigned char)buf_ptr[1]))) {
 		/*
 		 * we have a character or number
@@ -251,7 +252,8 @@ lexi(struct parser_state *state)
 				/* s now indicates the type: f(loating), i(integer), u(nknown) */
 			}
 		} else
-			while ((isalnum((unsigned char)*buf_ptr)) {	/* copy it over */
+			while ((isalnum((unsigned char)*buf_ptr) ||
+				*buf_ptr == '_' || *buf_ptr == '$') {	/* copy it over */
 				CHECK_SIZE_TOKEN;
 				*e_token++ = *buf_ptr++;
 				if (buf_ptr >= buf_end)
