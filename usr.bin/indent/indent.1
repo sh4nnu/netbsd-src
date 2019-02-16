@@ -84,6 +84,7 @@
 .Op Fl \&ce | Fl nce
 .Op Fl \&ci Ns Ar n
 .Op Fl cli Ns Ar n
+.Op Fl cs | Fl ncs
 .Op Fl d Ns Ar n
 .Op Fl \&di Ns Ar n
 .Op Fl dj | Fl ndj
@@ -102,7 +103,6 @@
 .Op Fl P Ns Ar file
 .Op Fl pcs | Fl npcs
 .Op Fl psl | Fl npsl
-.Op Fl sac | Fl nsac
 .Op Fl \&sc | Fl nsc
 .Op Fl sob | Fl nsob
 .Op Fl \&st
@@ -282,6 +282,11 @@ statement.
 causes case labels to be indented half a tab stop.
 Default:
 .Fl cli0 .
+.It Fl cs , ncs
+Control whether parenthesized type names in casts are followed by a space or
+not.
+The default is
+.Fl ncs .
 .It Fl d Ns Ar n
 Controls the placement of comments which are not to the right of code.
 For example,

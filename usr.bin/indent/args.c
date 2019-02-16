@@ -179,6 +179,9 @@ struct pro {
 		"cli", PRO_SPECIAL, 0, CLI, 0
 	},
 	{
+		"cs", PRO_BOOL, false, ON, &opt.space_after_cast
+	},
+	{
 		"c", PRO_INT, 33, 0, &ps.com_ind
 	},
 	{
@@ -263,6 +266,9 @@ struct pro {
 		"nce", PRO_BOOL, true, OFF, &cuddle_else
 	},
 	{
+		"ncs", PRO_BOOL, false, OFF, &opt.space_after_cast
+	},
+	{
 		"ndj", PRO_BOOL, false, OFF, &ps.ljust_decl
 	},
 	{
@@ -293,9 +299,6 @@ struct pro {
 		"npsl", PRO_BOOL, true, OFF, &procnames_start_line
 	},
 	{
-		"nsac", PRO_BOOL, false, OFF, &space_after_cast
-	},
-	{
 		"nsc", PRO_BOOL, true, OFF, &star_comment_cont
 	},
 	{
@@ -312,9 +315,6 @@ struct pro {
 	},
 	{
 		"psl", PRO_BOOL, true, ON, &procnames_start_line
-	},
-	{
-		"sac", PRO_BOOL, false, ON, &space_after_cast
 	},
 	{
 		"sc", PRO_BOOL, true, ON, &star_comment_cont
