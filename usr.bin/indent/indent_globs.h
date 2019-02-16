@@ -208,6 +208,7 @@ EXTERN struct options {
 	int     com_ind;	/* the column in which comments to the right
 						 * of code should start */
 	int     decl_indent;	/* column to indent declared identifiers to */
+	int     local_decl_indent;	/* like decl_indent but for locals */
 	int     ljust_decl;	/* true if declarations should be left
 						 * justified */
 	int     unindent_displace;	/* comments not to the right of code

@@ -199,6 +199,9 @@ main(int argc, char **argv)
 	ps.ind_size = 8;	/* -i8 */
 	verbose = 0;
 	ps.decl_indent = 16;	/* -di16 */
+	ps.local_decl_indent = -1;	/* if this is not set to some nonnegative value
+				 * by an arg, we will set this equal to
+				 * ps.decl_ind */
 	ps.indent_parameters = 1;	/* -ip */
 	ps.decl_com_ind = 0;	/* if this is not set to some positive value
 				 * by an arg, we will set this equal to
@@ -291,6 +294,8 @@ main(int argc, char **argv)
 	}
 	if (opt.block_comment_max_col <= 0)
 		opt.block_comment_max_col = opt.max_col;
+	if (ps.local_decl_indent < 0)	/* if not specified by user, set this */
+		ps.local_decl_indent = ps.decl_indent;s
 	if (opt.decl_com_ind <= 0)	/* if not specified by user, set this */
 		opt.decl_com_ind = opt.ljust_decl ? (opt.com_ind <= 10 ? 2 : opt.com_ind - 8) : opt.com_ind;
 	if (opt.continuation_indent == 0)
@@ -1084,8 +1089,15 @@ check_type:
 		         * dec_ind = e_code - s_code + (ps.decl_indent>i ? ps.decl_indent
 		         * : i);
 		         */
-			dec_ind = opt.decl_indent > 0 ? opt.decl_indent : i;
-			tabs_to_var = (opt.use_tabs ? opt.decl_indent > 0 : 0);
+			if (ps.ind_level == 0 || ps.dec_nest > 0) {
+				/* global variable or struct member in local variable */
+				dec_ind = opt.decl_indent > 0 ? opt.decl_indent : i;
+				tabs_to_var = (opt.use_tabs ? opt.decl_indent > 0 : 0);
+	    	} else {
+				/* local variable */
+				dec_ind = opt.local_decl_indent > 0 ? opt.local_decl_indent : i;
+				tabs_to_var = (opt.use_tabs ? opt.local_decl_indent > 0 : 0);
+	    	}
 			goto copy_id;
 
 		case funcname:

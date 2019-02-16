@@ -101,6 +101,7 @@
 .Op Fl \&ip | Fl nip
 .Op Fl l Ns Ar n
 .Op Fl \&lc Ns Ar n
+.Op Fl \&ldi Ns Ar n
 .Op Fl \&lp | Fl nlp
 .Op Fl \&lpl | Fl nlpl
 .Op Fl npro
@@ -302,8 +303,10 @@ lines up these comments with the code.
 See the section on comment
 indentation below.
 .It Fl \&di Ns Ar n
-Specifies the indentation, in character positions, from a declaration keyword
-to the following identifier.
+Specifies the indentation, in character positions,
+of global variable names and all struct/union member names
+relative to the beginning of their type declaration.
+The default is
 Default:
 .Fl di16 .
 .It Fl dj , ndj
@@ -370,6 +373,12 @@ Default:
 .Fl \&ip .
 .It Fl l Ns Ar n
 Maximum length of an output line.
+.It Fl \&ldi Ns Ar n
+Specifies the indentation, in character positions,
+of local variable names
+relative to the beginning of their type declaration.
+The default is for local variable names to be indented
+by the same amount as global ones.
 Default:
 .Fl l78 .
 .It Fl lc Ns Ar n

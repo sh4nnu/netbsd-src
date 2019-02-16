@@ -237,6 +237,9 @@ struct pro {
 		"lc", PRO_INT, 0, 0, &opt.block_comment_max_col
 	},
 	{
+		"ldi", PRO_INT, -1, 0, &opt.local_decl_indent
+	}
+	{
 		"lpl", PRO_BOOL, false, ON, &opt.lineup_to_parens_always
 	},
 	{
