@@ -255,9 +255,6 @@ struct pro {
 		"nbs", PRO_BOOL, false, OFF, opt.&Bill_Shannon
 	},
 	{
-		"nfbs", PRO_BOOL, true, OFF, &opt.function_brace_split
-	},
-	{
 		"nfc1", PRO_BOOL, true, OFF, &opt.format_col1_comments
 	},
 	{
@@ -277,6 +274,9 @@ struct pro {
 	},
 	{
 		"nei", PRO_BOOL, true, OFF, &opt.else_if
+	},
+	{
+		"nfbs", PRO_BOOL, true, OFF, &opt.function_brace_split
 	},
 	{
 		"nfc1", PRO_BOOL, true, OFF, &opt.format_col1_comments
