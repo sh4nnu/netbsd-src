@@ -219,6 +219,9 @@ struct pro {
 		"ldi", PRO_INT, -1, 0, &ps.local_decl_indent
 	},
 	{
+		"lpl", PRO_BOOL, false, ON, &ps.lineup_to_parens_always
+	},
+	{
 		"lp", PRO_BOOL, true, ON, &lineup_to_parens
 	},
 	{
@@ -268,6 +271,9 @@ struct pro {
 	},
 	{
 		"nip", PRO_BOOL, true, OFF, &ps.indent_parameters
+	},
+	{
+		"nlpl", PRO_BOOL, false, OFF, &lineup_to_parens_always
 	},
 	{
 		"nlp", PRO_BOOL, true, OFF, &lineup_to_parens
