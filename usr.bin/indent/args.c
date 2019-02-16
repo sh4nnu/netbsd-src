@@ -210,6 +210,9 @@ struct pro {
 		"lc", PRO_INT, 0, 0, &block_comment_max_col
 	},
 	{
+		"ldi", PRO_INT, -1, 0, &ps.local_decl_indent
+	},
+	{
 		"lp", PRO_BOOL, true, ON, &lineup_to_parens
 	},
 	{
