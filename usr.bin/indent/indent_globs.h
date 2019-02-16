@@ -358,6 +358,7 @@ void diag4(int, const char *, int, int);
 void dump_line(void);
 int eqin(const char *, const char *);
 void fill_buffer(void);
+void init_constant_tt(void);
 int pad_output(int, int);
 void scan_profile(FILE *);
 void set_defaults(void);

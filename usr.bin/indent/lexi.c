@@ -82,13 +82,11 @@ __RCSID("$NetBSD: lexi.c,v 1.14 2016/06/05 18:35:32 dholland Exp $");
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/param.h>
+
 #include "indent_globs.h"
 #include "indent_codes.h"
 
-#define alphanum 1
-#ifdef undef
-#define opchar 3
-#endif
 struct templ {
 	const char	*rwd;
 	int		rwcode;
@@ -149,26 +147,48 @@ const char **typenames;
 int         typename_count;
 int         typename_top = -1;
 
-char    chartype[128] =
-{				/* this is used to facilitate the decision of
-				 * what type (alphanumeric, operator) each
-				 * character is */
-	0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0,
-	0, 3, 0, 0, 1, 3, 3, 0,
-	0, 0, 3, 3, 0, 3, 0, 3,
-	1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 0, 0, 3, 3, 3, 3,
-	0, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 0, 0, 0, 3, 1,
-	0, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 0, 3, 0, 3, 0
+/*
+ * The transition table below was rewritten by hand from lx's output, given
+ * the following definitions. lx is Katherine Flavel's lexer generator.
+ *
+ * O  = /[0-7]/;        D  = /[0-9]/;          NZ = /[1-9]/;
+ * H  = /[a-f0-9]/i;    B  = /[0-1]/;          HP = /0x/i;
+ * BP = /0b/i;          E  = /e[+\-]?/i D+;    P  = /p[+\-]?/i D+;
+ * FS = /[fl]/i;        IS = /u/i /(l|L|ll|LL)/? | /(l|L|ll|LL)/ /u/i?;
+ *
+ * D+           E  FS? -> $float;
+ * D*    "." D+ E? FS? -> $float;
+ * D+    "."    E? FS? -> $float;    HP H+           IS? -> $int;
+ * HP H+        P  FS? -> $float;    NZ D*           IS? -> $int;
+ * HP H* "." H+ P  FS? -> $float;    "0" O*          IS? -> $int;
+ * HP H+ "."    P  FS  -> $float;    BP B+           IS? -> $int;
+ */
+static char const *table[] = {
+    /*                examples:
+                                     00
+             s                      0xx
+             t                    00xaa
+             a     11       101100xxa..
+             r   11ee0001101lbuuxx.a.pp
+             t.01.e+008bLuxll0Ll.aa.p+0
+    states:  ABCDEFGHIJKLMNOPQRSTUVWXYZ */
+    ['0'] = "CEIDEHHHIJQ  U  Q  VUVVZZZ",
+    ['1'] = "DEIDEHHHIJQ  U  Q  VUVVZZZ",
+    ['7'] = "DEIDEHHHIJ   U     VUVVZZZ",
+    ['9'] = "DEJDEHHHJJ   U     VUVVZZZ",
+    ['a'] = "             U     VUVV   ",
+    ['b'] = "  K          U     VUVV   ",
+    ['e'] = "  FFF   FF   U     VUVV   ",
+    ['f'] = "    f  f     U     VUVV  f",
+    ['u'] = "  MM    M  i  iiM   M     ",
+    ['x'] = "  N                       ",
+    ['p'] = "                    FFX   ",
+    ['L'] = "  LLf  fL  PR   Li  L    f",
+    ['l'] = "  OOf  fO   S P O i O    f",
+    ['+'] = "     G                 Y  ",
+    ['.'] = "B EE    EE   T      W     ",
+    /*       ABCDEFGHIJKLMNOPQRSTUVWXYZ */
+    [0]   = "uuiifuufiuuiiuiiiiiuiuuuuu",
 };
 
 static int
@@ -202,7 +222,7 @@ lexi(struct parser_state *state)
 	}
 
 	/* Scan an alphanumeric token */
-	if (chartype[*buf_ptr & 127] == alphanum ||
+	if (isalnum((unsigned char)*buf_ptr) ||
 	    (buf_ptr[0] == '.' && isdigit((unsigned char)buf_ptr[1]))) {
 		/*
 		 * we have a character or number
@@ -212,98 +232,26 @@ lexi(struct parser_state *state)
 
 		if (isdigit((unsigned char)*buf_ptr) ||
 		    (buf_ptr[0] == '.' && isdigit((unsigned char)buf_ptr[1]))) {
-			enum base {
-				BASE_2, BASE_8, BASE_10, BASE_16
-			};
-			int     seendot = 0, 
-					seenexp = 0, 
-					seensfx = 0;
-			enum base	in_base = BASE_10;
+			char s;
+		    unsigned char i;
 
-		    if (*buf_ptr == '0') {
-				if (buf_ptr[1] == 'b' || buf_ptr[1] == 'B')
-			    	in_base = BASE_2;
-				else if (buf_ptr[1] == 'x' || buf_ptr[1] == 'X')
-				    in_base = BASE_16;
-				else if (isdigit((unsigned char)buf_ptr[1]))
-				    in_base = BASE_8;
-    		}
-	    	switch (in_base) {
-	    	case BASE_2:
-				*e_token++ = *buf_ptr++;
-				*e_token++ = *buf_ptr++;
-				while (*buf_ptr == '0' || *buf_ptr == '1') {
-	    			CHECK_SIZE_TOKEN;
-	    			*e_token++ = *buf_ptr++;
-				}
-				break;
-			case BASE_8:
-				*e_token++ = *buf_ptr++;
-				while (*buf_ptr >= '0' && *buf_ptr <= '8') {
-				    CHECK_SIZE_TOKEN;
-				    *e_token++ = *buf_ptr++;
-				}
-				break;
-	    	case BASE_16:
-				*e_token++ = *buf_ptr++;
-				*e_token++ = *buf_ptr++;
-				while (isxdigit((unsigned char)*buf_ptr)) {
-					CHECK_SIZE_TOKEN;
+	    	for (s = 'A'; s != 'f' && s != 'i' && s != 'u'; ) {
+				i = (unsigned char)*buf_ptr;
+				if (i >= nitems(table) || table[i] == NULL ||
+			    	table[i][s - 'A'] == ' ') {
+			    	s = table[0][s - 'A'];
+		    		break;
+					}
+					s = table[i][s - 'A'];
+					CHECK_SIZE_TOKEN(1);
 					*e_token++ = *buf_ptr++;
+					if (buf_ptr >= buf_end)
+		    			fill_buffer();
 				}
-				break;
-			case BASE_10:
-				while (1) {
-					if (*buf_ptr == '.') {
-						if (seendot)
-							break;
-						else
-							seendot++;
-					}
-					CHECK_SIZE_TOKEN;
-					*e_token++ = *buf_ptr++;
-					if (!isdigit((unsigned char)*buf_ptr)
-					&& *buf_ptr != '.') {
-						if ((*buf_ptr != 'E'
-						&& *buf_ptr != 'e') || seenexp)
-							break;
-						else {
-							seenexp++;
-							seendot++;
-							CHECK_SIZE_TOKEN;
-							*e_token++ = *buf_ptr++;
-							if (*buf_ptr == '+' || *buf_ptr == '-')
-								*e_token++ = *buf_ptr++;
-						}
-					}
-				}
-				break;
-			}
-			if (*buf_ptr == 'F' || *buf_ptr == 'f') {
-				/* float constant */
-				*e_token++ = *buf_ptr++;
-			} else {
-				/* integer constant */
-				while (1) {
-					if (!(seensfx & 1) && (*buf_ptr == 'U' || *buf_ptr == 'u')) {
-						CHECK_SIZE_TOKEN;
-						*e_token++ = *buf_ptr++;
-						seensfx |= 1;
-						continue;
-					}
-					if (!(seensfx & 2) && (strchr("fFlL", *buf_ptr))) {
-						CHECK_SIZE_TOKEN;
-						if (buf_ptr[1] == buf_ptr[0])
-							*e_token++ = *buf_ptr++;
-						*e_token++ = *buf_ptr++;
-						seensfx |= 2;
-						continue;
-					}
-					break;
-				}
+				/* s now indicates the type: f(loating), i(integer), u(nknown) */
 			}
 		} else
-			while (chartype[*buf_ptr & 127] == alphanum) {	/* copy it over */
+			while ((isalnum((unsigned char)*buf_ptr)) {	/* copy it over */
 				CHECK_SIZE_TOKEN;
 				*e_token++ = *buf_ptr++;
 				if (buf_ptr >= buf_end)
@@ -595,22 +543,13 @@ stop_lit:
 	case '=':
 		if (state->in_or_st)
 			state->block_init = 1;
-#ifdef undef
-		if (chartype[*buf_ptr & 127] == opchar) {	/* we have two char
-							 * assignment */
-			e_token[-1] = *buf_ptr++;
-			if ((e_token[-1] == '<' || e_token[-1] == '>') && e_token[-1] == *buf_ptr)
-				*e_token++ = *buf_ptr++;
-			*e_token++ = '=';	/* Flip =+ to += */
-			*e_token = 0;
-		}
-#else
+
 		if (*buf_ptr == '=') {	/* == */
 			*e_token++ = '=';	/* Flip =+ to += */
 			buf_ptr++;
 			*e_token = 0;
 		}
-#endif
+
 		code = binary_op;
 		unary_delim = true;
 		break;
@@ -690,10 +629,26 @@ stop_lit:
 	return (code);
 }
 
+/* Initialize constant transition table */
+void
+init_constant_tt(void)
+{
+    table['-'] = table['+'];
+    table['8'] = table['9'];
+    table['2'] = table['3'] = table['4'] = table['5'] = table['6'] = table['7'];
+    table['A'] = table['C'] = table['D'] = table['c'] = table['d'] = table['a'];
+    table['B'] = table['b'];
+    table['E'] = table['e'];
+    table['U'] = table['u'];
+    table['X'] = table['x'];
+    table['P'] = table['p'];
+    table['F'] = table['f'];
+}
+
 void
 alloc_typenames(void)
 {
-	typenames = (const char **)malloc(sizeof(typenames[0]) *
+	typenames = (const char **)mallroc(sizeof(typenames[0]) *
         (typename_count = 16));
     if (typenames == NULL)
 		err(1, NULL);
