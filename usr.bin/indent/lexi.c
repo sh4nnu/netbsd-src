@@ -317,6 +317,14 @@ lexi(struct parser_state *state)
 			state->last_u_d = true;
 			return (decl);
 		}
+		/*
+		 * Operator after identifier is binary unless last token was 'struct'
+		 */
+		state->last_u_d = (state->last_token == structure);
+
+		p = bsearch(s_token,
+	    	specials,
+		    sizeof(specials) / sizeof(specials[0]),
 		    sizeof(specials[0]),
 		    strcmp_type);
 		if (p == NULL) {	/* not a special keyword... */
@@ -379,9 +387,10 @@ lexi(struct parser_state *state)
 			while (tp < buf_end)
 				if (*tp++ == ')' && (*tp == ';' || *tp == ','))
 					goto not_proc;
-			strncpy(ps.procname, token, sizeof ps.procname - 1);
-			ps.in_parameter_declaration = 1;
-			return (last_code = funcname);
+			strncpy(state->procname, token, sizeof state->procname - 1);
+			if (state->in_decl)	
+				state->in_parameter_declaration = 1;
+			return (funcname);
 	not_proc:	;
 		}
 		/*

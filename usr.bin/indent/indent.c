@@ -1080,8 +1080,18 @@ check_type:
 					    *e_code = '\0';
 					    dump_line();
 					}
-					dec_ind = 0;
+					else if (ps.want_blank) {
+					*e_code++ = ' ';
+		    		}
+		    		ps.want_blank = false;
+				}
+				else if (!ps.block_init && !ps.dumped_decl_indent &&
+		    		ps.paren_level == 0) { /* if we are in a declaration, we
+										    * must indent identifier */
 
+					indent_declaration(dec_ind, tabs_to_var);
+		    		ps.dumped_decl_indent = true;
+		    		ps.want_blank = false;
 				}
 			} else
 				if (sp_sw && ps.p_l_follow == 0) {
@@ -1094,20 +1104,10 @@ check_type:
 	copy_id:
 			if (ps.want_blank)
 				*e_code++ = ' ';
-			if (troff && ps.keyword) {
-				e_code = chfont(&bodyf, &keywordf, e_code);
-				for (t_ptr = token; *t_ptr; ++t_ptr) {
-					CHECK_SIZE_CODE;
-					*e_code++ = keywordf.allcaps
-					    ? toupper((unsigned char)*t_ptr)
-					    : *t_ptr;
-				}
-				e_code = chfont(&keywordf, &bodyf, e_code);
-			} else
-				for (t_ptr = token; *t_ptr; ++t_ptr) {
-					CHECK_SIZE_CODE;
-					*e_code++ = *t_ptr;
-				}
+			for (t_ptr = token; *t_ptr; ++t_ptr) {
+				CHECK_SIZE_CODE;
+				*e_code++ = *t_ptr;
+			}
 			if (type_code != funcname)
 				ps.want_blank = true;
 			break;
