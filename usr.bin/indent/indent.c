@@ -64,12 +64,6 @@
  */
 
 #include <sys/cdefs.h>
-#ifndef lint
-__COPYRIGHT("@(#) Copyright (c) 1985 Sun Microsystems, Inc.\
-  Copyright (c) 1976 Board of Trustees of the University of Illinois.\
-  Copyright (c) 1980, 1993\
- The Regents of the University of California.  All rights reserved.");
-#endif				/* not lint */
 
 #ifndef lint
 #if 0
