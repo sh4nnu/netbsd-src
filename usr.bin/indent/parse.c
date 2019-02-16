@@ -241,7 +241,7 @@ parse(int tk)
 
 	}			/* end of switch */
 
-	if (ps.tos >= nitems(ps.p_stack) - 1)
+	if (ps.tos >= (int)nitems(ps.p_stack) - 1)
 		errx(1, "Parser stack overflow.")
 	
 	reduce();		/* see if any reduction can be done */
