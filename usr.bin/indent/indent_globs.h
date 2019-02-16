@@ -242,20 +242,21 @@ EXTERN struct fstate
         scomf,			/* Same line comment font */
         bodyf;			/* major body font */
 
+#define STACK_SIZE 256
 
 EXTERN struct parser_state {
 	int     last_token;
 	struct fstate cfont;	/* Current font */
-    int     p_stack[256];	/* this is the parsers stack */
-    int     il[64];			/* this stack stores indentation levels */
-    float   cstk[32];		/* used to store case stmt indentation levels */
+        int     p_stack[STACK_SIZE];	/* this is the parsers stack */
+        int     il[STACK_SIZE];	/* this stack stores indentation levels */
+        float   cstk[STACK_SIZE];/* used to store case stmt indentation levels */
 	int     box_com;	/* set to true when we are in a "boxed"
 				 * comment. In that case, the first non-blank
 				 * char should be lined up with the comment / */
 	int     comment_delta, /* used to set up indentation for all lines
 						    * of a boxed comment after the first one */
 			
-	int		n_comment_delta; /* remembers how many columns there were
+			n_comment_delta; /* remembers how many columns there were
 							  * before the start of a box comment so that
 							  * forthcoming lines of the comment are
 							  * indented properly */
