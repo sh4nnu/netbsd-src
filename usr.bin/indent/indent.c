@@ -603,7 +603,7 @@ check_type:
 		case lparen:	/* got a '(' or '[' */
 			/* count parens to make Healy happy */
 	    	if (++ps.p_l_follow == nitems(ps.paren_indents)) {
-				diag(0, "Reached internal limit of %d unclosed parens",
+				diag3(0, "Reached internal limit of %d unclosed parens",
 		    		nitems(ps.paren_indents));
 				ps.p_l_follow--;
 	    	}
