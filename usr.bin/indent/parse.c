@@ -64,8 +64,6 @@
  */
 
 #include <sys/cdefs.h>
-#include <sys/param.h>
-#ifndef lint
 #if 0
 #ifndef lint
 static char sccsid[] = "@(#)parse.c	8.1 (Berkeley) 6/6/93";
@@ -77,7 +75,6 @@ __RCSID("$NetBSD: parse.c,v 1.7 2003/08/07 11:14:09 agc Exp $");
 
 #include <err.h>
 #include <stdio.h>
-
 #include "indent_globs.h"
 #include "indent_codes.h"
 
@@ -243,8 +240,8 @@ parse(int tk)
 
 	}			/* end of switch */
 
-	if (ps.tos >= (int)nitems(ps.p_stack) - 1)
-		errx(1, "Parser stack overflow.")
+	if (ps.tos >= STACKSIZE - 1)
+		errx(1, "Parser stack overflow.");
 	
 	reduce();		/* see if any reduction can be done */
 
