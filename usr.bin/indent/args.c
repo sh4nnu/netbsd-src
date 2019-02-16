@@ -201,6 +201,9 @@ struct pro {
 		"ei", PRO_BOOL, true, ON, &opt.else_if
 	},
 	{
+		"fbs", PRO_BOOL, true, ON, &opt.function_brace_split
+	},
+	{
 		"fbc", PRO_FONT, 0, 0, (int *) &fstate.blkcomf
 	},
 	{
@@ -280,6 +283,9 @@ struct pro {
 	},
 	{
 		"nei", PRO_BOOL, true, OFF, &opt.else_if
+	},
+	{
+		"nfbs", PRO_BOOL, true, OFFm &opt.function_brace_split
 	},
 	{
 		"nfc1", PRO_BOOL, true, OFF, &opt.format_col1_comments

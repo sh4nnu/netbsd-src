@@ -221,6 +221,8 @@ EXTERN struct options {
 					 * the code that follows */
 	int     else_if;	/* True iff else if pairs should be handled
 				 * specially */
+	int 	function_brace_split; /* split function declaration and
+								* brace onto separate lines */
 	int     format_col1_comments;	/* If comments which start in column 1 are to
 					 * be magically reformatted (just like
 					 * comments that begin in later columns) */
