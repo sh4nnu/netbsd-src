@@ -208,6 +208,8 @@ EXTERN int     procnames_start_line;	/* if true, the names of procedures being
 					 * procedure and its name) */
 EXTERN int     proc_calls_space;	/* If true, procedure calls look like:
 					 * foo (bar) rather than foo(bar) */
+EXTERN int	   format_block_comments;	/* true if comments beginning with
+					 * `/*\n' are to be reformatted */
 EXTERN int     format_col1_comments;	/* If comments which start in column 1 are to
 					 * be magically reformatted (just like
 					 * comments that begin in later columns) */

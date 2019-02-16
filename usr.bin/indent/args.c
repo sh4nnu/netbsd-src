@@ -213,6 +213,9 @@ struct pro {
 		"fc1", PRO_BOOL, true, ON, &format_col1_comments
 	},
 	{
+		"fcb", PRO_BOOL, true, ON, &format_block_comments,
+	},
+	{
 		"fc", PRO_FONT, 0, 0, (int *) &scomf
 	},
 	{
@@ -280,6 +283,9 @@ struct pro {
 	},
 	{
 		"nfc1", PRO_BOOL, true, OFF, &format_col1_comments
+	},
+	{
+		"nfcb", PRO_BOOL, true, OFF, &format_block_comments,
 	},
 	{
 		"nip", PRO_BOOL, true, OFF, &ps.indent_parameters

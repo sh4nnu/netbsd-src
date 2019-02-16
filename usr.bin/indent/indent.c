@@ -207,6 +207,7 @@ main(int argc, char **argv)
 	cuddle_else = 1;	/* -ce */
 	ps.unindent_displace = 0;	/* -d0 */
 	ps.case_indent = 0;	/* -cli0 */
+	format_block_comments = 1;	/* -fcb */
 	format_col1_comments = 1;	/* -fc1 */
 	procnames_start_line = 1;	/* -psl */
 	proc_calls_space = 0;	/* -npcs */
