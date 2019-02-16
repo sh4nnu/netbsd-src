@@ -252,9 +252,19 @@ lexi(struct parser_state *state)
 				/* s now indicates the type: f(loating), i(integer), u(nknown) */
 			}
 		} else
-			while ((isalnum((unsigned char)*buf_ptr) ||
-				*buf_ptr == '_' || *buf_ptr == '$') {	/* copy it over */
+			while ((isalnum((unsigned char)*buf_ptr) || *buf_ptr == BACKSLASH ||
+				*buf_ptr == '_' || *buf_ptr == '$') {
+				/* fill_buffer() terminates buffer with newline */
+			if (*buf_ptr == BACKSLASH) {
+		    	if (*(buf_ptr + 1) == '\n') {
+					buf_ptr += 2;
+					if (buf_ptr >= buf_end)
+				    	fill_buffer();
+					} else
+				    	break;
+			}		
 				CHECK_SIZE_TOKEN;
+				/* copy it over */
 				*e_token++ = *buf_ptr++;
 				if (buf_ptr >= buf_end)
 					fill_buffer();
