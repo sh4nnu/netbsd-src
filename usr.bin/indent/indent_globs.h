@@ -92,7 +92,7 @@ EXTERN FILE   *output;			/* the output file */
 	    int nsize = l_code-s_code+400; \
 		int  code_len = e_code-s_code; \
 	    codebuf = (char *) realloc(codebuf, nsize); \
-	    e_code = codebuf + (code_len) + 1; \
+	    e_code = codebuf + code_len + 1; \
 	    l_code = codebuf + nsize - 5; \
 	    s_code = codebuf + 1; \
 	}
@@ -115,16 +115,18 @@ EXTERN FILE   *output;			/* the output file */
 #define CHECK_SIZE_LAB \
 	if (e_lab >= l_lab) { \
 	    int nsize = l_lab-s_lab+400; \
+		int label_len = e_lab - s_lab; \
 	    labbuf = (char *) realloc(labbuf, nsize); \
-	    e_lab = labbuf + (e_lab-s_lab) + 1; \
+	    e_lab = labbuf + label_len + 1; \
 	    l_lab = labbuf + nsize - 5; \
 	    s_lab = labbuf + 1; \
 	}
 #define CHECK_SIZE_TOKEN \
 	if (e_token >= l_token) { \
 	    int nsize = l_token-s_token+400; \
+		int token_len = e_token - s_token; \
 	    tokenbuf = (char *) realloc(tokenbuf, nsize); \
-	    e_token = tokenbuf + (e_token-s_token) + 1; \
+	    e_token = tokenbuf + token_len + 1; \
 	    l_token = tokenbuf + nsize - 5; \
 	    s_token = tokenbuf + 1; \
 	}
