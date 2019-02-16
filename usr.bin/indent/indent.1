@@ -93,6 +93,7 @@
 .Op Fl eei | Fl neei
 .Ek
 .Bk -words
+.Op Fl fbs | Fl nfbs
 .Op Fl fc1 | Fl nfc1
 .Op Fl fcb | Fl nfcb
 .Ek
@@ -335,6 +336,11 @@ statements.
 These continuation lines will be indented one extra level.
 Default:
 .Fl neei .
+.It Fl fbs , nfbs
+Enables (disables) splitting the function declaration and opening brace
+across two lines.
+The default is
+.Fl fbs .
 .It Fl fc1 , nfc1
 Enables (disables) the formatting of comments that start in column 1.
 Often, comments whose leading `/' is in column 1 have been carefully

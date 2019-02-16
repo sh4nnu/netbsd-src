@@ -862,17 +862,13 @@ check_type:
 				} else
 					if (ps.in_parameter_declaration && !ps.in_or_st) {
 						ps.i_l_follow = 0;
-						if if (function_brace_split) {	/* dump the line prior to the
-						 * brace ... */
-			dump_line();
-			ps.want_blank = false;
-		    } else	/* add a space between the decl and brace */
-			ps.want_blank = true;(function_brace_split) {	/* dump the line prior to the
-							 * brace ... */
+						if (opt.function_brace_split) { /* dump the line prior
+														 * to the brace ... */
 							dump_line();
 							ps.want_blank = false;
-					    } else	/* add a space between the decl and brace */
-						ps.want_blank = true;
+						} else /*add a space between the decl and brace */
+							ps.want_blank = false;
+						
 					}
 			}
 			if (ps.in_parameter_declaration)
