@@ -97,6 +97,7 @@
 .Op Fl l Ns Ar n
 .Op Fl \&lc Ns Ar n
 .Op Fl \&lp | Fl nlp
+.Op Fl \&lpl | Fl nlpl
 .Op Fl npro
 .Op Fl P Ns Ar file
 .Op Fl pcs | Fl npcs
@@ -353,7 +354,10 @@ The default is 0, which means to limit block comment lines in accordance with
 .Fl l.
 .It Fl \&lp , nlp
 Lines up code surrounded by parentheses in continuation lines.
-If a line has a left parentheses which is not closed on that line, then
+With
+.Fl \&lp ,
+if a line
+has a left parentheses which is not closed on that line, then
 continuation lines will be lined up to start at the character
 position just after the left parenthesis.
 For example, here is how a piece of continued code looks with
@@ -379,6 +383,19 @@ p1\ =\ first_procedure(second_procedure(p2,
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ third_procedure(p4
 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ p5));
 .Ed
+.It Fl \&lpl , nlpl
+With
+.Fl \&lpl ,
+code surrounded by parentheses in continuation lines is lined up even if it
+would extend past the right margin.
+With
+.Fl \&nlpl
+(the default), such a line that would extend past the right margin is moved
+left to keep it within the margin, if that does not require placing it to
+the left of the prevailing indentation level.
+These switches have no effect if
+.Fl nlp
+is selected.
 .It Fl npro
 Causes the profile files,
 .Sq Pa ./.indent.pro

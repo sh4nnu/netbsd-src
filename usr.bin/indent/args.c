@@ -221,6 +221,9 @@ struct pro {
 		"lc", PRO_INT, 0, 0, &block_comment_max_col
 	},
 	{
+		"lpl", PRO_BOOL, false, ON, &lineup_to_parens_always
+	},
+	{
 		"lp", PRO_BOOL, true, ON, &lineup_to_parens
 	},
 	{
@@ -267,6 +270,9 @@ struct pro {
 	},
 	{
 		"nip", PRO_BOOL, true, OFF, &ps.indent_parameters
+	},
+	{
+		"nlpl", PRO_BOOL, false, OFF, &lineup_to_parens_always
 	},
 	{
 		"nlp", PRO_BOOL, true, OFF, &lineup_to_parens
