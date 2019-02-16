@@ -154,7 +154,7 @@ main(int argc, char **argv)
 	combuf[0] = codebuf[0] = labbuf[0] = ' ';	/* set up code, label,
 							 * and comment buffers */
 	combuf[1] = codebuf[1] = labbuf[1] = '\0';
-	ps.else_if = 1;		/* Default else-if special processing to on */
+	opt.else_if = 1;		/* Default else-if special processing to on */
 	s_lab = e_lab = labbuf + 1;
 	s_code = e_code = codebuf + 1;
 	s_com = e_com = combuf + 1;
@@ -267,8 +267,8 @@ main(int argc, char **argv)
 			bakcopy();
 		}
 	}
-	if (ps.com_ind <= 1)
-		ps.com_ind = 2;	/* don't put normal comments before column 2 */
+	if (opt.com_ind <= 1)
+		opt.com_ind = 2;	/* don't put normal comments before column 2 */
 	if (troff) {
 		if (bodyf.font[0] == 0)
 			parsefont(&bodyf, "R");
@@ -289,12 +289,12 @@ main(int argc, char **argv)
 		writefdef(&stringf, 'S');
 		writefdef(&keywordf, 'K');
 	}
-	if (block_comment_max_col <= 0)
-		block_comment_max_col = max_col;
-	if (ps.decl_com_ind <= 0)	/* if not specified by user, set this */
-		ps.decl_com_ind = ps.ljust_decl ? (ps.com_ind <= 10 ? 2 : ps.com_ind - 8) : ps.com_ind;
-	if (continuation_indent == 0)
-		continuation_indent = ps.ind_size;
+	if (opt.block_comment_max_col <= 0)
+		opt.block_comment_max_col = opt.max_col;
+	if (opt.decl_com_ind <= 0)	/* if not specified by user, set this */
+		opt.decl_com_ind = opt.ljust_decl ? (opt.com_ind <= 10 ? 2 : opt.com_ind - 8) : opt.com_ind;
+	if (opt.continuation_indent == 0)
+		opt.continuation_indent = opt.ind_size;
 	fill_buffer();		/* get first batch of stuff into input buffer */
 
 	parse(semicolon);
@@ -307,13 +307,13 @@ main(int argc, char **argv)
 				col++;
 			else
 				if (*p == '\t')
-					col = tabsize * (1 + (col - 1) / tabsize) + 1;
+					col = opt.tabsize * (1 + (col - 1) / opt.tabsize) + 1;
 				else
 					break;
 			p++;
 		}
-		if (col > ps.ind_size)
-			ps.ind_level = ps.i_l_follow = col / ps.ind_size;
+		if (col > opt.ind_size)
+			ps.ind_level = ps.i_l_follow = col / opt.ind_size;
 	}
 	if (troff) {
 		const char   *p = in_name, *beg = in_name;
@@ -403,7 +403,7 @@ main(int argc, char **argv)
 				 * jump out of this loop in order to avoid copying the token
 				 * again under the default case of the switch below.
 				 */
-				if (sc_end != NULL && btype_2) {
+				if (sc_end != NULL && opt.btype_2) {
 				    save_com[0] = '{';
 				    /*
 		    		 * Originally the lbrace may have been alone on its own
@@ -432,7 +432,7 @@ main(int argc, char **argv)
 			    		e_code != s_code && e_code[-1] == '}')
 					/* "else if" */
 					|| (type_code == sp_paren && *token == 'i' &&
-			    		last_else && ps.else_if);
+			    		last_else && opt.else_if);
 		    	if (remove_newlines)
 					force_nl = false;
 		    	if (sc_end == NULL) {	/* ignore buffering if
@@ -443,7 +443,7 @@ main(int argc, char **argv)
 		    	while (sc_end > save_com && isblank((unsigned char)sc_end[-1])) {
 					sc_end--;
 		    	}
-		    	if (swallow_optional_blanklines ||
+		    	if (opt.swallow_optional_blanklines ||
 					(!comment_buffered && remove_newlines)) {
 					force_nl = !remove_newlines;
 					while (sc_end > save_com && sc_end[-1] == '\n') {
@@ -457,7 +457,7 @@ main(int argc, char **argv)
 							 * newline is read from the buffer */
 				*sc_end++ = '\n';
 				*sc_end++ = ' ';
-				if (verbose)	/* print error msg if the line was
+				if (opt.verbose)	/* print error msg if the line was
 								 * not already broken */
 			    	diag2(0, "Line broken");
 		    }
@@ -533,7 +533,7 @@ check_type:
 			if (ps.tos > 1)	/* check for balanced braces */
 				diag(1, "Stuff missing from end of file.");
 
-			if (verbose) {
+			if (opt.verbose) {
 				printf("There were %d output lines and %d comments\n",
 				    ps.out_lines, ps.out_coms);
 				printf("(Lines with comments)/(Lines with code): %6.3f\n",
@@ -549,9 +549,9 @@ check_type:
 		    (type_code != form_feed)) {
 			if (force_nl &&
 			    (type_code != semicolon) &&
-			    (type_code != lbrace || !btype_2)) {
+			    (type_code != lbrace || !opt.btype_2)) {
 				/* we should force a broken line here */
-				if (verbose)
+				if (opt.verbose)
 					diag(0, "Line broken");
 				dump_line();
 				ps.want_blank = false;	/* don't insert blank at
@@ -603,7 +603,7 @@ check_type:
 
 		case newline:
 			if (ps.last_token != comma || ps.p_l_follow > 0
-			    || !ps.leave_comma || ps.block_init || !break_comma || s_com != e_com) {
+			    || !opt.leave_comma || ps.block_init || !break_comma || s_com != e_com) {
 				dump_line();
 				ps.want_blank = false;
 			}
@@ -632,11 +632,11 @@ check_type:
 			}
 			else if (ps.want_blank && 
 			    (ps.last_token != ident && ps.last_token != funcname || 
-				proc_calls_space ||
+				opt.proc_calls_space ||
 		    	/* offsetof (1) is never allowed a space; sizeof (2) gets
 		    	 * one iff -bs; all other keywords (>2) always get a space
 		     	* before lparen */
-				ps.keyword + Bill_Shannon > 2))
+				ps.keyword + opt.Bill_Shannon > 2))
 				*e_code++ = ' ';
 			
 			ps.want_blank = false;
@@ -644,9 +644,9 @@ check_type:
 			if (!troff)
 				*e_code++ = token[0];
 			ps.paren_indents[ps.p_l_follow - 1] = count_spaces_until(1, s_code, e_code) - 1;
-			if (sp_sw && ps.p_l_follow == 1 && extra_expression_indent
-			    && ps.paren_indents[0] < 2 * ps.ind_size)
-				ps.paren_indents[0] = 2 * ps.ind_size;
+			if (sp_sw && ps.p_l_follow == 1 && opt.extra_expression_indent
+			    && ps.paren_indents[0] < 2 * opt.ind_size)
+				ps.paren_indents[0] = 2 * opt.ind_size;
 			if (ps.in_or_st && *token == '(' && ps.tos <= 2) {
 				/*
 				 * this is a kluge to make sure that declarations will be
@@ -668,7 +668,7 @@ check_type:
 			if (ps.cast_mask & (1 << ps.p_l_follow) & ~ps.not_cast_mask) {
 				ps.last_u_d = true;
 				ps.cast_mask &= (1 << ps.p_l_follow) - 1;
-				ps.want_blank = space_after_cast;
+				ps.want_blank = opt.space_after_cast;
 			}
 			ps.not_cast_mask &= (1 << ps.p_l_follow) - 1;
 			if (--ps.p_l_follow < 0) {
@@ -697,7 +697,7 @@ check_type:
 				parse(hd_type);	/* let parser worry about if,
 						 * or whatever */
 			}
-			ps.search_brace = btype_2;	/* this should insure
+			ps.search_brace = opt.btype_2;	/* this should ensure
 							 * that constructs such
 							 * as main(){...} and
 							 * int[]{...} have their
@@ -902,7 +902,7 @@ check_type:
 					ps.block_init_level++;
 
 			if (s_code != e_code && !ps.block_init) {
-				if (!btype_2) {
+				if (!opt.btype_2) {
 					dump_line();
 					ps.want_blank = false;
 				} else
@@ -947,7 +947,7 @@ check_type:
 								 * do special
 								 * indentation of
 								 * comments */
-				if (blanklines_after_declarations_at_proctop
+				if (opt.blanklines_after_declarations_at_proctop
 				    && ps.in_parameter_declaration)
 					postfix_blankline_requested = 1;
 				ps.in_parameter_declaration = 0;
@@ -978,7 +978,7 @@ check_type:
 			ps.block_init_level--;
 			if (s_code != e_code && !ps.block_init) {	/* '}' must be first on
 									 * line */
-				if (verbose)
+				if (opt.verbose)
 					diag(0, "Line broken");
 				dump_line();
 			}
@@ -994,9 +994,9 @@ check_type:
 			}
 			prefix_blankline_requested = 0;
 			parse(rbrace);	/* let parser know about this */
-			ps.search_brace = cuddle_else && ps.p_stack[ps.tos] == ifhead
+			ps.search_brace = opt.cuddle_else && ps.p_stack[ps.tos] == ifhead
 			    && ps.il[ps.tos] >= ps.ind_level;
-			if (ps.tos <= 1 && blanklines_after_procs && ps.dec_nest <= 0)
+			if (ps.tos <= 1 && opt.blanklines_after_procs && ps.dec_nest <= 0)
 				postfix_blankline_requested = 1;
 			break;
 
@@ -1020,8 +1020,8 @@ check_type:
 		case sp_nparen:/* got else, do */
 			ps.in_stmt = false;
 			if (*token == 'e') {
-				if (e_code != s_code && (!cuddle_else || e_code[-1] != '}')) {
-					if (verbose)
+				if (e_code != s_code && (!opt.cuddle_else || e_code[-1] != '}')) {
+					if (opt.verbose)
 						diag(0, "Line broken");
 					dump_line();	/* make sure this starts
 							 * a line */
@@ -1034,7 +1034,7 @@ check_type:
 			} else {
 				if (e_code != s_code) {	/* make sure this starts
 							 * a line */
-					if (verbose)
+					if (opt.verbose)
 						diag(0, "Line broken");
 					dump_line();
 					ps.want_blank = false;
@@ -1062,7 +1062,7 @@ check_type:
 					ps.want_blank = 0;
 				}
 			}
-			if (ps.in_parameter_declaration && ps.indent_parameters && ps.dec_nest == 0) {
+			if (ps.in_parameter_declaration && opt.indent_parameters && ps.dec_nest == 0) {
 				ps.ind_level = ps.i_l_follow = 1;
 				ps.ind_stmt = 0;
 			}
@@ -1079,8 +1079,8 @@ check_type:
 		         * dec_ind = e_code - s_code + (ps.decl_indent>i ? ps.decl_indent
 		         * : i);
 		         */
-			dec_ind = ps.decl_indent > 0 ? ps.decl_indent : i;
-			tabs_to_var = (use_tabs ? ps.decl_indent > 0 : 0);
+			dec_ind = opt.decl_indent > 0 ? opt.decl_indent : i;
+			tabs_to_var = (opt.use_tabs ? opt.decl_indent > 0 : 0);
 			goto copy_id;
 
 		case funcname:
@@ -1088,7 +1088,7 @@ check_type:
 			if (ps.in_decl) {
 				if (type_code == funcname) {
 		    		ps.in_decl = false;
-		    		if (procnames_start_line && s_code != e_code) {
+		    		if (opt.procnames_start_line && s_code != e_code) {
 					    *e_code = '\0';
 					    dump_line();
 					}
@@ -1171,9 +1171,9 @@ check_type:
 			if (ps.p_l_follow == 0) {
 				if (ps.block_init_level <= 0)
 					ps.block_init = 0;
-				if (break_comma && (!ps.leave_comma || 
+				if (break_comma && (!opt.leave_comma || 
 					count_spaces_until(compute_code_target(), s_code, e_code) >
-		    		max_col - tabsize))
+		    		opt.max_col - opt.tabsize))
 					force_nl = true;
 			}
 			break;
@@ -1317,7 +1317,7 @@ check_type:
 						    break;
 						}
 				}
-				if (blanklines_around_conditional_compilation) {
+				if (opt.blanklines_around_conditional_compilation) {
 					postfix_blankline_requested++;
 					n_real_blanklines = 0;
 	    		}
@@ -1392,15 +1392,15 @@ indent_declaration(int cur_dec_ind, int tabs_to_var)
     /*
      * get the tab math right for indentations that are not multiples of tabsize
      */
-    if ((ps.ind_level * ps.ind_size) % tabsize != 0) {
-	pos += (ps.ind_level * ps.ind_size) % tabsize;
-	cur_dec_ind += (ps.ind_level * ps.ind_size) % tabsize;
+    if ((ps.ind_level * opt.ind_size) % opt.tabsize != 0) {
+	pos += (ps.ind_level * opt.ind_size) % opt.tabsize;
+	cur_dec_ind += (ps.ind_level * opt.ind_size) % opt.tabsize;
     }
     if (tabs_to_var) {
 		int tpos;
 		
-		while ((tpos = tabsize * (1 + pos / tabsize)) <= cur_dec_ind) {
-	    	CHECK_SIZE_CODE;
+		CHECK_SIZE_CODE(cur_dec_ind / opt.tabsize);
+		while ((tpos = opt.tabsize * (1 + pos / opt.tabsize)) <= cur_dec_ind) {
 	    	*e_code++ = '\t';
 	    	pos = tpos;
 		}

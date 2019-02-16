@@ -175,56 +175,9 @@ EXTERN char   *bp_save;			/* saved value of buf_ptr when taking input
 					 * from save_com */
 EXTERN char   *be_save;			/* similarly saved value of buf_end */
 
-
-EXTERN int     blanklines_after_declarations;
-EXTERN int     blanklines_before_blockcomments;
-EXTERN int     blanklines_after_procs;
-EXTERN int     blanklines_around_conditional_compilation;
-EXTERN int     swallow_optional_blanklines;
-EXTERN int 	   found_err;
-EXTERN int     n_real_blanklines;
-EXTERN int     prefix_blankline_requested;
-EXTERN int     postfix_blankline_requested;
-EXTERN int     break_comma;		/* when true and not in parens, break after a
-					 * comma */
-EXTERN int     btype_2;			/* when true, brace should be on same line as
-					 * if, while, etc */
-EXTERN float   case_ind;		/* indentation level to be used for a "case
-					 * n:" */
-EXTERN int     code_lines;		/* count of lines with code */
-EXTERN int     had_eof;			/* set to true when input is exhausted */
-EXTERN int     line_no;			/* the current line number. */
-EXTERN int     max_col;			/* the maximum allowable line length */
-EXTERN int     verbose;			/* when true, non-essential error messages are
-					 * printed */
-EXTERN int     cuddle_else;		/* true if else should cuddle up to '}' */
-EXTERN int     star_comment_cont;	/* true iff comment continuation lines should
-					 * have stars at the beginning of each line. */
-EXTERN int     comment_delimiter_on_blankline;
-EXTERN int     troff;			/* true iff were generating troff input */
-EXTERN int     procnames_start_line;	/* if true, the names of procedures being
-					 * defined get placed in column 1 (ie. a
-					 * newline is placed between the type of the
-					 * procedure and its name) */
-EXTERN int     proc_calls_space;	/* If true, procedure calls look like:
-					 * foo (bar) rather than foo(bar) */
-EXTERN int	   format_block_comments;	/* true if comments beginning with
-					 * `/*\n' are to be reformatted */
-EXTERN int     format_col1_comments;	/* If comments which start in column 1 are to
-					 * be magically reformatted (just like
-					 * comments that begin in later columns) */
-EXTERN int     inhibit_formatting;	/* true if INDENT OFF is in effect */
-EXTERN int     suppress_blanklines;	/* set iff following blanklines should be
-					 * suppressed */
-EXTERN int     continuation_indent;	/* set to the indentation between the edge of
-					 * code and continuation lines */
-EXTERN int     lineup_to_parens;	/* if true, continued code within parens will
-					 * be lined up to the open paren */
-EXTERN int 	   lineup_to_parens_always;		/* if true, do not attempt to keep
-					 * lined-up code within the margin */
-EXTERN int     Bill_Shannon;		/* true iff a blank should always be inserted
-					 * after sizeof */
-EXTERN int     blanklines_after_declarations_at_proctop;	/* This is vaguely
+EXTERN struct options {
+	int     blanklines_around_conditional_compilation;
+	int     blanklines_after_declarations_at_proctop;	/* This is vaguely
 								 * similar to
 								 * blanklines_after_decla
 								 * rations except that
@@ -237,16 +190,85 @@ EXTERN int     blanklines_after_declarations_at_proctop;	/* This is vaguely
 								 * to be generated even
 								 * if there are no
 								 * declarations */
-EXTERN int     block_comment_max_col;
-EXTERN int     extra_expression_indent; /* True if continuation lines from the
+	int     blanklines_after_declarations;
+	int     blanklines_after_procs;
+	int     blanklines_before_blockcomments;
+	int     leave_comma;	/* if true, never break declarations after
+							 * commas */
+	int     btype_2;	/* when true, brace should be on same line as
+						 * if, while, etc */
+	int     Bill_Shannon;	/* true iff a blank should always be inserted
+							 * after sizeof */
+	int     comment_delimiter_on_blankline;
+	int     decl_com_ind;	/* the column in which comments after
+							 * declarations should be put */
+	int     cuddle_else;	/* true if else should cuddle up to '}' */
+	int     continuation_indent;	/* set to the indentation between the edge of
+									 * code and continuation lines */
+	int     com_ind;	/* the column in which comments to the right
+						 * of code should start */
+	int     decl_indent;	/* column to indent declared identifiers to */
+	int     ljust_decl;	/* true if declarations should be left
+						 * justified */
+	int     unindent_displace;	/* comments not to the right of code
+					 * will be placed this many
+					 * indentation levels to the left of
+					 * code */
+	int     extra_expression_indent; /* True if continuation lines from the
 					 * expression part of "if(e)", "while(e)",
 					 * "for(e;e;e)" should be indented an extra
 					 * tab stop so that they don't conflict with
 					 * the code that follows */
-EXTERN int     use_tabs;			/* set true to use tabs for spacing,
+	int     else_if;	/* True iff else if pairs should be handled
+				 * specially */
+	int     format_col1_comments;	/* If comments which start in column 1 are to
+					 * be magically reformatted (just like
+					 * comments that begin in later columns) */
+	int	    format_block_comments;	/* true if comments beginning with
+					 * `/*\n' are to be reformatted */
+	int     indent_parameters;
+	int     ind_size;	/* the size of one indentation level */
+	int     block_comment_max_col;
+	int 	lineup_to_parens_always;		/* if true, do not attempt to keep
+					 * lined-up code within the margin */
+	int     lineup_to_parens;	/* if true, continued code within parens will
+					 * be lined up to the open paren */
+	int     proc_calls_space;	/* If true, procedure calls look like:
+					 * foo (bar) rather than foo(bar) */
+	int     procnames_start_line;	/* if true, the names of procedures being
+					 * defined get placed in column 1 (ie. a
+					 * newline is placed between the type of the
+					 * procedure and its name) */
+	int     space_after_cast; /* "b = (int) a" vs "b = (int)a" */	  
+	int     star_comment_cont;	/* true iff comment continuation lines should
+					 * have stars at the beginning of each line. */
+	int     swallow_optional_blanklines;
+	int	    tabsize;	/* the size of a tab */
+	int     max_col;			/* the maximum allowable line length */
+	int     use_tabs;			/* set true to use tabs for spacing,
 					 * false uses all spaces */
-EXTERN int     space_after_cast; /* "b = (int) a" vs "b = (int)a" */	  
-EXTERN int	   tabsize;	/* the size of a tab */
+	int     verbose;			/* when true, non-essential error messages are
+					 * printed */
+	int     troff;			/* true iff were generating troff input */
+				
+	
+
+} opt;
+
+EXTERN int     n_real_blanklines;
+EXTERN int     prefix_blankline_requested;
+EXTERN int     postfix_blankline_requested;
+EXTERN int     break_comma;		/* when true and not in parens, break after a
+					 * comma */
+EXTERN float   case_ind;		/* indentation level to be used for a "case
+					 * n:" */
+EXTERN int     code_lines;		/* count of lines with code */
+EXTERN int     had_eof;			/* set to true when input is exhausted */
+EXTERN int     line_no;			/* the current line number. */
+EXTERN int 	   found_err;
+EXTERN int     inhibit_formatting;	/* true if INDENT OFF is in effect */
+EXTERN int     suppress_blanklines;	/* set iff following blanklines should be
+					 * suppressed */
 
 /* -troff font state information */
 
@@ -301,13 +323,9 @@ EXTERN struct parser_state {
 				 * column 1 */
 	int     com_col;	/* this is the column in which the current
 				 * coment should start */
-	int     com_ind;	/* the column in which comments to the right
-				 * of code should start */
 	int     com_lines;	/* the number of lines with comments, set by
 				 * dump_line */
 	int     dec_nest;	/* current nesting level for structure or init */
-	int     decl_com_ind;	/* the column in which comments after
-				 * declarations should be put */
 	int     decl_on_line;	/* set to true if this line of code has part
 				 * of a declaration on it */
 	int     i_l_follow;	/* the level to which ind_level should be set
@@ -317,16 +335,11 @@ EXTERN struct parser_state {
 				 * slightly different */
 	int     in_stmt;	/* set to 1 while in a stmt */
 	int     ind_level;	/* the current indentation level */
-	int     ind_size;	/* the size of one indentation level */
 	int     ind_stmt;	/* set to 1 if next line should have an extra
 				 * indentation level because we are in the
 				 * middle of a stmt */
 	int     last_u_d;	/* set to true after scanning a token which
 				 * forces a following operator to be unary */
-	int     leave_comma;	/* if true, never break declarations after
-				 * commas */
-	int     ljust_decl;	/* true if declarations should be left
-				 * justified */
 	int     out_coms;	/* the number of comments processed, set by
 				 * pr_comment */
 	int     out_lines;	/* the number of lines written, set by
@@ -342,24 +355,17 @@ EXTERN struct parser_state {
 	int     search_brace;	/* set to true by parse when it is necessary
 				 * to buffer up all info up to the start of a
 				 * stmt after an if, while, etc */
-	int     unindent_displace;	/* comments not to the right of code
-					 * will be placed this many
-					 * indentation levels to the left of
-					 * code */
 	int     use_ff;		/* set to one if the current line should be
 				 * terminated with a form feed */
 	int     want_blank;	/* set to true when the following token should
 				 * be prefixed by a blank. (Said prefixing is
 				 * ignored in some cases.) */
-	int     else_if;	/* True iff else if pairs should be handled
-				 * specially */
-	int     decl_indent;	/* column to indent declared identifiers to */
+	
 	int     keyword;	/* the type of a keyword or 0 */
 	int     dumped_decl_indent;
 	float   case_indent;	/* The distance to indent case labels from the
 				 * switch statement */
 	int     in_parameter_declaration;
-	int     indent_parameters;
 	int     tos;		/* pointer to top of stack */
 	char    procname[100];	/* The name of the current procedure */
 	int     just_saw_decl;

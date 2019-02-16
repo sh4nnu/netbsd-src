@@ -119,7 +119,7 @@ dump_line(void)
 			suppress_blanklines = 0;
 			ps.bl_line = false;
 			if (prefix_blankline_requested && not_first_line) {
-				if (swallow_optional_blanklines) {
+				if (opt.swallow_optional_blanklines) {
 					if (n_real_blanklines == 1)
 						n_real_blanklines = 0;
 				} else {
@@ -261,13 +261,15 @@ dump_line(void)
 					target += ps.comment_delta;
 					while (*com_st == '\t')	/* consider original indentation in
 											 * case this is a box comment */
-		    			com_st++, target += tabsize;
+		    			com_st++, target += opt.tabsize;
 					while (target <= 0)
 						if (*com_st == ' ')
 							target++, com_st++;
 						else
-							if (*com_st == '\t')
-								target = tabsize * (1 + (target - 1) / tabsize) + 1, com_st++;
+							if (*com_st == '\t') {
+								target = opt.tabsize * (1 + (target - 1) / opt.tabsize) + 1;
+								com_st++;
+							}
 							else
 								target = 1;
 					if (cur_col > target) {	/* if comment can't fit
@@ -295,7 +297,7 @@ dump_line(void)
 				putc('\n', output);
 	inhibit_newline:
 			++ps.out_lines;
-			if (ps.just_saw_decl == 1 && blanklines_after_declarations) {
+			if (ps.just_saw_decl == 1 && opt.blanklines_after_declarations) {
 				prefix_blankline_requested = 1;
 				ps.just_saw_decl = 0;
 			} else
@@ -325,20 +327,20 @@ dump_line(void)
 int
 compute_code_target(void)
 {
-	int     target_col = ps.ind_size * ps.ind_level + 1;
+	int     target_col = opt.ind_size * ps.ind_level + 1;
 
 	if (ps.paren_level) {
-		if (!lineup_to_parens)
-	    	target_col += continuation_indent
-				* (2 * continuation_indent == ps.ind_size ? 1 : ps.paren_level);
-		else if (lineup_to_parens_always)
+		if (!opt.lineup_to_parens)
+	    	target_col += opt.continuation_indent *
+				(2 * opt.continuation_indent == opt.ind_size ? 1 : ps.paren_level);
+		else if (opt.lineup_to_parens_always)
 	    	target_col = paren_target;
 		else {
 			int     w;
 			int     t = paren_target;
 
-			if ((w = count_spaces(t, s_code) - max_col) > 0
-			    && count_spaces(target_col, s_code) <= max_col) {
+			if ((w = count_spaces(t, s_code) - opt.max_col) > 0
+			    && count_spaces(target_col, s_code) <= opt.max_col) {
 				t -= w + 1;
 				if (t > target_col)
 					target_col = t;
@@ -347,7 +349,7 @@ compute_code_target(void)
 		}
 	} else
 		if (ps.ind_stmt)
-			target_col += continuation_indent;
+			target_col += opt.continuation_indent;
 	return target_col;
 }
 
@@ -355,9 +357,9 @@ int
 compute_label_target(void)
 {
 	return
-	ps.pcase ? (int) (case_ind * ps.ind_size) + 1
+	ps.pcase ? (int) (case_ind * opt.ind_size) + 1
 	: *s_lab == '#' ? 1
-	: ps.ind_size * (ps.ind_level - label_offset) + 1;
+	: opt.ind_size * (ps.ind_level - label_offset) + 1;
 }
 
 
@@ -510,10 +512,10 @@ pad_output(int current, int target)
 		if (current >= target)
 			return (current);	/* line is already long enough */
 		curr = current;
-		if (use_tabs) {
+		if (opt.use_tabs) {
 			int tcurr;
 
-			while ((tcur = ((curr - 1) & tabmask) + tabsize + 1) <= target) {
+			while ((tcur = opt.tabsize * (1 + (curr - 1) / opt.tabsize) + 1) <= target) {
 				putc('\t', output);
 				curr = tcur;
 			}
@@ -561,7 +563,7 @@ count_spaces_until(int cur, char *buffer, char *end)
 			break;
 
 		case '\t':
-			cur = ;
+			cur = opt.tabsize * (1 + (cur - 1) / opt.tabsize) + 1;;
 			break;
 
 		case 010:	/* backspace */

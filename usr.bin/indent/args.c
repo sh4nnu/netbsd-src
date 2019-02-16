@@ -138,43 +138,43 @@ struct pro {
 		"P", PRO_SPECIAL, 0, IGN, 0
 	},
 	{
-		"bacc", PRO_BOOL, false, ON, &blanklines_around_conditional_compilation
+		"bacc", PRO_BOOL, false, ON, &opt.blanklines_around_conditional_compilation
 	},
 	{
-		"badp", PRO_BOOL, false, ON, &blanklines_after_declarations_at_proctop
+		"badp", PRO_BOOL, false, ON, &opt.blanklines_after_declarations_at_proctop
 	},
 	{
-		"bad", PRO_BOOL, false, ON, &blanklines_after_declarations
+		"bad", PRO_BOOL, false, ON, &opt.blanklines_after_declarations
 	},
 	{
-		"bap", PRO_BOOL, false, ON, &blanklines_after_procs
+		"bap", PRO_BOOL, false, ON, &opt.blanklines_after_procs
 	},
 	{
-		"bbb", PRO_BOOL, false, ON, &blanklines_before_blockcomments
+		"bbb", PRO_BOOL, false, ON, &opt.blanklines_before_blockcomments
 	},
 	{
-		"bc", PRO_BOOL, true, OFF, &ps.leave_comma
+		"bc", PRO_BOOL, true, OFF, &opt.leave_comma
 	},
 	{
-		"bl", PRO_BOOL, true, OFF, &btype_2
+		"bl", PRO_BOOL, true, OFF, &opt.btype_2
 	},
 	{
-		"br", PRO_BOOL, true, ON, &btype_2
+		"br", PRO_BOOL, true, ON, &opt.btype_2
 	},
 	{
-		"bs", PRO_BOOL, false, ON, &Bill_Shannon
+		"bs", PRO_BOOL, false, ON, &opt.Bill_Shannon
 	},
 	{
-		"cdb", PRO_BOOL, true, ON, &comment_delimiter_on_blankline
+		"cdb", PRO_BOOL, true, ON, &opt.comment_delimiter_on_blankline
 	},
 	{
-		"cd", PRO_INT, 0, 0, &ps.decl_com_ind
+		"cd", PRO_INT, 0, 0, &opt.decl_com_ind
 	},
 	{
-		"ce", PRO_BOOL, true, ON, &cuddle_else
+		"ce", PRO_BOOL, true, ON, &opt.cuddle_else
 	},
 	{
-		"ci", PRO_INT, 0, 0, &continuation_indent
+		"ci", PRO_INT, 0, 0, &opt.continuation_indent
 	},
 	{
 		"cli", PRO_SPECIAL, 0, CLI, 0
@@ -183,166 +183,166 @@ struct pro {
 		"cs", PRO_BOOL, false, ON, &opt.space_after_cast
 	},
 	{
-		"c", PRO_INT, 33, 0, &ps.com_ind
+		"c", PRO_INT, 33, 0, &opt.com_ind
 	},
 	{
-		"di", PRO_INT, 16, 0, &ps.decl_indent
+		"di", PRO_INT, 16, 0, &opt.decl_indent
 	},
 	{
-		"dj", PRO_BOOL, false, ON, &ps.ljust_decl
+		"dj", PRO_BOOL, false, ON, &opt.ljust_decl
 	},
 	{
-		"d", PRO_INT, 0, 0, &ps.unindent_displace
+		"d", PRO_INT, 0, 0, &opt.unindent_displace
 	},
 	{
-		"eei", PRO_BOOL, false, ON, &extra_expression_indent
+		"eei", PRO_BOOL, false, ON, &opt.extra_expression_indent
 	},
 	{
-		"ei", PRO_BOOL, true, ON, &ps.else_if
+		"ei", PRO_BOOL, true, ON, &opt.else_if
 	},
 	{
-		"fbc", PRO_FONT, 0, 0, (int *) &blkcomf
+		"fbc", PRO_FONT, 0, 0, (int *) &fstate.blkcomf
 	},
 	{
-		"fbx", PRO_FONT, 0, 0, (int *) &boxcomf
+		"fbx", PRO_FONT, 0, 0, (int *) &fstate.boxcomf
 	},
 	{
-		"fb", PRO_FONT, 0, 0, (int *) &bodyf
+		"fb", PRO_FONT, 0, 0, (int *) &fstate.bodyf
 	},
 	{
-		"fc1", PRO_BOOL, true, ON, &format_col1_comments
+		"fc1", PRO_BOOL, true, ON, &opt.format_col1_comments
 	},
 	{
-		"fcb", PRO_BOOL, true, ON, &format_block_comments,
+		"fcb", PRO_BOOL, true, ON, &opt.format_block_comments,
 	},
 	{
-		"fc", PRO_FONT, 0, 0, (int *) &scomf
+		"fc", PRO_FONT, 0, 0, (int *) &fstate.scomf
 	},
 	{
-		"fk", PRO_FONT, 0, 0, (int *) &keywordf
+		"fk", PRO_FONT, 0, 0, (int *) &fstate.keywordf
 	},
 	{
-		"fs", PRO_FONT, 0, 0, (int *) &stringf
+		"fs", PRO_FONT, 0, 0, (int *) &fstate.stringf
 	},
 	{
-		"ip", PRO_BOOL, true, ON, &ps.indent_parameters
+		"ip", PRO_BOOL, true, ON, &opt.indent_parameters
 	},
 	{
-		"i", PRO_INT, 8, 0, &ps.ind_size
+		"i", PRO_INT, 8, 0, &opt.ind_size
 	},
 	{
-		"lc", PRO_INT, 0, 0, &block_comment_max_col
+		"lc", PRO_INT, 0, 0, &opt.block_comment_max_col
 	},
 	{
-		"lpl", PRO_BOOL, false, ON, &lineup_to_parens_always
+		"lpl", PRO_BOOL, false, ON, &opt.lineup_to_parens_always
 	},
 	{
-		"lp", PRO_BOOL, true, ON, &lineup_to_parens
+		"lp", PRO_BOOL, true, ON, &opt.lineup_to_parens
 	},
 	{
-		"l", PRO_INT, 78, 0, &max_col
+		"l", PRO_INT, 78, 0, &opt.max_col
 	},
 	{
-		"nbacc", PRO_BOOL, false, OFF, &blanklines_around_conditional_compilation
+		"nbacc", PRO_BOOL, false, OFF, &opt.blanklines_around_conditional_compilation
 	},
 	{
-		"nbadp", PRO_BOOL, false, OFF, &blanklines_after_declarations_at_proctop
+		"nbadp", PRO_BOOL, false, OFF, &opt.blanklines_after_declarations_at_proctop
 	},
 	{
-		"nbad", PRO_BOOL, false, OFF, &blanklines_after_declarations
+		"nbad", PRO_BOOL, false, OFF, &opt.blanklines_after_declarations
 	},
 	{
-		"nbap", PRO_BOOL, false, OFF, &blanklines_after_procs
+		"nbap", PRO_BOOL, false, OFF, &opt.blanklines_after_procs
 	},
 	{
-		"nbbb", PRO_BOOL, false, OFF, &blanklines_before_blockcomments
+		"nbbb", PRO_BOOL, false, OFF, &opt.blanklines_before_blockcomments
 	},
 	{
-		"nbc", PRO_BOOL, true, ON, &ps.leave_comma
+		"nbc", PRO_BOOL, true, ON, &opt.leave_comma
 	},
 	{
-		"nbs", PRO_BOOL, false, OFF, &Bill_Shannon
+		"nbs", PRO_BOOL, false, OFF, opt.&Bill_Shannon
 	},
 	{
-		"ncdb", PRO_BOOL, true, OFF, &comment_delimiter_on_blankline
+		"ncdb", PRO_BOOL, true, OFF, &opt.comment_delimiter_on_blankline
 	},
 	{
-		"nce", PRO_BOOL, true, OFF, &cuddle_else
+		"nce", PRO_BOOL, true, OFF, &opt.cuddle_else
 	},
 	{
 		"ncs", PRO_BOOL, false, OFF, &opt.space_after_cast
 	},
 	{
-		"ndj", PRO_BOOL, false, OFF, &ps.ljust_decl
+		"ndj", PRO_BOOL, false, OFF, &opt.ljust_decl
 	},
 	{
-		"neei", PRO_BOOL, false, OFF, &extra_expression_indent
+		"neei", PRO_BOOL, false, OFF, &opt.extra_expression_indent
 	},
 	{
-		"nei", PRO_BOOL, true, OFF, &ps.else_if
+		"nei", PRO_BOOL, true, OFF, &opt.else_if
 	},
 	{
-		"nfc1", PRO_BOOL, true, OFF, &format_col1_comments
+		"nfc1", PRO_BOOL, true, OFF, &opt.format_col1_comments
 	},
 	{
-		"nfcb", PRO_BOOL, true, OFF, &format_block_comments,
+		"nfcb", PRO_BOOL, true, OFF, &opt.format_block_comments,
 	},
 	{
-		"nip", PRO_BOOL, true, OFF, &ps.indent_parameters
+		"nip", PRO_BOOL, true, OFF, &opt.indent_parameters
 	},
 	{
-		"nlpl", PRO_BOOL, false, OFF, &lineup_to_parens_always
+		"nlpl", PRO_BOOL, false, OFF, &opt.lineup_to_parens_always
 	},
 	{
-		"nlp", PRO_BOOL, true, OFF, &lineup_to_parens
+		"nlp", PRO_BOOL, true, OFF, &opt.lineup_to_parens
 	},
 	{
-		"npcs", PRO_BOOL, false, OFF, &proc_calls_space
+		"npcs", PRO_BOOL, false, OFF, &opt.proc_calls_space
 	},
 	{
 		"npro", PRO_SPECIAL, 0, IGN, 0
 	},
 	{
-		"npsl", PRO_BOOL, true, OFF, &procnames_start_line
+		"npsl", PRO_BOOL, true, OFF, &opt.procnames_start_line
 	},
 	{
-		"nsc", PRO_BOOL, true, OFF, &star_comment_cont
+		"nsc", PRO_BOOL, true, OFF, &opt.star_comment_cont
 	},
 	{
-		"nut", PRO_BOOL, true, OFF, &use_tabs
+		"nut", PRO_BOOL, true, OFF, &opt.use_tabs
 	},
 	{
-		"nsob", PRO_BOOL, false, OFF, &swallow_optional_blanklines
+		"nsob", PRO_BOOL, false, OFF, &opt.swallow_optional_blanklines
 	},
 	{
-		"nv", PRO_BOOL, false, OFF, &verbose
+		"nv", PRO_BOOL, false, OFF, &opt.verbose
 	},
 	{
-		"pcs", PRO_BOOL, false, ON, &proc_calls_space
+		"pcs", PRO_BOOL, false, ON, &opt.proc_calls_space
 	},
 	{
-		"psl", PRO_BOOL, true, ON, &procnames_start_line
+		"psl", PRO_BOOL, true, ON, &opt.procnames_start_line
 	},
 	{
-		"sc", PRO_BOOL, true, ON, &star_comment_cont
+		"sc", PRO_BOOL, true, ON, &opt.star_comment_cont
 	},
 	{
-		"sob", PRO_BOOL, false, ON, &swallow_optional_blanklines
+		"sob", PRO_BOOL, false, ON, &opt.swallow_optional_blanklines
 	},
 	{
 		"st", PRO_SPECIAL, 0, STDIN, 0
 	},
 	{
-		"ts", PRO_INT, 8, 0, &tabsize
+		"ts", PRO_INT, 8, 0, &opt.tabsize
 	},
 	{
-		"troff", PRO_BOOL, false, ON, &troff
+		"troff", PRO_BOOL, false, ON, &opt.troff
 	},
 	{
-		"ut", PRO_BOOL, true, ON, &use_tabs
+		"ut", PRO_BOOL, true, ON, &opt.use_tabs
 	},
 	{
-		"v", PRO_BOOL, false, ON, &verbose
+		"v", PRO_BOOL, false, ON, &opt.verbose
 	},
 	/* whew! */
 	{
@@ -401,7 +401,7 @@ scan_profile(FILE *f)
 	}
 	if (p != buf) {
 	    *p++ = 0;
-	    if (verbose)
+	    if (opt.verbose)
 				printf("profile: %s\n", buf);
 	    set_option(buf);
 	}
