@@ -246,13 +246,12 @@ EXTERN int     space_after_cast; 	/* "b = (int) a" vs "b = (int)a" */
 EXTERN int	   tabsize;	/* the size of a tab */
 
 
-#define STACK_SIZE 256
 
 EXTERN struct parser_state {
 	int     last_token;
-    int     p_stack[STACK_SIZE];	/* this is the parsers stack */
-    int     il[STACK_SIZE];	/* this stack stores indentation levels */
-    float   cstk[STACK_SIZE];/* used to store case stmt indentation levels */
+    int     p_stack[256];	/* this is the parsers stack */
+    int     il[64];			/* this stack stores indentation levels */
+    float   cstk[32];		/* used to store case stmt indentation levels */
 	int     box_com;	/* set to true when we are in a "boxed"
 				 * comment. In that case, the first non-blank
 				 * char should be lined up with the comment / */
