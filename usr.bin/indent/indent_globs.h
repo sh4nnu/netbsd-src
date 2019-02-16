@@ -94,7 +94,9 @@ EXTERN FILE   *output;			/* the output file */
 	if (e_code >= l_code) { \
 	    int nsize = l_code-s_code+400; \
 	    codebuf = (char *) realloc(codebuf, nsize); \
-	    e_code = codebuf + (e_code-s_code) + 1; \
+	    if (codebuf == NULL) \
+			err(1, NULL); \
+		e_code = codebuf + code_len + 1; \
 	    l_code = codebuf + nsize - 5; \
 	    s_code = codebuf + 1; \
 	}
@@ -102,6 +104,8 @@ EXTERN FILE   *output;			/* the output file */
 	if (e_com >= l_com) { \
 	    int nsize = l_com-s_com+400; \
 	    combuf = (char *) realloc(combuf, nsize); \
+		if (combuf == NULL) \
+			err(1, NULL); \
 	    e_com = combuf + (e_com-s_com) + 1; \
 	    l_com = combuf + nsize - 5; \
 	    s_com = combuf + 1; \
@@ -110,6 +114,8 @@ EXTERN FILE   *output;			/* the output file */
 	if (e_lab >= l_lab) { \
 	    int nsize = l_lab-s_lab+400; \
 	    labbuf = (char *) realloc(labbuf, nsize); \
+		if (labbuf == NULL) \
+			err(1, NULL); \
 	    e_lab = labbuf + (e_lab-s_lab) + 1; \
 	    l_lab = labbuf + nsize - 5; \
 	    s_lab = labbuf + 1; \
@@ -118,6 +124,8 @@ EXTERN FILE   *output;			/* the output file */
 	if (e_token >= l_token) { \
 	    int nsize = l_token-s_token+400; \
 	    tokenbuf = (char *) realloc(tokenbuf, nsize); \
+		if (tokenbuf == NULL) \
+			err(1, NULL); \
 	    e_token = tokenbuf + (e_token-s_token) + 1; \
 	    l_token = tokenbuf + nsize - 5; \
 	    s_token = tokenbuf + 1; \
@@ -159,12 +167,12 @@ EXTERN char   *bp_save;			/* saved value of buf_ptr when taking input
 EXTERN char   *be_save;			/* similarly saved value of buf_end */
 
 
-EXTERN int     pointer_as_binop;
 EXTERN int     blanklines_after_declarations;
 EXTERN int     blanklines_before_blockcomments;
 EXTERN int     blanklines_after_procs;
 EXTERN int     blanklines_around_conditional_compilation;
 EXTERN int     swallow_optional_blanklines;
+EXTERN int 	   found_err;
 EXTERN int     n_real_blanklines;
 EXTERN int     prefix_blankline_requested;
 EXTERN int     postfix_blankline_requested;
@@ -190,7 +198,7 @@ EXTERN int     procnames_start_line;	/* if true, the names of procedures being
 					 * newline is placed between the type of the
 					 * procedure and its name) */
 EXTERN int     proc_calls_space;	/* If true, procedure calls look like:
-					 * foo(bar) rather than foo (bar) */
+					 * foo (bar) rather than foo(bar) */
 EXTERN int     format_col1_comments;	/* If comments which start in column 1 are to
 					 * be magically reformatted (just like
 					 * comments that begin in later columns) */
@@ -201,6 +209,8 @@ EXTERN int     continuation_indent;	/* set to the indentation between the edge o
 					 * code and continuation lines */
 EXTERN int     lineup_to_parens;	/* if true, continued code within parens will
 					 * be lined up to the open paren */
+EXTERN int 	   lineup_to_parens_always;		/* if true, do not attempt to keep
+					 * lined-up code within the margin */
 EXTERN int     Bill_Shannon;		/* true iff a blank should always be inserted
 					 * after sizeof */
 EXTERN int     blanklines_after_declarations_at_proctop;	/* This is vaguely
