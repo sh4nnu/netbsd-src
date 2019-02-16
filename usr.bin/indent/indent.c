@@ -267,7 +267,7 @@ main(int argc, char **argv)
 		input = stdin;
 	}
 	if (output == 0) {
-		if (troff || input == stdin)
+		if (input == stdin)
 			output = stdout;
 		else {
 			out_name = in_name;
@@ -276,26 +276,6 @@ main(int argc, char **argv)
 	}
 	if (ps.com_ind <= 1)
 		ps.com_ind = 2;	/* don't put normal comments before column 2 */
-	if (troff) {
-		if (bodyf.font[0] == 0)
-			parsefont(&bodyf, "R");
-		if (scomf.font[0] == 0)
-			parsefont(&scomf, "I");
-		if (blkcomf.font[0] == 0)
-			blkcomf = scomf, blkcomf.size += 2;
-		if (boxcomf.font[0] == 0)
-			boxcomf = blkcomf;
-		if (stringf.font[0] == 0)
-			parsefont(&stringf, "L");
-		if (keywordf.font[0] == 0)
-			parsefont(&keywordf, "B");
-		writefdef(&bodyf, 'B');
-		writefdef(&scomf, 'C');
-		writefdef(&blkcomf, 'L');
-		writefdef(&boxcomf, 'X');
-		writefdef(&stringf, 'S');
-		writefdef(&keywordf, 'K');
-	}
 	if (block_comment_max_col <= 0)
 		block_comment_max_col = max_col;
 	if (ps.local_decl_indent < 0)	/* if not specified by user, set this */
@@ -324,14 +304,7 @@ main(int argc, char **argv)
 		if (col > ps.ind_size)
 			ps.ind_level = ps.i_l_follow = col / ps.ind_size;
 	}
-	if (troff) {
-		const char   *p = in_name, *beg = in_name;
 
-		while (*p)
-			if (*p++ == '/')
-				beg = p;
-		fprintf(output, ".Fn \"%s\"\n", beg);
-	}
 	/*
          * START OF MAIN LOOP
          */
@@ -626,11 +599,7 @@ check_type:
 			if (ps.in_decl && !ps.block_init && !ps.dumped_decl_indent &&
 				ps.procname[0] == '\0' && ps.paren_level == 0) {
 				/* function pointer declarations. */
-				if (troff) {
-				sprintf(e_code, "\n.Du %dp+\200p \"%s\"\n", dec_ind * 7, token);
-				e_code += strlen(e_code);
-				} else 
-					indent_declaration(dec_ind, tabs_to_var);
+				indent_declaration(dec_ind, tabs_to_var);
 				ps.dumped_decl_indent = true;
 			}
 			else if (ps.want_blank && *token != '[' &&
@@ -642,9 +611,7 @@ check_type:
 					ps.keyword + Bill_Shannon > 2))
 				*e_code++ = ' ';
 			ps.want_blank = false;
-
-			if (!troff)
-				*e_code++ = token[0];
+			*e_code++ = token[0];
 			ps.paren_indents[ps.p_l_follow - 1] = count_spaces_until(1, s_code, e_code) - 1;
 			if (sp_sw && ps.p_l_follow == 1 && extra_expression_indent
 			    && ps.paren_indents[0] < 2 * ps.ind_size)
@@ -711,32 +678,19 @@ check_type:
 			if (!ps.dumped_decl_indent && ps.in_decl && !ps.block_init &&
 				ps.procname[0] == '\0' && ps.paren_level == 0) {
 				/* pointer declarations */
-			if (troff) {
-			    if (ps.want_blank)
-					*e_code++ = ' ';
-		    	sprintf(e_code, "\n.Du %dp+\200p \"%s\"\n", dec_ind * 7,
-					token);
-		    	e_code += strlen(e_code);
-			} else {
-				/* if this is a unary op in a declaration, we should
-			 	* indent this token */
+				/*
+				 * if this is a unary op in a declaration, we should indent
+				 * this token
+				 */
 				for (i = 0; token[i]; ++i)
-			    	/* find length of token */;
-					indent_declaration(dec_ind - i, tabs_to_var);
-				}
+		    		/* find length of token */;
+				indent_declaration(dec_ind - i, tabs_to_var);
 				ps.dumped_decl_indent = true;
 			} else if (ps.want_blank)
 				*e_code++ = ' ';
-			{
-				const char *res = token;
-
-				if (troff && token[0] == '-' && token[1] == '>')
-					res = "\\(->";
-				for (t_ptr = res; *t_ptr; ++t_ptr) {
-					CHECK_SIZE_CODE;
-					*e_code++ = *t_ptr;
-			}
-			
+			for (t_ptr = token; *t_ptr; ++t_ptr) {
+				CHECK_SIZE_CODE;
+				*e_code++ = *t_ptr;
 			}
 			ps.want_blank = false;
 			break;
@@ -744,35 +698,9 @@ check_type:
 		case binary_op:/* any binary operation */
 			if (ps.want_blank)
 				*e_code++ = ' ';
-			{
-				const char *res = token;
-
-				if (troff)
-					switch (token[0]) {
-					case '<':
-						if (token[1] == '=')
-							res = "\\(<=";
-						break;
-					case '>':
-						if (token[1] == '=')
-							res = "\\(>=";
-						break;
-					case '!':
-						if (token[1] == '=')
-							res = "\\(!=";
-						break;
-					case '|':
-						if (token[1] == '|')
-							res = "\\(br\\(br";
-						else
-							if (token[1] == 0)
-								res = "\\(br";
-						break;
-					}
-				for (t_ptr = res; *t_ptr; ++t_ptr) {
-					CHECK_SIZE_CODE;
-					*e_code++ = *t_ptr;	/* move the operator */
-				}
+			for (t_ptr = token; *t_ptr; ++t_ptr) {
+				CHECK_SIZE_CODE;
+				*e_code++ = *t_ptr;	/* move the operator */
 			}
 			ps.want_blank = true;
 			break;
@@ -1106,13 +1034,7 @@ check_type:
 		    		ps.paren_level == 0) { /* if we are in a declaration, we
 										    * must indent identifier */
 
-				    if (troff) {
-						if (ps.want_blank)
-			    			*e_code++ = ' ';
-						sprintf(e_code, "\n.De %dp+\200p\n", dec_ind * 7);
-						e_code += strlen(e_code);
-		    		} else
-						indent_declaration(dec_ind, tabs_to_var);
+					indent_declaration(dec_ind, tabs_to_var);
 		    		ps.dumped_decl_indent = true;
 		    		ps.want_blank = false;
 				}
@@ -1127,20 +1049,10 @@ check_type:
 	copy_id:
 			if (ps.want_blank)
 				*e_code++ = ' ';
-			if (troff && ps.keyword) {
-				e_code = chfont(&bodyf, &keywordf, e_code);
-				for (t_ptr = token; *t_ptr; ++t_ptr) {
-					CHECK_SIZE_CODE;
-					*e_code++ = keywordf.allcaps && islower((unsigned char)*t_ptr)
-					    ? toupper((unsigned char)*t_ptr)
-					    : *t_ptr;
-				}
-				e_code = chfont(&keywordf, &bodyf, e_code);
-			} else
-				for (t_ptr = token; *t_ptr; ++t_ptr) {
-					CHECK_SIZE_CODE;
-					*e_code++ = *t_ptr;
-				}
+			for (t_ptr = token; *t_ptr; ++t_ptr) {
+				CHECK_SIZE_CODE;
+				*e_code++ = *t_ptr;
+			}
 			if (type_code != funcname)
 				ps.want_blank = true;
 			break;
@@ -1207,8 +1119,6 @@ check_type:
 						fill_buffer();
 					switch (*e_lab++) {
 					case BACKSLASH:
-						if (troff)
-							*e_lab++ = BACKSLASH;
 						if (!in_comment) {
 							*e_lab++ = *buf_ptr++;
 							if (buf_ptr >= buf_end)

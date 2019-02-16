@@ -244,30 +244,14 @@ EXTERN int     use_tabs;			/* set true to use tabs for spacing,
 EXTERN int     space_after_cast; 	/* "b = (int) a" vs "b = (int)a" */	  
 EXTERN int	   tabsize;	/* the size of a tab */
 
-/* -troff font state information */
-
-struct fstate {
-	char    font[4];
-	char    size;
-	int     allcaps:1;
-};
-
-EXTERN struct fstate
-        keywordf,		/* keyword font */
-        stringf,		/* string font */
-        boxcomf,		/* Box comment font */
-        blkcomf,		/* Block comment font */
-        scomf,			/* Same line comment font */
-        bodyf;			/* major body font */
 
 #define STACK_SIZE 256
 
 EXTERN struct parser_state {
 	int     last_token;
-	struct fstate cfont;	/* Current font */
-        int     p_stack[STACK_SIZE];	/* this is the parsers stack */
-        int     il[STACK_SIZE];	/* this stack stores indentation levels */
-        float   cstk[STACK_SIZE];/* used to store case stmt indentation levels */
+    int     p_stack[STACK_SIZE];	/* this is the parsers stack */
+    int     il[STACK_SIZE];	/* this stack stores indentation levels */
+    float   cstk[STACK_SIZE];/* used to store case stmt indentation levels */
 	int     box_com;	/* set to true when we are in a "boxed"
 				 * comment. In that case, the first non-blank
 				 * char should be lined up with the comment / */
@@ -386,8 +370,6 @@ void add_typename(const char *);
 void alloc_typenames(void);
 void set_profile(const char *);
 char *chfont(struct fstate *, struct fstate *, char *);
-void parsefont(struct fstate *, const char *);
-void writefdef(struct fstate *, int);
 int lexi(struct parser_state *);
 void reduce(void);
 void parse(int);
