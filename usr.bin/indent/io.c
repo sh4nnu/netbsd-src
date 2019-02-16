@@ -64,13 +64,15 @@
  */
 
 #include <sys/cdefs.h>
-#ifndef lint
+
 #if 0
+#ifndef lint
 static char sccsid[] = "@(#)io.c	8.1 (Berkeley) 6/6/93";
 #else
 __RCSID("$NetBSD: io.c,v 1.17 2016/02/25 13:23:27 ginsbach Exp $");
-#endif
+
 #endif				/* not lint */
+#endif
 
 #include <ctype.h>
 #include <err.h>
@@ -396,7 +398,7 @@ fill_buffer(void)
 			int     size = (in_buffer_limit - in_buffer) * 2 + 10;
 			int     offset = p - in_buffer;
 			n = (char *) realloc(in_buffer, size);
-			if (n == 0)
+			if (n == NULL)
 				errx(1, "input line too long");
 			in_buffer = n;
 			p = in_buffer + offset;

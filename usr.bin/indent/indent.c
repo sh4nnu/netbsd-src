@@ -100,7 +100,6 @@ int
 main(int argc, char **argv)
 {
 
-	extern int found_err;	/* flag set in diag() on error */
 	int     dec_ind;	/* current indentation for declarations */
 	int     di_stack[20];	/* a stack of structure indentation levels */
 	int     force_nl;	/* when true, code must be broken */
@@ -135,9 +134,17 @@ main(int argc, char **argv)
 				 * a newline */
 	ps.last_token = semicolon;
 	combuf = (char *) malloc(bufsize);
+	if (combuf == NULL)
+		err(1, NULL);
 	labbuf = (char *) malloc(bufsize);
+	if (labbuf == NULL)
+		err(1, NULL);
 	codebuf = (char *) malloc(bufsize);
+	if (codebuf == NULL)
+		err(1, NULL);
 	tokenbuf = (char *) malloc(bufsize);
+	if (tokenbuf == NULL)
+		err(1, NULL);
 	alloc_typenames();
 	init_constant_tt();
 	l_com = combuf + bufsize - 5;
@@ -155,6 +162,8 @@ main(int argc, char **argv)
 
 	in_buffer = (char *) malloc(10);
 	in_buffer_limit = in_buffer + 8;
+	if (in_buffer == NULL)
+		err(1, NULL);
 	buf_ptr = buf_end = in_buffer;
 	line_no = 1;
 	had_eof = ps.in_decl = ps.decl_on_line = break_comma = false;

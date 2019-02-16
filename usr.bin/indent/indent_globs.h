@@ -92,7 +92,9 @@ EXTERN FILE   *output;			/* the output file */
 	    int nsize = l_code-s_code+400; \
 		int  code_len = e_code-s_code; \
 	    codebuf = (char *) realloc(codebuf, nsize); \
-	    e_code = codebuf + code_len + 1; \
+	    if (codebuf == NULL) \
+			err(1, NULL); \
+		e_code = codebuf + code_len + 1; \
 	    l_code = codebuf + nsize - 5; \
 	    s_code = codebuf + 1; \
 	}
@@ -106,7 +108,9 @@ EXTERN FILE   *output;			/* the output file */
 	    else \
 		blank_pos = -1; \
 	    combuf = (char *) realloc(combuf, nsize); \
-	    e_com = combuf + com_len + 1; \
+	    if (combuf == NULL) \
+			err(1, NULL); \
+		e_com = combuf + com_len + 1; \
 		if (blank_pos > 0) \
 		last_bl = combuf + blank_pos; \
 	    l_com = combuf + nsize - 5; \
@@ -117,6 +121,8 @@ EXTERN FILE   *output;			/* the output file */
 	    int nsize = l_lab-s_lab+400; \
 		int label_len = e_lab - s_lab; \
 	    labbuf = (char *) realloc(labbuf, nsize); \
+		if (labbuf == NULL) \
+			err(1, NULL); \
 	    e_lab = labbuf + label_len + 1; \
 	    l_lab = labbuf + nsize - 5; \
 	    s_lab = labbuf + 1; \
@@ -126,6 +132,8 @@ EXTERN FILE   *output;			/* the output file */
 	    int nsize = l_token-s_token+400; \
 		int token_len = e_token - s_token; \
 	    tokenbuf = (char *) realloc(tokenbuf, nsize); \
+		if (tokenbuf == NULL) \
+			err(1, NULL); \
 	    e_token = tokenbuf + token_len + 1; \
 	    l_token = tokenbuf + nsize - 5; \
 	    s_token = tokenbuf + 1; \
@@ -173,6 +181,7 @@ EXTERN int     blanklines_before_blockcomments;
 EXTERN int     blanklines_after_procs;
 EXTERN int     blanklines_around_conditional_compilation;
 EXTERN int     swallow_optional_blanklines;
+EXTERN int 	   found_err;
 EXTERN int     n_real_blanklines;
 EXTERN int     prefix_blankline_requested;
 EXTERN int     postfix_blankline_requested;

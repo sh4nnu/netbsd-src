@@ -64,14 +64,17 @@
  */
 
 #include <sys/cdefs.h>
-#ifndef lint
+
 #if 0
+#ifndef lint
 static char sccsid[] = "@(#)pr_comment.c	8.1 (Berkeley) 6/6/93";
 #else
 __RCSID("$NetBSD: pr_comment.c,v 1.10 2016/02/25 13:23:27 ginsbach Exp $");
-#endif
-#endif				/* not lint */
 
+#endif				/* not lint */
+#endif
+
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

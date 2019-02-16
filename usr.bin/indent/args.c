@@ -63,14 +63,15 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/cdefs.h>
-#ifndef lint
+
 #if 0
+#ifndef lint
 static char sccsid[] = "@(#)args.c	8.1 (Berkeley) 6/6/93";
-#else
-__RCSID("$NetBSD: args.c,v 1.13 2016/02/22 21:20:29 ginsbach Exp $");
-#endif
 #endif				/* not lint */
+#endif
+
+#include <sys/cdefs.h>
+__RCSID("$NetBSD: args.c,v 1.13 2016/02/22 21:20:29 ginsbach Exp $");
 
 /*
  * Argument scanning and profile reading code.  Default parameters are set
@@ -118,7 +119,7 @@ void add_typedefs_from_file(const char *str);
  * default value is the one actually assigned.
  */
 struct pro {
-	const char *p_name;	/* name, eg -bl, -cli */
+	const char *p_name;	/* name, e.g. -bl, -cli */
 	int     p_type;		/* type (int, bool, special) */
 	int     p_default;	/* the default value (if int) */
 	int     p_special;	/* depends on type */

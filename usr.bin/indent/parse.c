@@ -64,13 +64,15 @@
  */
 
 #include <sys/cdefs.h>
-#ifndef lint
+
 #if 0
+#ifndef lint
 static char sccsid[] = "@(#)parse.c	8.1 (Berkeley) 6/6/93";
 #else
 __RCSID("$NetBSD: parse.c,v 1.7 2003/08/07 11:14:09 agc Exp $");
-#endif
+
 #endif				/* not lint */
+#endif
 
 #include <err.h>
 #include <stdio.h>

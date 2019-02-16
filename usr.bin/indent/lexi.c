@@ -78,6 +78,7 @@ __RCSID("$NetBSD: lexi.c,v 1.14 2016/06/05 18:35:32 dholland Exp $");
  * of token scanned.
  */
 
+#include <err.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
