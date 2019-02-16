@@ -84,6 +84,8 @@ __RCSID("$NetBSD: args.c,v 1.13 2016/02/22 21:20:29 ginsbach Exp $");
 #include <string.h>
 #include "indent_globs.h"
 
+#define INDENT_VERSION "2.0"
+
 /* profile types */
 #define	PRO_SPECIAL	1	/* special case */
 #define	PRO_BOOL	2	/* boolean */
@@ -103,6 +105,7 @@ __RCSID("$NetBSD: args.c,v 1.13 2016/02/22 21:20:29 ginsbach Exp $");
 void scan_profile(FILE *);
 
 #define	KEY_FILE		5	/* only used for args */
+#define VERSION			6 /* only used for args */
 
 const char *option_source = "?";
 
@@ -126,6 +129,9 @@ struct pro {
 	},
 	{
 		"U", PRO_SPECIAL, 0, KEY_FILE, 0
+	},
+	{
+		"-version", PRO_SPECIAL, 0, VERSION, 0
 	},
 	{
 		"P", PRO_SPECIAL, 0, IGN, 0
@@ -471,6 +477,10 @@ found:
 				goto need_param;
 	    	add_typedefs_from_file(param_start);
 	    	break;
+		
+		case VERSION:
+			printf("NetBSD indent %s\n", INDENT_VERSION);
+	    exit(0);
 
 		default:
 			errx(1, "set_option: internal error: p_special %d",

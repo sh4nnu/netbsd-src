@@ -61,7 +61,7 @@
 .\"
 .\"	from: @(#)indent.1	8.1 (Berkeley) 7/1/93
 .\"
-.Dd February 14, 2018
+.Dd February 16, 2019
 .Dt INDENT 1
 .Os
 .Sh NAME
@@ -113,6 +113,7 @@
 .Op Fl U Ns Ar file
 .Op Fl ut | Fl nut
 .Op Fl v | Fl \&nv
+.Op Fl -version
 .Sh DESCRIPTION
 .Nm
 is a
@@ -489,6 +490,10 @@ reports when it splits one line of input into two or more lines of output,
 and gives some size statistics at completion.
 Default:
 .Fl \&nv .
+.It Fl -version
+Causes
+.Nm
+to print its version number and exit.
 .El
 .Pp
 You may set up your own `profile' of defaults to
