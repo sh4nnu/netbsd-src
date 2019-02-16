@@ -90,16 +90,25 @@ EXTERN FILE   *output;			/* the output file */
 #define CHECK_SIZE_CODE \
 	if (e_code >= l_code) { \
 	    int nsize = l_code-s_code+400; \
+		int  code_len = e_code-s_code; \
 	    codebuf = (char *) realloc(codebuf, nsize); \
-	    e_code = codebuf + (e_code-s_code) + 1; \
+	    e_code = codebuf + (code_len) + 1; \
 	    l_code = codebuf + nsize - 5; \
 	    s_code = codebuf + 1; \
 	}
 #define CHECK_SIZE_COM \
 	if (e_com >= l_com) { \
 	    int nsize = l_com-s_com+400; \
+		int com_len = e_com - s_com; \
+	    int blank_pos; \
+		if (last_bl != NULL) \
+		blank_pos = last_bl - combuf; \
+	    else \
+		blank_pos = -1; \
 	    combuf = (char *) realloc(combuf, nsize); \
-	    e_com = combuf + (e_com-s_com) + 1; \
+	    e_com = combuf + com_len + 1; \
+		if (blank_pos > 0) \
+		last_bl = combuf + blank_pos; \
 	    l_com = combuf + nsize - 5; \
 	    s_com = combuf + 1; \
 	}
