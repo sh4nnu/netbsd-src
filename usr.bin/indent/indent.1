@@ -76,8 +76,7 @@
 .Op Fl bap | Fl nbap
 .Op Fl bbb | Fl nbbb
 .Op Fl \&bc | Fl nbc
-.Op Fl \&bl
-.Op Fl \&br
+.Op Fl \&bl | Fl \&br
 .OP Fl bs | Fl nbs
 .Op Fl c Ns Ar n
 .Op Fl \&cd Ns Ar n
@@ -87,8 +86,11 @@
 .Op Fl cli Ns Ar n
 .Op Fl d Ns Ar n
 .Op Fl \&di Ns Ar n
+.Op Fl dj | Fl ndj
+.Bk -words
 .Op Fl ei | Fl nei
 .Op Fl eei | Fl neei
+.Ek
 .Op Fl fc1 | Fl nfc1
 .Op Fl i Ns Ar n
 .Op Fl \&ip | Fl nip
@@ -103,6 +105,8 @@
 .Op Fl \&sc | Fl nsc
 .Op Fl sob | Fl nsob
 .Op Fl \&st
+.Op Fl \&ta
+.Op Fl T Ns Ar typename
 .Op Fl troff
 .Op Fl ts Ns Ar n
 .Op Fl U Ns Ar file
@@ -196,7 +200,7 @@ is specified, then a newline is forced after each comma in a declaration.
 turns off this option.
 Default:
 .Fl \&bc .
-.It Fl \&br , \&bl
+.It Fl \&bl , \&br
 Specifying
 .Fl \&bl
 lines up compound statements like this:
@@ -331,7 +335,7 @@ should be used.
 Default:
 .Fl fc1 .
 .It Fl i Ns Ar n
-The number of spaces for one indentation level.
+The number of columns for one indentation level.
 Default:
 .Fl i8 .
 .It Fl \&ip , nip
@@ -348,8 +352,8 @@ Maximum length of an output line in a block comment.
 The default is 0, which means to limit block comment lines in accordance with
 .Fl l.
 .It Fl \&lp , nlp
-Lines up code surrounded by parenthesis in continuation lines.
-If a line has a left parenthesis which is not closed on that line, then
+Lines up code surrounded by parentheses in continuation lines.
+If a line has a left parentheses which is not closed on that line, then
 continuation lines will be lined up to start at the character
 position just after the left parenthesis.
 For example, here is how a piece of continued code looks with
