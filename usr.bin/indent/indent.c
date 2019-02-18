@@ -74,6 +74,9 @@ __RCSID("$NetBSD: indent.c,v 1.23 2016/09/05 00:40:29 sevan Exp $");
 #endif				/* not lint */
 
 #include <sys/param.h>
+#ifdef HAVE_CAPSICUM
+#include <sys/capsicum.h>
+#endif
 #include <ctype.h>
 #include <err.h>
 #include <errno.h>
@@ -99,7 +102,9 @@ char    bakfile[MAXPATHLEN] = "";
 int
 main(int argc, char **argv)
 {
-
+	#ifdef HAVE_CAPSICUM
+	cap_rights_t rights;
+	#endif
 	int     dec_ind;	/* current indentation for declarations */
 	int     di_stack[20];	/* a stack of structure indentation levels */
 	int     force_nl;	/* when true, code must be broken */
@@ -270,6 +275,19 @@ main(int argc, char **argv)
 			bakcopy();
 		}
 	}
+
+	#ifdef HAVE_CAPSICUM
+	/* Restrict input/output descriptors and enter Capsicum sandbox. */
+    cap_rights_init(&rights, CAP_FSTAT, CAP_WRITE);
+    if (cap_rights_limit(fileno(output), &rights) < 0 && errno != ENOSYS)
+		err(EXIT_FAILURE, "unable to limit rights for %s", out_name);
+    cap_rights_init(&rights, CAP_FSTAT, CAP_READ);
+	if (cap_rights_limit(fileno(input), &rights) < 0 && errno != ENOSYS)
+		err(EXIT_FAILURE, "unable to limit rights for %s", in_name);
+    if (cap_enter() < 0 && errno != ENOSYS)
+		err(EXIT_FAILURE, "unable to enter capability mode");
+	#endif	
+
 	if (opt.com_ind <= 1)
 		opt.com_ind = 2;	/* don't put normal comments before column 2 */
 	if (opt.block_comment_max_col <= 0)
