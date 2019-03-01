@@ -241,8 +241,8 @@ parse(int tk)
 
 	}			/* end of switch */
 
-	if (ps.tos >= STACKSIZE - 1)
-		errx(1, "Parser stack overflow.")
+	if (ps.tos >= STACK_SIZE - 1)
+		errx(1, "Parser stack overflow.");
 	
 	reduce();		/* see if any reduction can be done */
 

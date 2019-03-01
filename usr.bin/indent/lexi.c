@@ -141,7 +141,6 @@ struct templ specials[] =
 	{"void", 4},
 	{"volatile", 4},
 	{"while", 5},
-	{0, 0}
 };
 
 const char **typenames;
@@ -198,7 +197,12 @@ strcmp_type(const void *e1, const void *e2)
     return (strcmp(e1, *(const char * const *)e2));
 }
 
-
+static int 
+strcmp_specials(const void *e1, const void *e2)
+{
+	const struct templ *t = e2;
+	return (strcmp((const char*)e1, t->rwd));
+}
 
 int
 lexi(struct parser_state *state)
@@ -243,18 +247,18 @@ lexi(struct parser_state *state)
 			    	table[i][s - 'A'] == ' ') {
 			    	s = table[0][s - 'A'];
 		    		break;
-					}
+				}
 					s = table[i][s - 'A'];
 					CHECK_SIZE_TOKEN(1);
 					*e_token++ = *buf_ptr++;
 					if (buf_ptr >= buf_end)
 		    			fill_buffer();
-				}
+			
 				/* s now indicates the type: f(loating), i(integer), u(nknown) */
 			}
 		} else
 			while ((isalnum((unsigned char)*buf_ptr) || *buf_ptr == BACKSLASH ||
-				*buf_ptr == '_' || *buf_ptr == '$') {
+				*buf_ptr == '_' || *buf_ptr == '$')){
 				/* fill_buffer() terminates buffer with newline */
 			if (*buf_ptr == BACKSLASH) {
 		    	if (*(buf_ptr + 1) == '\n') {
@@ -264,7 +268,7 @@ lexi(struct parser_state *state)
 					} else
 				    	break;
 			}		
-				CHECK_SIZE_TOKEN;
+				CHECK_SIZE_TOKEN(1);
 				/* copy it over */
 				*e_token++ = *buf_ptr++;
 				if (buf_ptr >= buf_end)
@@ -294,8 +298,8 @@ lexi(struct parser_state *state)
 		p = bsearch(s_token,
 	    	specials,
 		    sizeof(specials) / sizeof(specials[0]),
-		    sizeof(specials[0]),
-		    strcmp_type);
+			sizeof(specials[0]),
+			strcmp_specials);
 		if (p == NULL) {	/* not a special keyword... */
 		    char *u;
 
@@ -306,7 +310,6 @@ lexi(struct parser_state *state)
 				    sizeof(typenames[0]), strcmp_type))) {
 				ps.keyword = 4;	/* a type name */
 				ps.last_u_d = true;
-	    	    goto found_auto_typedef;
 	    	    goto found_typename;
 					}
 		} else {		
@@ -348,7 +351,7 @@ lexi(struct parser_state *state)
 				return(storage);
 
 			case 11: /* typedef */
-				return (type_def_);
+				return (type_def);
 			
 			default:	/* all others are treated like any
 					 * other identifier */
@@ -416,12 +419,7 @@ lexi(struct parser_state *state)
 					printf("%d: Unterminated literal\n", line_no);
 					goto stop_lit;
 				}
-				CHECK_SIZE_TOKEN;	/* Only have to do this
-							 * once in this loop,
-							 * since CHECK_SIZE
-							 * guarantees that there
-							 * are at least 5
-							 * entries left */
+				CHECK_SIZE_TOKEN(2);
 				*e_token = *buf_ptr++;
 				if (buf_ptr >= buf_end)
 					fill_buffer();
@@ -645,7 +643,7 @@ init_constant_tt(void)
 void
 alloc_typenames(void)
 {
-	typenames = (const char **)mallroc(sizeof(typenames[0]) *
+	typenames = (const char **)malloc(sizeof(typenames[0]) *
         (typename_count = 16));
     if (typenames == NULL)
 		err(1, NULL);

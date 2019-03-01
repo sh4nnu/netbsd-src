@@ -105,7 +105,7 @@ __RCSID("$NetBSD: args.c,v 1.13 2016/02/22 21:20:29 ginsbach Exp $");
 void scan_profile(FILE *);
 
 #define	KEY_FILE		5	/* only used for args */
-#define VERSION			6 /* only used for args */
+#define VERSION			6	/* only used for args */
 
 const char *option_source = "?";
 
@@ -219,7 +219,7 @@ struct pro {
 	},
 	{
 		"ldi", PRO_INT, -1, 0, &opt.local_decl_indent
-	}
+	},
 	{
 		"lpl", PRO_BOOL, false, ON, &opt.lineup_to_parens_always
 	},
@@ -248,7 +248,7 @@ struct pro {
 		"nbc", PRO_BOOL, true, ON, &opt.leave_comma
 	},
 	{
-		"nbs", PRO_BOOL, false, OFF, opt.&Bill_Shannon
+		"nbs", PRO_BOOL, false, OFF, &opt.Bill_Shannon
 	},
 	{
 		"ncdb", PRO_BOOL, true, OFF, &opt.comment_delimiter_on_blankline
@@ -269,7 +269,7 @@ struct pro {
 		"nei", PRO_BOOL, true, OFF, &opt.else_if
 	},
 	{
-		"nfbs", PRO_BOOL, true, OFFm &opt.function_brace_split
+		"nfbs", PRO_BOOL, true, OFF, &opt.function_brace_split
 	},
 	{
 		"nfc1", PRO_BOOL, true, OFF, &opt.format_col1_comments

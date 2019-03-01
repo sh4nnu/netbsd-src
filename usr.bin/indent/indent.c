@@ -91,7 +91,8 @@ __RCSID("$NetBSD: indent.c,v 1.23 2016/09/05 00:40:29 sevan Exp $");
 #undef  EXTERN
 #include "indent_codes.h"
 
-static  void bakcopy(void);
+static void bakcopy(void);
+static void indent_declaration(int, int);
 
 const char *in_name = "Standard Input";		/* will always point to name of
 						 * input file */
@@ -102,9 +103,9 @@ char    bakfile[MAXPATHLEN] = "";
 int
 main(int argc, char **argv)
 {
-	#ifdef HAVE_CAPSICUM
+#ifdef HAVE_CAPSICUM
 	cap_rights_t rights;
-	#endif
+#endif
 	int     dec_ind;	/* current indentation for declarations */
 	int     di_stack[20];	/* a stack of structure indentation levels */
 	int     force_nl;	/* when true, code must be broken */
@@ -187,6 +188,7 @@ main(int argc, char **argv)
 	be_save = NULL;
 
 	output = NULL;
+	tabs_to_var = 0;
 
 
 
@@ -276,24 +278,24 @@ main(int argc, char **argv)
 		}
 	}
 
-	#ifdef HAVE_CAPSICUM
+#ifdef HAVE_CAPSICUM
 	/* Restrict input/output descriptors and enter Capsicum sandbox. */
-    cap_rights_init(&rights, CAP_FSTAT, CAP_WRITE);
-    if (cap_rights_limit(fileno(output), &rights) < 0 && errno != ENOSYS)
+	cap_rights_init(&rights, CAP_FSTAT, CAP_WRITE);
+	if (cap_rights_limit(fileno(output), &rights) < 0 && errno != ENOSYS)
 		err(EXIT_FAILURE, "unable to limit rights for %s", out_name);
-    cap_rights_init(&rights, CAP_FSTAT, CAP_READ);
+	cap_rights_init(&rights, CAP_FSTAT, CAP_READ);
 	if (cap_rights_limit(fileno(input), &rights) < 0 && errno != ENOSYS)
 		err(EXIT_FAILURE, "unable to limit rights for %s", in_name);
-    if (cap_enter() < 0 && errno != ENOSYS)
+	if (cap_enter() < 0 && errno != ENOSYS)
 		err(EXIT_FAILURE, "unable to enter capability mode");
-	#endif	
+#endif	
 
 	if (opt.com_ind <= 1)
 		opt.com_ind = 2;	/* don't put normal comments before column 2 */
 	if (opt.block_comment_max_col <= 0)
 		opt.block_comment_max_col = opt.max_col;
-	if (ps.local_decl_indent < 0)	/* if not specified by user, set this */
-		ps.local_decl_indent = ps.decl_indent;s
+	if (opt.local_decl_indent < 0)	/* if not specified by user, set this */
+		opt.local_decl_indent = opt.decl_indent;
 	if (opt.decl_com_ind <= 0)	/* if not specified by user, set this */
 		opt.decl_com_ind = opt.ljust_decl ? (opt.com_ind <= 10 ? 2 : opt.com_ind - 8) : opt.com_ind;
 	if (opt.continuation_indent == 0)
@@ -383,7 +385,7 @@ main(int argc, char **argv)
 					break;	/* we are at end of comment */
 			    if (sc_end >= &save_com[sc_size]) {	/* check for temp buffer
 													 * overflow */
-					diag2(1, "Internal buffer overflow - Move big comment from right after if, while, or whatever");
+					diag(1, "Internal buffer overflow - Move big comment from right after if, while, or whatever");
 					fflush(output);
 					exit(1);
 					}
@@ -455,7 +457,7 @@ main(int argc, char **argv)
 				*sc_end++ = ' ';
 				if (opt.verbose)	/* print error msg if the line was
 								 * not already broken */
-			    	diag2(0, "Line broken");
+			    	diag(0, "Line broken");
 		    }
 		    for (t_ptr = token; *t_ptr; ++t_ptr)
 				*sc_end++ = *t_ptr;
@@ -539,10 +541,10 @@ check_type:
 			exit(found_err);
 		}
 		if (
-		    (type_code != comment) &&
-		    (type_code != newline) &&
-		    (type_code != preesc) &&
-		    (type_code != form_feed)) {
+		    	(type_code != comment) &&
+		    	(type_code != newline) &&
+		    	(type_code != preesc) &&
+		    	(type_code != form_feed)) {
 			if (force_nl &&
 			    (type_code != semicolon) &&
 			    (type_code != lbrace || !opt.btype_2)) {
@@ -609,7 +611,7 @@ check_type:
 		case lparen:	/* got a '(' or '[' */
 			/* count parens to make Healy happy */
 	    	if (++ps.p_l_follow == nitems(ps.paren_indents)) {
-				diag3(0, "Reached internal limit of %d unclosed parens",
+				diag(0, "Reached internal limit of %lu unclosed parens",
 		    		nitems(ps.paren_indents));
 				ps.p_l_follow--;
 	    	}
@@ -623,7 +625,7 @@ check_type:
 				ps.dumped_decl_indent = true;
 			}
 			else if (ps.want_blank && 
-			    (ps.last_token != ident && ps.last_token != funcname || 
+			    ((ps.last_token != ident && ps.last_token != funcname) || 
 				opt.proc_calls_space ||
 		    	/* offsetof (1) is never allowed a space; sizeof (2) gets
 		    	 * one iff -bs; all other keywords (>2) always get a space
@@ -650,7 +652,7 @@ check_type:
 							 * initialization */
 			}
 			/* parenthesized type following sizeof or offsetof is not a cast */
-			if (ps.sizeof_keyword == 1 || ps.keyboard == 2)
+			if (ps.keyword == 1 || ps.keyword == 2)
 				ps.not_cast_mask |= 1 << ps.p_l_follow;
 			break;
 
@@ -709,21 +711,26 @@ check_type:
 				ps.dumped_decl_indent = true;
 			} else if (ps.want_blank)
 				*e_code++ = ' ';
-			for (t_ptr = token; *t_ptr; ++t_ptr) {
-				CHECK_SIZE_CODE;
-				*e_code++ = *t_ptr;
-			}
+			{
+				int len = e_token - s_token;
+
+				CHECK_SIZE_CODE(len);
+				memcpy(e_code, token, len);
+				e_code += len;
+	    	}
 			ps.want_blank = false;
 			break;
 
 		case binary_op:/* any binary operation */
-			if (ps.want_blank)
-				*e_code++ = ' ';
-			for (t_ptr = token; *t_ptr; ++t_ptr) {
-				CHECK_SIZE_CODE;
-				*e_code++ = *t_ptr;	/* move the operator */
+			{
+				int len = e_token - s_token;
+
+				CHECK_SIZE_CODE(len + 1);
+				if (ps.want_blank)
+				    *e_code++ = ' ';
+				memcpy(e_code, token, len);
+				e_code += len;
 			}
-			ps.want_blank = true;
 			break;
 
 		case postop:	/* got a trailing ++ or -- */
@@ -891,7 +898,7 @@ check_type:
 								 * or an init */
 				di_stack[ps.dec_nest] = dec_ind;
 				if (++ps.dec_nest == nitems(di_stack)) {
-		    		diag3(0, "Reached internal limit of %d struct levels",
+		    		diag(0, "Reached internal limit of %lu struct levels",
 					nitems(di_stack));
 		    	ps.dec_nest--;
 				}
@@ -1002,7 +1009,7 @@ check_type:
 			}
 			goto copy_id;	/* move the token into line */
 		
-		case type_def;
+		case type_def:
 		case storage:
 		    prefix_blankline_requested = 0;
 		    goto copy_id;
@@ -1077,22 +1084,28 @@ check_type:
 					parse(hd_type);
 				}
 	copy_id:
-			if (ps.want_blank)
-				*e_code++ = ' ';
-			for (t_ptr = token; *t_ptr; ++t_ptr) {
-				CHECK_SIZE_CODE;
-				*e_code++ = *t_ptr;
+			{
+				int len = e_token - s_token;
+
+				CHECK_SIZE_CODE(len + 1);
+				if (ps.want_blank)
+				    *e_code++ = ' ';
+				memcpy(e_code, s_token, len);
+				e_code += len;
 			}
 			if (type_code != funcname)
 				ps.want_blank = true;
 			break;
 
 		case strpfx:
-		    if (ps.want_blank)
-				*e_code++ = ' ';
-		    for (t_ptr = token; *t_ptr; ++t_ptr) {
-				CHECK_SIZE_CODE;
-				*e_code++ = *t_ptr;
+		    {
+				int len = e_token - s_token;
+
+				CHECK_SIZE_CODE(len + 1);
+				if (ps.want_blank)
+				    *e_code++ = ' ';
+				memcpy(e_code, token, len);
+				e_code += len;
 	    	}
 	    	ps.want_blank = false;
 	    	break;
@@ -1142,8 +1155,8 @@ check_type:
 					if (buf_ptr >= buf_end)
 						fill_buffer();
 				}
-				while (*buf_ptr != '\n' || in_comment) {
-					CHECK_SIZE_LAB;
+				while (*buf_ptr != '\n' || (in_comment && !had_eof)) {
+					CHECK_SIZE_LAB(2);
 					*e_lab = *buf_ptr++;
 					if (buf_ptr >= buf_end)
 						fill_buffer();
@@ -1221,19 +1234,19 @@ check_type:
 			}
 
 			if (strncmp(s_lab, "#if", 3) == 0) { /* also ifdef, ifndef */
-				if (ifdef_level < (int)(sizeof state_stack / sizeof state_stack[0])) {
+				if ((size_t)ifdef_level < nitems(state_stack)) {
 					match_state[ifdef_level].tos = -1;
 					state_stack[ifdef_level++] = ps;
-				} else
+				}
+				else
 					diag(1, "#if stack overflow");
-			} else
-				if (strncmp(s_lab, "#el", 3) == 0) { /* else, elif */
-					if (ifdef_level <= 0)
-						diag(1, s_lab[3] == 'i' ? "Unmatched #elif" : "Unmatched #else");
-					else {
-						match_state[ifdef_level - 1] = ps;
-						ps = state_stack[ifdef_level - 1];
-					}
+			} else if (strncmp(s_lab, "#el", 3) == 0) { /* else, elif */
+				if (ifdef_level <= 0)
+					diag(1, s_lab[3] == 'i' ? "Unmatched #elif" : "Unmatched #else");
+				else {
+					match_state[ifdef_level - 1] = ps;
+					ps = state_stack[ifdef_level - 1];
+				}
 				} else
 					if (strncmp(s_lab, "#endif", 6) == 0) {
 						if (ifdef_level <= 0)
@@ -1258,10 +1271,10 @@ check_type:
 						    if (strncmp(s_lab + 1, recognized[d].string, recognized[d].size) == 0)
 								break;
 						if (d < 0) {
-						    diag2(1, "Unrecognized cpp directive");
+						    diag(1, "Unrecognized cpp directive");
 						    break;
 						}
-				}
+					}
 				if (opt.blanklines_around_conditional_compilation) {
 					postfix_blankline_requested++;
 					n_real_blanklines = 0;
@@ -1283,6 +1296,7 @@ check_type:
 		if (type_code != comment && type_code != newline && type_code != preesc)
 			ps.last_token = type_code;
 	}			/* end of main while (1) loop */
+}
 }
 /*
  * copy input file to backup file if in_name is /blah/blah/blah/file, then
@@ -1350,10 +1364,10 @@ indent_declaration(int cur_dec_ind, int tabs_to_var)
 	    	pos = tpos;
 		}
 	}
+	CHECK_SIZE_CODE(cur_dec_ind - pos + 1);
     while (pos < cur_dec_ind) {
-	CHECK_SIZE_CODE;
-	*e_code++ = ' ';
-	pos++;
+		*e_code++ = ' ';
+		pos++;
     }
     if (e_code == startpos && ps.want_blank) {
 	*e_code++ = ' ';

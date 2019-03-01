@@ -84,6 +84,8 @@ __RCSID("$NetBSD: io.c,v 1.17 2016/02/25 13:23:27 ginsbach Exp $");
 
 int     comment_open;
 static  int paren_target;
+static int pad_output(int current, int target);
+
 
 void
 dump_line(void)
@@ -92,10 +94,10 @@ dump_line(void)
 				 * prints the label section, followed by the
 				 * code section with the appropriate nesting
 				 * level, followed by any comments */
-	int     cur_col, target_col;
+	int     cur_col, 
+			target_col = 1;
 	static int not_first_line;
 
-	target_col = 0;
 	if (ps.procname[0]) {
 		ps.ind_level = 0;
 		ps.procname[0] = 0;
@@ -195,12 +197,12 @@ dump_line(void)
 	    		target += ps.comment_delta;
 	    		while (*com_st == '\t')	/* consider original indentation in
 						     * case this is a box comment */
-					com_st++, target += tabsize;
+					com_st++, target += opt.tabsize;
 	    		while (target <= 0)
 					if (*com_st == ' ')
 		    			target++, com_st++;
 					else if (*com_st == '\t')
-		    			target = tabsize * (1 + (target - 1) / tabsize) + 1, com_st++;
+		    			target = opt.tabsize * (1 + (target - 1) / opt.tabsize) + 1, com_st++;
 					else
 					    target = 1;
 	    		if (cur_col > target) {	/* if comment can't fit on this line,
@@ -423,17 +425,17 @@ fill_buffer(void)
  * HISTORY: initial coding 	November 1976	D A Willcox of CAC
  *
  */
-int
+static int
 pad_output(int current, int target)
 {
 	int curr;  /* internal column pointer */
 	if (current >= target)
 		return (current);	/* line is already long enough */
     curr = current;
-    if (use_tabs) {
+    if (opt.use_tabs) {
 		int tcur;
 
-		while ((tcur = tabsize * (1 + (curr - 1) / tabsize) + 1) <= target) {
+		while ((tcur = opt.tabsize * (1 + (curr - 1) / opt.tabsize) + 1) <= target) {
 	    	putc('\t', output);
 	    	curr = tcur;
 		}
@@ -522,55 +524,4 @@ diag(int level, const char *msg, ...)
 		fprintf(stderr, "\n");
 	}
 	va_end(ap);
-}
-
-void
-diag4(int level, const char *msg, int a, int b)
-{
-    if (level)
-	found_err = 1;
-    if (output == stdout) {
-	fprintf(stdout, "/**INDENT** %s@%d: ", level == 0 ? "Warning" : "Error", line_no);
-	fprintf(stdout, msg, a, b);
-	fprintf(stdout, " */\n");
-    }
-    else {
-	fprintf(stderr, "%s@%d: ", level == 0 ? "Warning" : "Error", line_no);
-	fprintf(stderr, msg, a, b);
-	fprintf(stderr, "\n");
-    }
-}
-
-void
-diag3(int level, const char *msg, int a)
-{
-    if (level)
-	found_err = 1;
-    if (output == stdout) {
-	fprintf(stdout, "/**INDENT** %s@%d: ", level == 0 ? "Warning" : "Error", line_no);
-	fprintf(stdout, msg, a);
-	fprintf(stdout, " */\n");
-    }
-    else {
-	fprintf(stderr, "%s@%d: ", level == 0 ? "Warning" : "Error", line_no);
-	fprintf(stderr, msg, a);
-	fprintf(stderr, "\n");
-    }
-}
-
-void
-diag2(int level, const char *msg)
-{
-    if (level)
-	found_err = 1;
-    if (output == stdout) {
-	fprintf(stdout, "/**INDENT** %s@%d: ", level == 0 ? "Warning" : "Error", line_no);
-	fprintf(stdout, "%s", msg);
-	fprintf(stdout, " */\n");
-    }
-    else {
-	fprintf(stderr, "%s@%d: ", level == 0 ? "Warning" : "Error", line_no);
-	fprintf(stderr, "%s", msg);
-	fprintf(stderr, "\n");
-    }
 }

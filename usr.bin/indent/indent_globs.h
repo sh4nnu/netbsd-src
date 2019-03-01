@@ -87,53 +87,53 @@
 EXTERN FILE   *input;			/* the fid for the input file */
 EXTERN FILE   *output;			/* the output file */
 
-#define CHECK_SIZE_CODE \
-	if (e_code >= l_code) { \
-	    int nsize = l_code-s_code+400; \
-		int  code_len = e_code-s_code; \
+#define CHECK_SIZE_CODE(desired_size) \
+	if (e_code + (desired_size) >= l_code) { \
+	    int nsize = l_code-s_code + 400 + desired_size; \
+	    int code_len = e_code-s_code; \
 	    codebuf = (char *) realloc(codebuf, nsize); \
 	    if (codebuf == NULL) \
-			err(1, NULL); \
-		e_code = codebuf + code_len + 1; \
+		err(1, NULL); \
+	    e_code = codebuf + code_len + 1; \
 	    l_code = codebuf + nsize - 5; \
 	    s_code = codebuf + 1; \
 	}
-#define CHECK_SIZE_COM \
-	if (e_com >= l_com) { \
-	    int nsize = l_com-s_com+400; \
-		int com_len = e_com - s_com; \
+#define CHECK_SIZE_COM(desired_size) \
+	if (e_com + (desired_size) >= l_com) { \
+	    int nsize = l_com-s_com + 400 + desired_size; \
+	    int com_len = e_com - s_com; \
 	    int blank_pos; \
-		if (last_bl != NULL) \
+	    if (last_bl != NULL) \
 		blank_pos = last_bl - combuf; \
 	    else \
 		blank_pos = -1; \
 	    combuf = (char *) realloc(combuf, nsize); \
 	    if (combuf == NULL) \
-			err(1, NULL); \
-		e_com = combuf + com_len + 1; \
-		if (blank_pos > 0) \
+		err(1, NULL); \
+	    e_com = combuf + com_len + 1; \
+	    if (blank_pos > 0) \
 		last_bl = combuf + blank_pos; \
 	    l_com = combuf + nsize - 5; \
 	    s_com = combuf + 1; \
 	}
-#define CHECK_SIZE_LAB \
-	if (e_lab >= l_lab) { \
-	    int nsize = l_lab-s_lab+400; \
-		int label_len = e_lab - s_lab; \
+#define CHECK_SIZE_LAB(desired_size) \
+	if (e_lab + (desired_size) >= l_lab) { \
+	    int nsize = l_lab-s_lab + 400 + desired_size; \
+	    int label_len = e_lab - s_lab; \
 	    labbuf = (char *) realloc(labbuf, nsize); \
-		if (labbuf == NULL) \
-			err(1, NULL); \
+	    if (labbuf == NULL) \
+		err(1, NULL); \
 	    e_lab = labbuf + label_len + 1; \
 	    l_lab = labbuf + nsize - 5; \
 	    s_lab = labbuf + 1; \
 	}
-#define CHECK_SIZE_TOKEN \
-	if (e_token >= l_token) { \
-	    int nsize = l_token-s_token+400; \
-		int token_len = e_token - s_token; \
+#define CHECK_SIZE_TOKEN(desired_size) \
+	if (e_token + (desired_size) >= l_token) { \
+	    int nsize = l_token-s_token + 400 + desired_size; \
+	    int token_len = e_token - s_token; \
 	    tokenbuf = (char *) realloc(tokenbuf, nsize); \
-		if (tokenbuf == NULL) \
-			err(1, NULL); \
+	    if (tokenbuf == NULL) \
+		err(1, NULL); \
 	    e_token = tokenbuf + token_len + 1; \
 	    l_token = tokenbuf + nsize - 5; \
 	    s_token = tokenbuf + 1; \
@@ -168,7 +168,7 @@ EXTERN char   *buf_end;			/* ptr to first after last char in in_buffer */
 
 EXTERN char    sc_buf[sc_size];	/* input text is saved here when looking for
 				 	 * the brace after an if, while, etc */
-EXTERN char    save_com;		/* start of the comment stored in sc_buf */
+EXTERN char   *save_com;		/* start of the comment stored in sc_buf */
 EXTERN char   *sc_end;			/* pointer into save_com buffer */
 
 EXTERN char   *bp_save;			/* saved value of buf_ptr when taking input
@@ -228,7 +228,7 @@ EXTERN struct options {
 					 * be magically reformatted (just like
 					 * comments that begin in later columns) */
 	int	    format_block_comments;	/* true if comments beginning with
-					 * `/*\n' are to be reformatted */
+					 * `\n' are to be reformatted */
 	int     indent_parameters;
 	int     ind_size;	/* the size of one indentation level */
 	int     block_comment_max_col;
@@ -246,6 +246,8 @@ EXTERN struct options {
 	int     star_comment_cont;	/* true iff comment continuation lines should
 					 * have stars at the beginning of each line. */
 	int     swallow_optional_blanklines;
+	int		auto_typedefs;	/* set true to recognize identifiers
+				 	 * ending in "_t" like typedefs */
 	int	    tabsize;	/* the size of a tab */
 	int     max_col;			/* the maximum allowable line length */
 	int     use_tabs;			/* set true to use tabs for spacing,
@@ -362,29 +364,23 @@ EXTERN int     ifdef_level;
 EXTERN struct parser_state state_stack[5];
 EXTERN struct parser_state match_state[5];
 
+#define nitems(array) (sizeof (array) / sizeof (array[0]))
 
 int compute_code_target(void);
 int compute_label_target(void);
 int count_spaces(int, char *);
 int count_spaces_until(int, char *, char *);
 void diag(int, const char *,...) __attribute__((__format__(__printf__, 2, 3)));
-void diag2(int, const char *);
-void diag3(int, const char *, int);
-void diag4(int, const char *, int, int);
 void dump_line(void);
-int eqin(const char *, const char *);
 void fill_buffer(void);
 void init_constant_tt(void);
-int pad_output(int, int);
 void scan_profile(FILE *);
 void set_defaults(void);
 void set_option(char *);
 void add_typename(const char *);
 void alloc_typenames(void);
 void set_profile(const char *);
-char *chfont(struct fstate *, struct fstate *, char *);
 int lexi(struct parser_state *);
 void reduce(void);
 void parse(int);
 void pr_comment(void);
-void bakcopy(void);

@@ -233,9 +233,9 @@ pr_comment(void)
 
 	while (1) {		/* this loop will go until the comment is
 				 * copied */
-		CHECK_SIZE_COM;
 		switch (*buf_ptr) {	/* this checks for various spcl cases */
 		case 014:	/* check for a form feed */
+			CHECK_SIZE_COM(3);
 			if (!ps.box_com) {	/* in a text comment, break
 						 * the line here */
 				ps.use_ff = true;
@@ -285,7 +285,6 @@ pr_comment(void)
 				 */
 				else {	/* otherwise, insert one */
 					last_bl = e_com;
-					CHECK_SIZE_COM;
 					*e_com++ = ' ';
 				}
 			}
@@ -313,18 +312,18 @@ pr_comment(void)
 			if (++buf_ptr >= buf_end)	/* get to next char
 							 * after * */
 				fill_buffer();
-
+			CHECK_SIZE_COM(4);
 			if (*buf_ptr == '/') {	/* it is the end!!! */
 		end_of_comment:
 				if (++buf_ptr >= buf_end)
 					fill_buffer();
 				
-				
-				CHECK_SIZE_COM;
 				if (break_delim) {
 					if (e_com > s_com + 3) {
 						dump_line();
-					}	
+					}	else
+							s_com = e_com;
+						*e_com++ = ' ';
 				}
 				if (e_com[-1] != ' ' && e_com[-1] != '\t' && !ps.box_com)
 		  	  *e_com++ = ' ';	/* ensure blank before end */
@@ -337,13 +336,14 @@ pr_comment(void)
 		default:	/* we have a random char */
 			now_col = count_spaces_until(ps.com_col, s_com, e_com);
 	    	do {
-				*e_com = *buf_ptr++;
-				if (buf_ptr >= buf_end)
-				    fill_buffer();
-				if (*e_com == ' ' || *e_com == '\t')
-				    last_bl = e_com;	/* remember we saw a blank */
-				++e_com;
-				now_col++;
+					CHECK_SIZE_COM(1);
+					*e_com = *buf_ptr++;
+					if (buf_ptr >= buf_end)
+					    fill_buffer();
+					if (*e_com == ' ' || *e_com == '\t')
+					    last_bl = e_com;	/* remember we saw a blank */
+					++e_com;
+					now_col++;
 		    } while (!memchr("*\n\r\b\t", *buf_ptr, 6) &&
 				(now_col <= adj_max_col || !last_bl));
 	    	ps.last_nl = false;
