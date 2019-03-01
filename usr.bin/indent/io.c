@@ -84,6 +84,8 @@ __RCSID("$NetBSD: io.c,v 1.17 2016/02/25 13:23:27 ginsbach Exp $");
 
 int     comment_open;
 static  int paren_target;
+static int pad_output(int current, int target);
+
 
 void
 dump_line(void)
@@ -92,10 +94,10 @@ dump_line(void)
 				 * prints the label section, followed by the
 				 * code section with the appropriate nesting
 				 * level, followed by any comments */
-	int     cur_col, target_col;
+	int     cur_col, 
+			target_col = 1;
 	static int not_first_line;
 
-	target_col = 0;
 	if (ps.procname[0]) {
 		ps.ind_level = 0;
 		ps.procname[0] = 0;
@@ -423,7 +425,7 @@ fill_buffer(void)
  * HISTORY: initial coding 	November 1976	D A Willcox of CAC
  *
  */
-int
+static int
 pad_output(int current, int target)
 {
 	int curr;			/* internal column pointer */
@@ -523,55 +525,4 @@ diag(int level, const char *msg, ...)
 		fprintf(stderr, "\n");
 	}
 	va_end(ap);
-}
-
-void
-diag4(int level, const char *msg, int a, int b)
-{
-    if (level)
-	found_err = 1;
-    if (output == stdout) {
-	fprintf(stdout, "/**INDENT** %s@%d: ", level == 0 ? "Warning" : "Error", line_no);
-	fprintf(stdout, msg, a, b);
-	fprintf(stdout, " */\n");
-    }
-    else {
-	fprintf(stderr, "%s@%d: ", level == 0 ? "Warning" : "Error", line_no);
-	fprintf(stderr, msg, a, b);
-	fprintf(stderr, "\n");
-    }
-}
-
-void
-diag3(int level, const char *msg, int a)
-{
-    if (level)
-	found_err = 1;
-    if (output == stdout) {
-	fprintf(stdout, "/**INDENT** %s@%d: ", level == 0 ? "Warning" : "Error", line_no);
-	fprintf(stdout, msg, a);
-	fprintf(stdout, " */\n");
-    }
-    else {
-	fprintf(stderr, "%s@%d: ", level == 0 ? "Warning" : "Error", line_no);
-	fprintf(stderr, msg, a);
-	fprintf(stderr, "\n");
-    }
-}
-
-void
-diag2(int level, const char *msg)
-{
-    if (level)
-	found_err = 1;
-    if (output == stdout) {
-	fprintf(stdout, "/**INDENT** %s@%d: ", level == 0 ? "Warning" : "Error", line_no);
-	fprintf(stdout, "%s", msg);
-	fprintf(stdout, " */\n");
-    }
-    else {
-	fprintf(stderr, "%s@%d: ", level == 0 ? "Warning" : "Error", line_no);
-	fprintf(stderr, "%s", msg);
-	fprintf(stderr, "\n");
-    }
 }

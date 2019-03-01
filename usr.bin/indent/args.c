@@ -106,7 +106,7 @@ __RCSID("$NetBSD: args.c,v 1.13 2016/02/22 21:20:29 ginsbach Exp $");
 void scan_profile(FILE *);
 
 #define	KEY_FILE		5	/* only used for args */
-#define VERSION			6 /* only used for args */
+#define VERSION			6	/* only used for args */
 
 const char *option_source = "?";
 

@@ -320,7 +320,6 @@ pr_comment(void)
 		end_of_comment:
 				if (++buf_ptr >= buf_end)
 					fill_buffer();
-
 				if (break_delim) {
 					if (e_com > s_com + 3) {
 						dump_line();

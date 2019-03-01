@@ -141,7 +141,6 @@ struct templ specials[] =
 	{"void", 4},
 	{"volatile", 4},
 	{"while", 5},
-	{0, 0}
 };
 
 const char **typenames;
@@ -250,13 +249,13 @@ lexi(struct parser_state *state)
 			    	table[i][s - 'A'] == ' ') {
 			    	s = table[0][s - 'A'];
 		    		break;
-					}
+				}
 					s = table[i][s - 'A'];
 					CHECK_SIZE_TOKEN(1);
 					*e_token++ = *buf_ptr++;
 					if (buf_ptr >= buf_end)
 		    			fill_buffer();
-				}
+			
 				/* s now indicates the type: f(loating), i(integer), u(nknown) */
 			}
 		} else
