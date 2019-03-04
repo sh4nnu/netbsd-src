@@ -288,7 +288,7 @@ EXTERN struct parser_state {
 	int     comment_delta; /* used to set up indentation for all lines
 						    * of a boxed comment after the first one */
 			
-			n_comment_delta; /* remembers how many columns there were
+	int		n_comment_delta; /* remembers how many columns there were
 							  * before the start of a box comment so that
 							  * forthcoming lines of the comment are
 							  * indented properly */

@@ -96,7 +96,7 @@ dump_line(void)
 				 * level, followed by any comments */
 	int     cur_col, 
 			target_col = 1;
-	static int not_first_line;
+	static int	not_first_line;
 
 	if (ps.procname[0]) {
 		ps.ind_level = 0;
@@ -201,8 +201,10 @@ dump_line(void)
 	    		while (target <= 0)
 					if (*com_st == ' ')
 		    			target++, com_st++;
-					else if (*com_st == '\t')
-		    			target = opt.tabsize * (1 + (target - 1) / opt.tabsize) + 1, com_st++;
+					else if (*com_st == '\t') {
+		    			target = opt.tabsize * (1 + (target - 1) / opt.tabsize) + 1;
+						com_st++;
+					}
 					else
 					    target = 1;
 	    		if (cur_col > target) {	/* if comment can't fit on this line,
@@ -242,7 +244,7 @@ dump_line(void)
 	ps.dumped_decl_indent = 0;
 	*(e_lab = s_lab) = '\0';/* reset buffers */
 	*(e_code = s_code) = '\0';
-	*(e_com = s_com = combuf+1) = '\0';
+	*(e_com = s_com = combuf + 1) = '\0';
 	ps.ind_level = ps.i_l_follow;
 	ps.paren_level = ps.p_l_follow;
 	if (ps.paren_level > 0)
@@ -311,7 +313,6 @@ fill_buffer(void)
 	int     i;
 	FILE   *f = input;
 	char   *n;
-
 	if (bp_save != NULL) {	/* there is a partly filled input buffer left */
 		buf_ptr = bp_save;	/* donot read anything, just switch
 					 * buffers */

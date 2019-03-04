@@ -143,7 +143,8 @@ pr_comment(void)
 		break_delim = false;
 		ps.com_col = 1;
 	} else {
-		if (*buf_ptr == '-' || *buf_ptr == '*' || *buf_ptr == '\n') {
+		if (*buf_ptr == '-' || *buf_ptr == '*' ||
+			 (*buf_ptr == '\n' && !opt.format_block_comments)) {
 			ps.box_com = true;	/* A comment with a '-' or '*' immediately
 						 * after the /+* is assumed to be a boxed
 						 * comment. A comment with a newline
@@ -204,19 +205,19 @@ pr_comment(void)
 	if (*buf_ptr != ' ' && !ps.box_com)
 		*e_com++ = ' ';
 
-	/*
+    /*
 	 * Don't put a break delimiter if this comment is a one-liner
 	 */
-  if (break_delim)
-		for (t_ptr = buf_ptr; *t_ptr != '\0' && *t_ptr != '\n'; t_ptr++) {
-	    if (t_ptr >= buf_end)
-				fill_buffer();
-	    if (t_ptr[0] == '*' && t_ptr[1] == '/') {
-				if (adj_max_col >= count_spaces_until(ps.com_col, buf_ptr, t_ptr + 2))
-					break_delim = false;
-				break;
-	    }
-	}
+    if (break_delim)
+			for (t_ptr = buf_ptr; *t_ptr != '\0' && *t_ptr != '\n'; t_ptr++) {
+				if (t_ptr >= buf_end)
+		    		fill_buffer();
+				if (t_ptr[0] == '*' && t_ptr[1] == '/') {
+					if (adj_max_col >= count_spaces_until(ps.com_col, buf_ptr, t_ptr + 2))
+		    			break_delim = false;
+		    	break;
+				}
+    	}
 
     if (break_delim) {
 		char       *t = e_com;
@@ -350,8 +351,7 @@ pr_comment(void)
 		    } while (!memchr("*\n\r\b\t", *buf_ptr, 6) &&
 				(now_col <= adj_max_col || !last_bl));
 	    	ps.last_nl = false;
-			if (now_col > adj_max_col && !ps.box_com && !iscntrl((unsigned char)e_com[-1])
-				&& !isblank((unsigned char)e_com[-1])) {
+			if (now_col > adj_max_col && !ps.box_com && e_com[-1] > ' ') {
 				/*
 				 * the comment is too long, it must be broken up
 				 */
@@ -359,13 +359,13 @@ pr_comment(void)
 					dump_line();
 		    	if (!ps.box_com && opt.star_comment_cont)
 						*e_com++ = ' ', *e_com++ = '*', *e_com++ = ' ';
-		  	  break;
+		  			break;
 				}
 				*e_com = '\0';
 				e_com = last_bl;
 				dump_line();
 				if (!ps.box_com && opt.star_comment_cont)
-		  	 *e_com++ = ' ', *e_com++ = '*', *e_com++ = ' ';
+		  			 *e_com++ = ' ', *e_com++ = '*', *e_com++ = ' ';
 				for (t_ptr = last_bl + 1; *t_ptr == ' ' || *t_ptr == '\t';
 		   	 t_ptr++)
 					;
@@ -378,7 +378,7 @@ pr_comment(void)
 				while (*t_ptr != '\0') {
 		   	 if (*t_ptr == ' ' || *t_ptr == '\t')
 					last_bl = e_com;
-		    *e_com++ = *t_ptr++;
+		    		*e_com++ = *t_ptr++;
  				}
 			}
 			break;
