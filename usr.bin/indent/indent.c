@@ -98,6 +98,8 @@ const char *in_name = "Standard Input";		/* will always point to name of
 						 * input file */
 const char *out_name = "Standard Output";	/* will always point to name of
 						 * output file */
+const char *simple_backup_suffix = ".BAK";	/* Suffix to use for backup
+						 * files */
 char    bakfile[MAXPATHLEN] = "";
 
 int
@@ -109,7 +111,7 @@ main(int argc, char **argv)
 	int     dec_ind;	/* current indentation for declarations */
 	int     di_stack[20];	/* a stack of structure indentation levels */
 	int     force_nl;	/* when true, code must be broken */
-	int     hd_type;	/* used to store type of stmt for if (...),
+	int     hd_type = 0;	/* used to store type of stmt for if (...),
 				 * for (...), etc */
 	int     i;		/* local loop counter */
 	int     scase;		/* set to true when we see a case, so we will
@@ -120,11 +122,12 @@ main(int argc, char **argv)
 				 * without the matching : in a <c>?<s>:<s>
 				 * construct */
 	const char *t_ptr;	/* used for copying tokens */
-	int	tabs_to_var = 0; /* true if using tabs to indent to var name */
+	int	tabs_to_var; /* true if using tabs to indent to var name */
 	int     type_code;	/* the type of token, returned by lexi */
 
 	int     last_else = 0;	/* true iff last keyword was an else */
 	const char *profile_name = NULL;
+	const char *envval = NULL;
 	struct parser_state transient_state; /* a copy for lookup */
 
 		/*-----------------------------------------------*\
@@ -134,7 +137,8 @@ main(int argc, char **argv)
 	if (!setlocale(LC_ALL, ""))
 		warnx("can't set locale.");
 
-	hd_type = 0;
+	found_err = 0;
+	
 	ps.p_stack[0] = stmt;	/* this is the parser's stack */
 	ps.last_nl = true;	/* this is true if the last thing scanned was
 				 * a newline */
@@ -167,9 +171,9 @@ main(int argc, char **argv)
 	s_token = e_token = tokenbuf + 1;
 
 	in_buffer = (char *) malloc(10);
-	in_buffer_limit = in_buffer + 8;
 	if (in_buffer == NULL)
 		err(1, NULL);
+	in_buffer_limit = in_buffer + 8;
 	buf_ptr = buf_end = in_buffer;
 	line_no = 1;
 	had_eof = ps.in_decl = ps.decl_on_line = break_comma = false;
@@ -190,10 +194,12 @@ main(int argc, char **argv)
 	output = NULL;
 	tabs_to_var = 0;
 
-
+	envval = getenv("SIMPLE_BACKUP_SUFFIX");
+    if (envval)
+        simple_backup_suffix = envval;
 
 		/*--------------------------------------------------*\
-        |   		COMMAND LINE SCAN		 |
+        		|   		COMMAND LINE SCAN		 |
         \*--------------------------------------------------*/
 
 #ifdef undef
@@ -216,7 +222,7 @@ main(int argc, char **argv)
 	btype_2 = 1;		/* -br */
 	cuddle_else = 1;	/* -ce */
 	ps.unindent_displace = 0;	/* -d0 */
-	ps.case_indent = 0;	/* -cli0 */
+	opt.case_indent = 0;	/* -cli0 */
 	format_block_comments = 1;	/* -fcb */
 	format_col1_comments = 1;	/* -fc1 */
 	procnames_start_line = 1;	/* -psl */
@@ -240,24 +246,20 @@ main(int argc, char **argv)
 		 * look thru args (if any) for changes to defaults
 		 */
 		if (argv[i][0] != '-') {	/* no flag on parameter */
-			if (input == 0) {	/* we must have the input file */
-				in_name = argv[i];	/* remember name of
-							 * input file */
+			if (input == NULL) {	/* we must have the input file */
+				in_name = argv[i];	/* remember name of input file */
 				input = fopen(in_name, "r");
-				if (input == 0)	/* check for open error */
+				if (input == NULL)	/* check for open error */
 					err(1, "%s", in_name);
 				continue;
-			} else
-				if (output == 0) {	/* we have the output
-							 * file */
-					out_name = argv[i];	/* remember name of
-								 * output file */
+			} else if (output == 0) {	/* we have the output file */
+					out_name = argv[i];	/* remember name of output file */
 					if (strcmp(in_name, out_name) == 0) {	/* attempt to overwrite
 										 * the file */
 						errx(1, "input and output files must be different");
 					}
 					output = fopen(out_name, "w");
-					if (output == 0)	/* check for create
+					if (output == NULL)	/* check for create
 								 * error */
 						err(1, "%s", out_name);
 					continue;
@@ -266,10 +268,10 @@ main(int argc, char **argv)
 		} else
 			set_option(argv[i]);
 	}			/* end of for */
-	if (input == 0) {
+	if (input == NULL) {
 		input = stdin;
 	}
-	if (output == 0) {
+	if (output == NULL) {
 		if (input == stdin)
 			output = stdout;
 		else {
@@ -281,12 +283,12 @@ main(int argc, char **argv)
 #ifdef HAVE_CAPSICUM
 	/* Restrict input/output descriptors and enter Capsicum sandbox. */
 	cap_rights_init(&rights, CAP_FSTAT, CAP_WRITE);
-	if (cap_rights_limit(fileno(output), &rights) < 0 && errno != ENOSYS)
+	if (caph_rights_limit(fileno(output), &rights) < 0 && errno != ENOSYS)
 		err(EXIT_FAILURE, "unable to limit rights for %s", out_name);
 	cap_rights_init(&rights, CAP_FSTAT, CAP_READ);
-	if (cap_rights_limit(fileno(input), &rights) < 0 && errno != ENOSYS)
+	if (caph_rights_limit(fileno(input), &rights) < 0 && errno != ENOSYS)
 		err(EXIT_FAILURE, "unable to limit rights for %s", in_name);
-	if (cap_enter() < 0 && errno != ENOSYS)
+	if (caph_enter() < 0 && errno != ENOSYS)
 		err(EXIT_FAILURE, "unable to enter capability mode");
 #endif	
 
@@ -310,8 +312,7 @@ main(int argc, char **argv)
 		while (1) {
 			if (*p == ' ')
 				col++;
-			else
-				if (*p == '\t')
+			else if (*p == '\t')
 					col = opt.tabsize * (1 + (col - 1) / opt.tabsize) + 1;
 				else
 					break;
@@ -321,7 +322,7 @@ main(int argc, char **argv)
 			ps.ind_level = ps.i_l_follow = col / opt.ind_size;
 	}
 
-	/*
+		/*
          * START OF MAIN LOOP
          */
 
@@ -379,15 +380,15 @@ main(int argc, char **argv)
 				*sc_end++ = '*';
 				for (;;) {	/* loop until we get to the end of the comment */
 			 	   *sc_end = *buf_ptr++;
-		    	if (buf_ptr >= buf_end)
-					fill_buffer();
-			    if (*sc_end++ == '*' && *buf_ptr == '/')
-					break;	/* we are at end of comment */
-			    if (sc_end >= &save_com[sc_size]) {	/* check for temp buffer
-													 * overflow */
-					diag(1, "Internal buffer overflow - Move big comment from right after if, while, or whatever");
-					fflush(output);
-					exit(1);
+		    		if (buf_ptr >= buf_end)
+						fill_buffer();
+				    if (*sc_end++ == '*' && *buf_ptr == '/')
+						break;	/* we are at end of comment */
+				    if (sc_end >= &save_com[sc_size]) {	/* check for temp buffer
+														 * overflow */
+						diag(1, "Internal buffer overflow - Move big comment from right after if, while, or whatever");
+						fflush(output);
+						exit(1);
 					}
 				}
 				
@@ -661,7 +662,8 @@ check_type:
 				ps.last_u_d = true;
 				ps.cast_mask &= (1 << ps.p_l_follow) - 1;
 				ps.want_blank = opt.space_after_cast;
-			}
+			} else
+				ps.want_blank = true;
 			ps.not_cast_mask &= (1 << ps.p_l_follow) - 1;
 			if (--ps.p_l_follow < 0) {
 				ps.p_l_follow = 0;
@@ -672,7 +674,6 @@ check_type:
 				ps.paren_level = ps.p_l_follow;	/* then indent it */
 
 			*e_code++ = token[0];
-			ps.want_blank = true;
 
 			if (sp_sw && (ps.p_l_follow == 0)) {	/* check for end of if
 								 * (...), or some such */
@@ -731,6 +732,7 @@ check_type:
 				memcpy(e_code, token, len);
 				e_code += len;
 			}
+			ps.want_blank = true;
 			break;
 
 		case postop:	/* got a trailing ++ or -- */
@@ -771,13 +773,19 @@ check_type:
 			}
 			ps.in_stmt = false;	/* seeing a label does not
 						 * imply we are in a stmt */
-			for (t_ptr = s_code; *t_ptr; ++t_ptr)
-				*e_lab++ = *t_ptr;	/* turn everything so
-							 * far into a label */
-			e_code = s_code;
-			*e_lab++ = ':';
-			*e_lab = '\0';
+			/* 
+			*turn everything so far into a label
+			*/
+			{
+				int len = e_code - s_code;
 
+				CHECK_SIZE_LAB(len + 3);
+				memcpy(e_lab, s_code, len);
+				e_lab += len;
+				*e_lab++ = ':';
+				*e_lab = '\0';
+				e_code = s_code;
+		    }
 			force_nl = ps.pcase = scase;	/* ps.pcase will be used
 							 * by dump_line to
 							 * decide how to indent
@@ -871,7 +879,7 @@ check_type:
 							dump_line();
 							ps.want_blank = false;
 						} else /*add a space between the decl and brace */
-							ps.want_blank = false;
+							ps.want_blank = true;
 						
 					}
 			}
@@ -900,7 +908,7 @@ check_type:
 				if (++ps.dec_nest == nitems(di_stack)) {
 		    		diag(0, "Reached internal limit of %lu struct levels",
 					nitems(di_stack));
-		    	ps.dec_nest--;
+		    		ps.dec_nest--;
 				}
 				/* ?		dec_ind = 0; */
 			} else {
@@ -1013,6 +1021,7 @@ check_type:
 		case storage:
 		    prefix_blankline_requested = 0;
 		    goto copy_id;
+
 		case structure:
 		    if (ps.p_l_follow > 0)
 				goto copy_id;
@@ -1121,7 +1130,7 @@ check_type:
 			ps.want_blank = (s_code != e_code);	/* only put blank after
 								 * comma if comma does
 								 * not start the line */
-			if (ps.in_decl && ps.procname == '\0' && !ps.block_init &&
+			if (ps.in_decl && ps.procname[0] == '\0' && !ps.block_init &&
 				!ps.dumped_decl_indent && ps.paren_level == 0) {
 				/* indent leading commas and not the actual identifiers */
 				indent_declaration(dec_ind - 1, tabs_to_var);
@@ -1143,6 +1152,7 @@ check_type:
 			    (s_lab != e_lab) ||
 			    (s_code != e_code))
 				dump_line();
+				CHECK_SIZE_LAB(1);
 			*e_lab++ = '#';	/* move whole line to 'label' buffer */
 			{
 				int     in_comment = 0;
@@ -1201,7 +1211,7 @@ check_type:
 								 * comment, we must set
 								 * up the buffer */
 						save_com = sc_buf;
-						sc_end = &(save_com[0]);
+						sc_end = &save_com[0];
 					}
 					else {
 						*sc_end++ = '\n';	/* add newline between
@@ -1229,6 +1239,7 @@ check_type:
 					buf_end = sc_end;
 					sc_end = NULL;
 				}
+				CHECK_SIZE_LAB(1);
 				*e_lab = '\0';	/* null terminate line */
 				ps.pcase = false;
 			}
@@ -1286,8 +1297,7 @@ check_type:
 			break;	/* subsequent processing of the newline
 				 * character will cause the line to be printed */
 
-		case comment:	/* we have gotten a start comment */
-						/* this is a biggie */
+		case comment:	/* we have gotten a / followed by * this is a biggie */
 			pr_comment();
 			break;
 		}		/* end of big switch stmt */
@@ -1306,7 +1316,8 @@ check_type:
 static void
 bakcopy(void)
 {
-	int     n, bakchn;
+	int     n, 
+			bakchn;
 	char    buff[8 * 1024];
 	const char *p;
 
@@ -1316,13 +1327,13 @@ bakcopy(void)
 		p--;
 	if (*p == '/')
 		p++;
-	sprintf(bakfile, "%s.BAK", p);
+	sprintf(bakfile, "%s%s", p, simple_backup_suffix);
 
 	/* copy in_name to backup file */
 	bakchn = creat(bakfile, 0600);
 	if (bakchn < 0)
 		err(1, "%s", bakfile);
-	while ((n = read(fileno(input), buff, sizeof buff)) > 0)
+	while ((n = read(fileno(input), buff, sizeof(buff))) > 0)
 		if (write(bakchn, buff, n) != n)
 			err(1, "%s", bakfile);
 	if (n < 0)
@@ -1332,7 +1343,7 @@ bakcopy(void)
 
 	/* re-open backup file as the input file */
 	input = fopen(bakfile, "r");
-	if (input == 0)
+	if (input == NULL)
 		err(1, "%s", bakfile);
 	/* now the original input file will be the output */
 	output = fopen(in_name, "w");

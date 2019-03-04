@@ -61,7 +61,7 @@
 .\"
 .\"	from: @(#)indent.1	8.1 (Berkeley) 7/1/93
 .\"
-.Dd February 16, 2019
+.Dd March 4, 2019
 .Dt INDENT 1
 .Os
 .Sh NAME
@@ -145,7 +145,10 @@ If
 is named
 .Sq Pa /blah/blah/file ,
 the backup file is named
-.Pa file.BAK .
+.Sq Pa file.BAK
+by default. The extension used for the backup file may be overridden using the
+.Ev SIMPLE_BACKUP_SUFFIX
+environment variable.
 .Pp
 If
 .Ar output-file
