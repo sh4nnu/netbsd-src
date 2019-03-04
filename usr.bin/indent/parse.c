@@ -159,7 +159,7 @@ parse(int tk)
 				/*
 				 * it is a group as part of a while, for, etc.
 				 */
-				if (ps.p_stack[ps.tos] == swstmt && ps.case_indent >= 1)
+				if (ps.p_stack[ps.tos] == swstmt && opt.case_indent >= 1)
 					--ps.ind_level;
 				/*
 				 * for a switch, brace should be two levels out from the code
@@ -211,7 +211,7 @@ parse(int tk)
 			ps.ind_level = ps.i_l_follow = ps.il[--ps.tos];
 			ps.p_stack[ps.tos] = stmt;
 		} else
-			diag(1, "Stmt nesting error.");
+			diag(1, "Statement nesting error.");
 		break;
 
 	case swstmt:		/* had switch (...) */
@@ -219,10 +219,10 @@ parse(int tk)
 		ps.cstk[ps.tos] = case_ind;
 		/* save current case indent level */
 		ps.il[ps.tos] = ps.i_l_follow;
-		case_ind = ps.i_l_follow + ps.case_indent;	/* cases should be one
+		case_ind = ps.i_l_follow + opt.case_indent;	/* cases should be one
 								 * level down from
 								 * switch */
-		ps.i_l_follow += ps.case_indent + 1;	/* statements should be
+		ps.i_l_follow += opt.case_indent + 1;	/* statements should be
 							 * two levels in */
 		ps.search_brace = opt.btype_2;
 		break;
@@ -251,6 +251,8 @@ parse(int tk)
 		printf("(%d %d)", ps.p_stack[i], ps.il[i]);
 	printf("\n");
 #endif
+
+	return;
 }
 /*
  * NAME: reduce
@@ -361,7 +363,7 @@ reduce(void)
 		case whilestmt:/* while (...) on top */
 			if (ps.p_stack[ps.tos - 1] == dohead) {
 				/* it is termination of a do while */
-				ps.p_stack[--ps.tos] = stmt;
+				ps.tos -= 2;
 				break;
 			} else
 				return;

@@ -205,6 +205,8 @@ EXTERN struct options {
 	int     cuddle_else;	/* true if else should cuddle up to '}' */
 	int     continuation_indent;	/* set to the indentation between the edge of
 									 * code and continuation lines */
+	float   case_indent;	/* The distance to indent case labels from the
+							 * switch statement */
 	int     com_ind;	/* the column in which comments to the right
 						 * of code should start */
 	int     decl_indent;	/* column to indent declared identifiers to */
@@ -286,10 +288,10 @@ EXTERN struct parser_state {
 	int     box_com;	/* set to true when we are in a "boxed"
 				 * comment. In that case, the first non-blank
 				 * char should be lined up with the comment / */
-	int     comment_delta, /* used to set up indentation for all lines
+	int     comment_delta; /* used to set up indentation for all lines
 						    * of a boxed comment after the first one */
 			
-			n_comment_delta; /* remembers how many columns there were
+	int		n_comment_delta; /* remembers how many columns there were
 							  * before the start of a box comment so that
 							  * forthcoming lines of the comment are
 							  * indented properly */
@@ -352,8 +354,6 @@ EXTERN struct parser_state {
 	
 	int     keyword;	/* the type of a keyword or 0 */
 	int     dumped_decl_indent;
-	float   case_indent;	/* The distance to indent case labels from the
-				 * switch statement */
 	int     in_parameter_declaration;
 	int     tos;		/* pointer to top of stack */
 	char    procname[100];	/* The name of the current procedure */

@@ -140,7 +140,7 @@ struct templ specials[] =
 	{"unsigned", 4},
 	{"void", 4},
 	{"volatile", 4},
-	{"while", 5},
+	{"while", 5}
 };
 
 const char **typenames;
@@ -253,9 +253,9 @@ lexi(struct parser_state *state)
 					*e_token++ = *buf_ptr++;
 					if (buf_ptr >= buf_end)
 		    			fill_buffer();
-			
-				/* s now indicates the type: f(loating), i(integer), u(nknown) */
 			}
+				/* s now indicates the type: f(loating), i(integer), u(nknown) */
+			
 		} else
 			while ((isalnum((unsigned char)*buf_ptr) || *buf_ptr == BACKSLASH ||
 				*buf_ptr == '_' || *buf_ptr == '$')){
@@ -274,7 +274,7 @@ lexi(struct parser_state *state)
 				if (buf_ptr >= buf_end)
 					fill_buffer();
 			}
-		*e_token++ = '\0';
+		*e_token = '\0';
 
 		if (s_token[0] == 'L' && s_token[1] == '\0' &&
 	    	  (*buf_ptr == '"' || *buf_ptr == '\''))
@@ -308,8 +308,8 @@ lexi(struct parser_state *state)
 		        strcmp(u, "_t") == 0) || (typename_top >= 0 &&
 				  bsearch(s_token, typenames, typename_top + 1,
 				    sizeof(typenames[0]), strcmp_type))) {
-				ps.keyword = 4;	/* a type name */
-				ps.last_u_d = true;
+				state->keyword = 4;	/* a type name */
+				state->last_u_d = true;
 	    	    goto found_typename;
 					}
 		} else {		
@@ -322,8 +322,7 @@ lexi(struct parser_state *state)
 				return (casestmt);
 
 			case 3:/* a "struct" */
-				if (ps.p_l_follow)
-					break;	/* inside parens: cast */
+				/* FALLTHROUGH */
 				
 			case 4:/* one of the declaration keywords */
 				found_typename:
@@ -348,7 +347,7 @@ lexi(struct parser_state *state)
 				return (sp_nparen);
 
 			case 10:/*storage class specifier */
-				return(storage);
+				return (storage);
 
 			case 11: /* typedef */
 				return (type_def);
@@ -368,7 +367,7 @@ lexi(struct parser_state *state)
 			if (state->in_decl)	
 				state->in_parameter_declaration = 1;
 			return (funcname);
-	not_proc:	;
+	not_proc:;
 		}
 		/*
 		 * The following hack attempts to guess whether or not the current
@@ -391,6 +390,8 @@ lexi(struct parser_state *state)
 		return (ident);	/* the ident is not in the list */
 	}			/* end of procesing for alpanum character */
 	/* Scan a non-alphanumeric token */
+
+	CHECK_SIZE_TOKEN(3);		/* things like "<<=" */
 	*e_token++ = *buf_ptr;	/* if it is only a one-character token, it is
 				 * moved here */
 	*e_token = '\0';
@@ -573,8 +574,10 @@ stop_lit:
 	    	break;
 		}
 		while (*buf_ptr == '*' || isspace((unsigned char)*buf_ptr)) {
-	    	if (*buf_ptr == '*')
+	    	if (*buf_ptr == '*') {
+				CHECK_SIZE_TOKEN(1);
 				*e_token++ = *buf_ptr;
+			}
 	    	if (++buf_ptr >= buf_end)
 				fill_buffer();
 		}
@@ -606,8 +609,9 @@ stop_lit:
 		}
 		while (*(e_token - 1) == *buf_ptr || *buf_ptr == '=') {
 			/*
-		         * handle ||, &&, etc, and also things as in int *****i
-		         */
+		     * handle ||, &&, etc, and also things as in int *****i
+		     */
+			CHECK_SIZE_TOKEN(1);
 			*e_token++ = *buf_ptr;
 			if (++buf_ptr >= buf_end)
 				fill_buffer();
@@ -620,6 +624,7 @@ stop_lit:
 	if (buf_ptr >= buf_end)	/* check for input buffer empty */
 		fill_buffer();
 	state->last_u_d = unary_delim;
+	CHECK_SIZE_TOKEN(1);
 	*e_token = '\0';	/* null terminate the token */
 	return (code);
 }
@@ -643,6 +648,7 @@ init_constant_tt(void)
 void
 alloc_typenames(void)
 {
+	
 	typenames = (const char **)malloc(sizeof(typenames[0]) *
         (typename_count = 16));
     if (typenames == NULL)

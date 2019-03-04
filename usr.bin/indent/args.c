@@ -80,6 +80,7 @@ __RCSID("$NetBSD: args.c,v 1.13 2016/02/22 21:20:29 ginsbach Exp $");
 
 #include <ctype.h>
 #include <err.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -344,7 +345,7 @@ void
 set_profile(const char *profile_name)
 {
 	FILE   *f;
-	char    fname[BUFSIZ];
+	char    fname[PATH_MAX];
 	static char prof[] = ".indent.pro";
 
 	if (profile_name == NULL)
@@ -378,7 +379,6 @@ scan_profile(FILE *f)
 	    } else if (i == '/' && comment && p > buf && p[-1] == '*') {
 				p = buf + comment - 1;
 				comment = 0;
-	    } else if (isspace(i)) {
 	    } else if (isspace((unsigned char)i)) {
 				if (p > buf && !comment)
 		    	break;
@@ -418,10 +418,10 @@ set_defaults(void)
 	struct pro *p;
 
 	/*
-         * Because ps.case_indent is a float, we can't initialize it from the
+         * Because opt.case_indent is a float, we can't initialize it from the
          * table:
          */
-	ps.case_indent = 0.0;	/* -cli0.0 */
+	opt.case_indent = 0.0;	/* -cli0.0 */
 	for (p = pro; p->p_name; p++)
 		if (p->p_type != PRO_SPECIAL)
 			*p->p_obj = p->p_default;
@@ -450,7 +450,7 @@ found:
 		case CLI:
 			if (*param_start == 0)
 				goto need_param;
-			ps.case_indent = atof(param_start);
+			opt.case_indent = atof(param_start);
 			break;
 
 		case STDIN:

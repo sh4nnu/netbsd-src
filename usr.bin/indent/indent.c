@@ -697,7 +697,7 @@ check_type:
 							 * braces put in the
 							 * right place */
 			break;
-
+ 
 		case unary_op:	/* this could be any unary operation */
 			if (!ps.dumped_decl_indent && ps.in_decl && !ps.block_init &&
 				ps.procname[0] == '\0' && ps.paren_level == 0) {

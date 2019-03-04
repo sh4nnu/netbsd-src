@@ -145,11 +145,13 @@ pr_comment(void)
 	} else {
 		if (*buf_ptr == '-' || *buf_ptr == '*' ||
 			 (*buf_ptr == '\n' && !opt.format_block_comments)) {
-			ps.box_com = true;	/* a comment with a '-', '*'
-						 * or newline immediately
-						 * after the start comment is
-						 * assumed to be a boxed
-						 * comment */
+			ps.box_com = true;	/* A comment with a '-' or '*' immediately
+						 * after the /+* is assumed to be a boxed
+						 * comment. A comment with a newline
+						 * immediately after the /+* is assumed to
+						 * be a block comment and is treated as a
+						 * box comment unless format_block_comments
+						 * is nonzero (the default). */
 			break_delim = false;
 		}
 		if ( /* ps.bl_line && */ (s_lab == e_lab) && (s_code == e_code)) {
@@ -174,7 +176,7 @@ pr_comment(void)
 			}
 			ps.com_col = ps.decl_on_line || ps.ind_level == 0 ? opt.decl_com_ind : opt.com_ind;
 			if (ps.com_col <= target_col)
-				ps.com_col = ((target_col + 7) & ~7) + 1;
+				ps.com_col = opt.tabsize * (1 + (target_col - 1) / opt.tabsize) + 1;
 			if (ps.com_col + 24 > adj_max_col)
 				adj_max_col = ps.com_col + 24;
 		}
@@ -204,14 +206,15 @@ pr_comment(void)
 		*e_com++ = ' ';
 
     /*
-		 * Don't put a break delimiter if this comment is a one-liner
-		 */
+	 * Don't put a break delimiter if this comment is a one-liner
+	 */
     if (break_delim)
 			for (t_ptr = buf_ptr; *t_ptr != '\0' && *t_ptr != '\n'; t_ptr++) {
 				if (t_ptr >= buf_end)
-		    	fill_buffer();
+		    		fill_buffer();
 				if (t_ptr[0] == '*' && t_ptr[1] == '/') {
-		    	break_delim = false;
+					if (adj_max_col >= count_spaces_until(ps.com_col, buf_ptr, t_ptr + 2))
+		    			break_delim = false;
 		    	break;
 				}
     	}
@@ -261,6 +264,7 @@ pr_comment(void)
 				return;
 			}
 			last_bl = NULL;
+			CHECK_SIZE_COM(4);
 			if (ps.box_com || ps.last_nl) {	/* if this is a boxed
 							 * comment, we don't
 							 * ignore the newline */
@@ -317,7 +321,6 @@ pr_comment(void)
 		end_of_comment:
 				if (++buf_ptr >= buf_end)
 					fill_buffer();
-				
 				if (break_delim) {
 					if (e_com > s_com + 3) {
 						dump_line();
@@ -347,8 +350,7 @@ pr_comment(void)
 		    } while (!memchr("*\n\r\b\t", *buf_ptr, 6) &&
 				(now_col <= adj_max_col || !last_bl));
 	    	ps.last_nl = false;
-			if (now_col > adj_max_col && !ps.box_com && !iscntrl((unsigned char)e_com[-1])
-				&& !isblank((unsigned char)e_com[-1])) {
+			if (now_col > adj_max_col && !ps.box_com && e_com[-1] > ' ') {
 				/*
 				 * the comment is too long, it must be broken up
 				 */
@@ -356,21 +358,26 @@ pr_comment(void)
 					dump_line();
 		    	if (!ps.box_com && opt.star_comment_cont)
 						*e_com++ = ' ', *e_com++ = '*', *e_com++ = ' ';
-		  	  break;
+		  			break;
 				}
 				*e_com = '\0';
 				e_com = last_bl;
 				dump_line();
 				if (!ps.box_com && opt.star_comment_cont)
-		  	 *e_com++ = ' ', *e_com++ = '*', *e_com++ = ' ';
+		  			 *e_com++ = ' ', *e_com++ = '*', *e_com++ = ' ';
 				for (t_ptr = last_bl + 1; *t_ptr == ' ' || *t_ptr == '\t';
 		   	 t_ptr++)
 					;
 				last_bl = NULL;
+				/*
+				 * t_ptr will be somewhere between e_com (dump_line() reset)
+				 * and l_com. So it's safe to copy byte by byte from t_ptr
+				 * to e_com without any CHECK_SIZE_COM().
+				 */
 				while (*t_ptr != '\0') {
 		   	 if (*t_ptr == ' ' || *t_ptr == '\t')
 					last_bl = e_com;
-		    *e_com++ = *t_ptr++;
+		    		*e_com++ = *t_ptr++;
  				}
 			}
 			break;
