@@ -252,7 +252,7 @@ main(int argc, char **argv)
 				if (input == NULL)	/* check for open error */
 					err(1, "%s", in_name);
 				continue;
-			} else if (output == 0) {	/* we have the output file */
+			} else if (output == NULL) {	/* we have the output file */
 					out_name = argv[i];	/* remember name of output file */
 					if (strcmp(in_name, out_name) == 0) {	/* attempt to overwrite
 										 * the file */
@@ -700,7 +700,7 @@ check_type:
 
 		case unary_op:	/* this could be any unary operation */
 			if (!ps.dumped_decl_indent && ps.in_decl && !ps.block_init &&
-				!ps.procname[0] == '\0' && ps.paren_level == 0) {
+				ps.procname[0] == '\0' && ps.paren_level == 0) {
 				/* pointer declarations */
 				/*
 				 * if this is a unary op in a declaration, we should indent
