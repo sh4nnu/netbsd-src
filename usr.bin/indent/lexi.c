@@ -140,7 +140,7 @@ struct templ specials[] =
 	{"unsigned", 4},
 	{"void", 4},
 	{"volatile", 4},
-	{"while", 5},
+	{"while", 5}
 };
 
 const char **typenames;
@@ -255,9 +255,9 @@ lexi(struct parser_state *state)
 					*e_token++ = *buf_ptr++;
 					if (buf_ptr >= buf_end)
 		    			fill_buffer();
-			
-				/* s now indicates the type: f(loating), i(integer), u(nknown) */
 			}
+				/* s now indicates the type: f(loating), i(integer), u(nknown) */
+			
 		} else
 			while (isalnum((unsigned char)*buf_ptr) ||
 				 *buf_ptr == BACKSLASH ||
@@ -349,9 +349,11 @@ lexi(struct parser_state *state)
 				return (sp_nparen);
 
 			case 10:/*storage class specifier */
-				return(storage);
+				return (storage);
+
 			case 11: /* typedef */
 				return (type_def);
+			
 			default:	/* all others are treated like any
 					 * other identifier */
 				return (ident);
@@ -367,7 +369,7 @@ lexi(struct parser_state *state)
 			if (state->in_decl)	
 				state->in_parameter_declaration = 1;
 			return (funcname);
-	not_proc:	;
+	not_proc:;
 		}
 		/*
 		 * The following hack attempts to guess whether or not the current
@@ -648,6 +650,7 @@ init_constant_tt(void)
 void
 alloc_typenames(void)
 {
+	
 	typenames = (const char **)malloc(sizeof(typenames[0]) *
         (typename_count = 16));
     if (typenames == NULL)
