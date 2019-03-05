@@ -81,15 +81,15 @@ __RCSID("$NetBSD: indent.c,v 1.23 2016/09/05 00:40:29 sevan Exp $");
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#include <ctype.h>
 #include <locale.h>
-#define EXTERN
 #include "indent_globs.h"
-#undef  EXTERN
 #include "indent_codes.h"
+#include "indent.h"
 
 static void bakcopy(void);
 static void indent_declaration(int, int);
@@ -100,7 +100,7 @@ const char *out_name = "Standard Output";	/* will always point to name of
 						 * output file */
 const char *simple_backup_suffix = ".BAK";	/* Suffix to use for backup
 						 * files */
-char    bakfile[MAXPATHLEN] = "";
+char    	bakfile[MAXPATHLEN] = "";
 
 int
 main(int argc, char **argv)
@@ -140,7 +140,7 @@ main(int argc, char **argv)
 	found_err = 0;
 	
 	ps.p_stack[0] = stmt;	/* this is the parser's stack */
-	ps.last_nl = true;	/* this is true if the last thing scanned was
+	ps.last_nl = true;		/* this is true if the last thing scanned was
 				 * a newline */
 	ps.last_token = semicolon;
 	combuf = (char *) malloc(bufsize);
@@ -183,7 +183,6 @@ main(int argc, char **argv)
 	dec_ind = 0;
 	di_stack[ps.dec_nest = 0] = 0;
 	ps.want_blank = ps.in_stmt = ps.ind_stmt = false;
-
 
 	scase = ps.pcase = false;
 	squest = 0;
@@ -245,7 +244,7 @@ main(int argc, char **argv)
 		/*
 		 * look thru args (if any) for changes to defaults
 		 */
-		if (argv[i][0] != '-') {	/* no flag on parameter */
+		if (argv[i][0] != '-') {/* no flag on parameter */
 			if (input == NULL) {	/* we must have the input file */
 				in_name = argv[i];	/* remember name of input file */
 				input = fopen(in_name, "r");
@@ -270,10 +269,9 @@ main(int argc, char **argv)
 			errx(1, "unknown parameter: %s", argv[i]);
 		} else
 			set_option(argv[i]);
-	}			/* end of for */
-	if (input == NULL) {
+	}				/* end of for */
+	if (input == NULL)
 		input = stdin;
-	}
 	if (output == NULL) {
 		if (input == stdin)
 			output = stdout;
@@ -309,8 +307,8 @@ main(int argc, char **argv)
 
 	parse(semicolon);
 	{
-		char   *p = buf_ptr;
-		int     col = 1;
+		char *p = buf_ptr;
+		int col = 1;
 
 		while (1) {
 			if (*p == ' ')
@@ -329,9 +327,9 @@ main(int argc, char **argv)
          * START OF MAIN LOOP
          */
 
-	while (1) {		/* this is the main loop.  it will go until we
+	while (1) {			/* this is the main loop.  it will go until we
 				 * reach eof */
-		int 	comment_buffered = false;
+		int comment_buffered = false;
 
 		type_code = lexi(&ps);	/* lexi reads one token.  The actual
 					 * characters read are stored in
@@ -416,15 +414,13 @@ main(int argc, char **argv)
 		    		while (isspace((unsigned char)*buf_ptr)) {
 					if (++buf_ptr >= buf_end)
 							fill_buffer();
-
 					if (*buf_ptr == '\n')
 			   			break;
 					}
 					goto sw_buffer;
 				}
 				/* FALLTHROUGH */
-			default:	/* it is the start of a normal
-					 	 * statment */
+			default:		/* it is the start of a normal statement */
 				{
 				    int remove_newlines;
 
@@ -459,7 +455,7 @@ main(int argc, char **argv)
 							 * newline is read from the buffer */
 				*sc_end++ = '\n';
 				*sc_end++ = ' ';
-				if (opt.verbose)	/* print error msg if the line was
+				if (opt.verbose) /* print error msg if the line was
 								 * not already broken */
 			    	diag(0, "Line broken");
 		    }
@@ -472,17 +468,15 @@ main(int argc, char **argv)
 					bp_save = buf_ptr;	/* save current input
 										 * buffer */
 					be_save = buf_end;
-					buf_ptr = save_com;	/* fix so that
-										 * subsequent calls to
-										 * lexi will take tokens
-										 * out of save_com */
-					*sc_end++ = ' ';	/* add trailing blank,
-										 * just in case */
+					buf_ptr = save_com;	/* fix so that subsequent calls to
+										 * lexi will take tokens out of 
+										 * save_com */
+					*sc_end++ = ' ';/* add trailing blank, just in case */
 					buf_end = sc_end;
 					sc_end = NULL;
 					break;
 				}
-			}	/* end of switch */
+			}			/* end of switch */
 			/*
 	    	 * We must make this check, just in case there was an unexpected
 	    	 * EOF.
@@ -525,7 +519,7 @@ main(int argc, char **argv)
 			    	ps = transient_state;
 				}
 	    	}
-		}		/* end of while (search_brace) */
+		}			/* end of while (search_brace) */
 		last_else = 0;
 check_type:
 		if (type_code == 0) {	/* we got eof */
@@ -556,8 +550,7 @@ check_type:
 				if (opt.verbose)
 					diag(0, "Line broken");
 				dump_line();
-				ps.want_blank = false;	/* don't insert blank at
-							 * line start */
+				ps.want_blank = false;	/* donot insert blank at line start */
 				force_nl = false;
 			}
 			ps.in_stmt = true;	/* turn on flag which causes
@@ -590,15 +583,13 @@ check_type:
 		|	   do switch on type of token scanned		|
 		\*-----------------------------------------------------*/
 		CHECK_SIZE_CODE(3);	/* maximum number of increments of e_code
-							 * before the next CHECK_SIZE_CODE or
-							 * dump_line() is 2. After that there's the
-							 * final increment for the null character. */
-		switch (type_code) {	/* now, decide what to do with the
-					 * token */
+								 * before the next CHECK_SIZE_CODE or
+								 * dump_line() is 2. After that there's the
+								 * final increment for the null character. */
+		switch (type_code) {	/* now, decide what to do with the token */
 
-		case form_feed:/* found a form feed in line */
-			ps.use_ff = true;	/* a form feed is treated much
-						 * like a newline */
+		case form_feed:	/* found a form feed in line */
+			ps.use_ff = true;	/* a form feed is treated much like a newline */
 			dump_line();
 			ps.want_blank = false;
 			break;
@@ -609,30 +600,21 @@ check_type:
 				dump_line();
 				ps.want_blank = false;
 			}
-			++line_no;	/* keep track of input line number */
+			++line_no;		/* keep track of input line number */
 			break;
 
-		case lparen:	/* got a '(' or '[' */
+		case lparen:		/* got a '(' or '[' */
 			/* count parens to make Healy happy */
 	    	if (++ps.p_l_follow == nitems(ps.paren_indents)) {
 				diag(0, "Reached internal limit of %lu unclosed parens",
 		    		nitems(ps.paren_indents));
 				ps.p_l_follow--;
+
 	    	}
-			if (ps.want_blank && *token != '[' &&
-			    (ps.last_token != ident && ps.last_token != funcname || 
-				proc_calls_space ||
-		    	/* offsetof (1) is never allowed a space; sizeof (2) gets
-		    	 * one iff -bs; all other keywords (>2) always get a space
-		     	* before lparen */
-				ps.keyword + Bill_Shannon > 2))
-				*e_code++ = ' ';
-			
-			if (*token == '[')
 				/* not a function pointer declaration or a function call */;
 	    	else if (ps.in_decl && !ps.block_init && !ps.dumped_decl_indent &&
 				ps.procname[0] == '\0' && ps.paren_level == 0) {
-				/* function pointer declarations. */
+				/* function pointer declarations */
 				indent_declaration(dec_ind, tabs_to_var);
 				ps.dumped_decl_indent = true;
 			}
@@ -657,10 +639,8 @@ check_type:
 				 * aligned right if proc decl has an explicit type on it, i.e.
 				 * "int a(x) {..."
 				 */
-				parse(semicolon);	/* I said this was a
-							 * kluge... */
-				ps.in_or_st = false;	/* turn off flag for
-							 * structure decl or
+				parse(semicolon);	/* I said this was a kluge... */
+				ps.in_or_st = false;	/* turn off flag for structure decl or
 							 * initialization */
 			}
 			/* parenthesized type following sizeof or offsetof is not a cast */
@@ -668,7 +648,7 @@ check_type:
 				ps.not_cast_mask |= 1 << ps.p_l_follow;
 			break;
 
-		case rparen:	/* got a ')' or ']' */
+		case rparen:		/* got a ')' or ']' */
 			if (ps.cast_mask & (1 << ps.p_l_follow) & ~ps.not_cast_mask) {
 				ps.last_u_d = true;
 				ps.cast_mask &= (1 << ps.p_l_follow) - 1;
@@ -680,8 +660,7 @@ check_type:
 				ps.p_l_follow = 0;
 				diag(0, "Extra %c", *token);
 			}
-			if (e_code == s_code)	/* if the paren starts the
-						 * line */
+			if (e_code == s_code)	/* if the paren starts the line */
 				ps.paren_level = ps.p_l_follow;	/* then indent it */
 
 			*e_code++ = token[0];
@@ -689,8 +668,7 @@ check_type:
 			if (sp_sw && (ps.p_l_follow == 0)) {	/* check for end of if
 								 * (...), or some such */
 				sp_sw = false;
-				force_nl = true;	/* must force newline
-							 * after if */
+				force_nl = true;	/* must force newline after if */
 				ps.last_u_d = true;	/* inform lexi that a
 							 * following operator is
 							 * unary */
@@ -698,8 +676,7 @@ check_type:
 							 * continuation
 							 * indentation */
 
-				parse(hd_type);	/* let parser worry about if,
-						 * or whatever */
+				parse(hd_type);	/* let parser worry about if, or whatever */
 			}
 			ps.search_brace = opt.btype_2;	/* this should ensure
 							 * that constructs such
@@ -733,7 +710,7 @@ check_type:
 			ps.want_blank = false;
 			break;
 
-		case binary_op:/* any binary operation */
+		case binary_op:	/* any binary operation */
 			{
 				int len = e_token - s_token;
 
@@ -746,14 +723,14 @@ check_type:
 			ps.want_blank = true;
 			break;
 
-		case postop:	/* got a trailing ++ or -- */
+		case postop:		/* got a trailing ++ or -- */
 			*e_code++ = token[0];
 			*e_code++ = token[1];
 			ps.want_blank = true;
 			break;
 
-		case question:	/* got a ? */
-			squest++;	/* this will be used when a later
+		case question:		/* got a ? */
+			squest++;		/* this will be used when a later
 					 * colon appears so we can distinguish
 					 * the <c>?<n>:<n> construct */
 			if (ps.want_blank)
@@ -762,7 +739,7 @@ check_type:
 			ps.want_blank = true;
 			break;
 
-		case casestmt:	/* got word 'case' or 'default' */
+		case casestmt:		/* got word 'case' or 'default' */
 			scase = true;	/* so we can process the later colon
 					 * properly */
 			goto copy_id;
@@ -808,12 +785,12 @@ check_type:
 			ps.want_blank = false;
 			break;
 
-		case semicolon:/* got a ';' */
-            if (ps.dec_nest == 0) {
-                ps.in_or_st = false; /* we are not in an initialization 
+		case semicolon:	/* got a ';' */
+            if (ps.dec_nest == 0)
+                ps.in_or_st = false;/* we are not in an initialization 
 									  * or structure declaration */
                 
-			scase = false; /* these will only need resetting in a
+			scase = false;	/* these will only need resetting in a
 					 		* error */
 			squest = 0;
 			if (ps.last_token == rparen)
@@ -866,7 +843,7 @@ check_type:
 			}
 			break;
 
-		case lbrace:	/* got a '{' */
+		case lbrace:		/* got a '{' */
 			ps.in_stmt = false;	/* don't indent the {} */
 			if (!ps.block_init)
 				force_nl = true;	/* force other stuff on
@@ -889,9 +866,8 @@ check_type:
 														 * to the brace ... */
 							dump_line();
 							ps.want_blank = false;
-						} else /*add a space between the decl and brace */
+						} else	/* add a space between the decl and brace */
 							ps.want_blank = true;
-						
 					}
 			}
 			if (ps.in_parameter_declaration)
@@ -945,12 +921,12 @@ check_type:
 			ps.just_saw_decl = 0;
 			break;
 
-		case rbrace:	/* got a '}' */
+		case rbrace:		/* got a '}' */
 			if (ps.p_stack[ps.tos] == decl && !ps.block_init)	/* semicolons can be
 										 * omitted in
 										 * declarations */
 				parse(semicolon);
-			if (ps.p_l_follow) {	/* check for unclosed if, for,
+			if (ps.p_l_follow) {/* check for unclosed if, for,
 						 * else. */
 				diag(1, "Unbalanced parens");
 				ps.p_l_follow = 0;
@@ -982,13 +958,13 @@ check_type:
 				postfix_blankline_requested = 1;
 			break;
 
-		case swstmt:	/* got keyword "switch" */
+		case swstmt:		/* got keyword "switch" */
 			sp_sw = true;
 			hd_type = swstmt;	/* keep this for when we have
 						 * seen the expression */
 			goto copy_id;	/* go move the token into buffer */
 
-		case sp_paren:	/* token is if, while, for */
+		case sp_paren:		/* token is if, while, for */
 			sp_sw = true;	/* the interesting stuff is done after
 					 * the expression is scanned */
 			hd_type = (*token == 'i' ? ifstmt :
@@ -999,7 +975,7 @@ check_type:
 		         */
 			goto copy_id;	/* copy the token into line */
 
-		case sp_nparen:/* got else, do */
+		case sp_nparen:	/* got else, do */
 			ps.in_stmt = false;
 			if (*token == 'e') {
 				if (e_code != s_code && (!opt.cuddle_else || e_code[-1] != '}')) {
@@ -1014,8 +990,7 @@ check_type:
 				last_else = 1;
 				parse(elselit);
 			} else {
-				if (e_code != s_code) {	/* make sure this starts
-							 * a line */
+				if (e_code != s_code) {	/* make sure this starts a line */
 					if (opt.verbose)
 						diag(0, "Line broken");
 					dump_line();
@@ -1036,8 +1011,7 @@ check_type:
 		case structure:
 		    if (ps.p_l_follow > 0)
 				goto copy_id;
-
-		case decl:
+		case decl:		/* we have a declaration type (int, etc.) */
 			parse(decl);	/* let parser worry about indentation */
 			if (ps.last_token == rparen && ps.tos <= 1) {
 				if (s_code != e_code) {
@@ -1049,8 +1023,7 @@ check_type:
 				ps.ind_level = ps.i_l_follow = 1;
 				ps.ind_stmt = 0;
 			}
-			ps.in_or_st = true;	/* this might be a structure
-						 * or initialization
+			ps.in_or_st = true;	/* this might be a structure or initialization
 						 * declaration */
 			ps.in_decl = ps.decl_on_line = ps.last_token != type_def;
 			if ( /* !ps.in_or_st && */ ps.dec_nest <= 0)
@@ -1074,7 +1047,7 @@ check_type:
 			goto copy_id;
 
 		case funcname:
-		case ident:	/* got an identifier or constant */
+		case ident:		/* got an identifier or constant */
 			if (ps.in_decl) {
 				if (type_code == funcname) {
 		    		ps.in_decl = false;
@@ -1090,7 +1063,6 @@ check_type:
 				else if (!ps.block_init && !ps.dumped_decl_indent &&
 		    		ps.paren_level == 0) { /* if we are in a declaration, we
 										    * must indent identifier */
-
 					indent_declaration(dec_ind, tabs_to_var);
 		    		ps.dumped_decl_indent = true;
 		    		ps.want_blank = false;
@@ -1127,7 +1099,7 @@ check_type:
 	    	ps.want_blank = false;
 	    	break;
 
-		case period:	/* treat a period kind of like a binary
+		case period:		/* treat a period kind of like a binary
 				 * operation */
 			*e_code++ = '.';	/* move the period into line */
 			ps.want_blank = false;	/* don't put a blank after a
@@ -1155,7 +1127,7 @@ check_type:
 			}
 			break;
 
-		case preesc:	/* got the character '#' */
+		case preesc:		/* got the character '#' */
 			if ((s_com != e_com) ||
 			    (s_lab != e_lab) ||
 			    (s_code != e_code))
@@ -1301,20 +1273,20 @@ check_type:
 					postfix_blankline_requested = 0;
 					prefix_blankline_requested = 0;
 	    		}
-			break;	/* subsequent processing of the newline
+			break;		/* subsequent processing of the newline
 				 * character will cause the line to be printed */
 
-		case comment:	/* we have gotten a / followed by * this is a biggie */
+		case comment:		/* we have gotten a / followed by * this is a biggie */
 			pr_comment();
 			break;
-		}		/* end of big switch stmt */
+		}			/* end of big switch stmt */
 
-		*e_code = '\0';	/* make sure code section is null terminated */
+		*e_code = '\0';		/* make sure code section is null terminated */
 		if (type_code != comment && type_code != newline && type_code != preesc)
 			ps.last_token = type_code;
-	}			/* end of main while (1) loop */
+	}				/* end of main while (1) loop */
 }
-}
+
 /*
  * copy input file to backup file if in_name is /blah/blah/blah/file, then
  * backup file will be ".Bfile" then make the backup file the input and

@@ -87,9 +87,10 @@ __RCSID("$NetBSD: lexi.c,v 1.14 2016/06/05 18:35:32 dholland Exp $");
 
 #include "indent_globs.h"
 #include "indent_codes.h"
+#include "indent.h"
 
 struct templ {
-	const char	*rwd;
+	const char *rwd;
 	int		rwcode;
 };
 
@@ -209,7 +210,7 @@ strcmp_specials(const void *e1, const void *e2)
 int
 lexi(struct parser_state *state)
 {
-	int     unary_delim;	/* this is set to 1 if the current token
+	int    	unary_delim;	/* this is set to 1 if the current token
 				 * forces a following operator to be unary */
 	int     code;		/* internal code to be returned */
 	char    qchar;		/* the delimiter character for a string */
@@ -235,7 +236,6 @@ lexi(struct parser_state *state)
 		/*
 		 * we have a character or number
 		 */
-		
 		struct templ *p;
 
 		if (isdigit((unsigned char)*buf_ptr) ||
@@ -288,8 +288,10 @@ lexi(struct parser_state *state)
 				fill_buffer();
 		}
 		state->keyword = 0;
-		if (state->last_token == structure && !state->p_l_follow) {	/* if last token was 'struct', then this token
-												 * should be treated as a declaration */
+		if (state->last_token == structure && !state->p_l_follow) {	
+					/* if last token was 'struct' and we're not
+					 * in parentheses, then this token 
+					 * should be treated as a declaration */
 			state->last_u_d = true;
 			return (decl);
 		}
@@ -314,17 +316,17 @@ lexi(struct parser_state *state)
 				state->last_u_d = true;
 	    	    goto found_typename;
 					}
-		} else {		
-			ps.keyword = p->rwcode;
-			ps.last_u_d = true;
+		} else {			/* we have a keyword */
+			state->keyword = p->rwcode;
+			state->last_u_d = true;
 			switch (p->rwcode) {
-			case 7:/* it is a switch */
+			case 7:		/* it is a switch */
 				return (swstmt);
-			case 8:/* a case or default */
+			case 8:		/* a case or default */
 				return (casestmt);
 
 			case 3:/* a "struct" */
-				/* FALLTHROUGH */
+				/* FALL THROUGH */
 				
 			case 4:/* one of the declaration keywords */
 				found_typename:
@@ -342,20 +344,20 @@ lexi(struct parser_state *state)
 		    		break;
 				return (decl);
 
-			case 5:/* if, while, for */
+			case 5:		/* if, while, for */
 				return (sp_paren);
 
-			case 6:/* do, else */
+			case 6:		/* do, else */
 				return (sp_nparen);
 
-			case 10:/*storage class specifier */
+			case 10:		/* storage class specifier */
 				return (storage);
 
-			case 11: /* typedef */
+			case 11:		/* typedef */
 				return (type_def);
-			
-			default:	/* all others are treated like any
-					 * other identifier */
+
+			default:		/* all others are treated like any other identifier */
+
 				return (ident);
 			}	/* end of switch */
 		}		/* end of if (found_it) */
@@ -389,12 +391,13 @@ lexi(struct parser_state *state)
 		if (state->last_token == decl)	/* if this is a declared variable,
 										 * then following sign is unary */
 			state->last_u_d = true;	/* will make "int a -1" work */
-		return (ident);	/* the ident is not in the list */
-	}			/* end of procesing for alpanum character */
+		return (ident);		/* the ident is not in the list */
+	}				/* end of procesing for alpanum character */
+
 	/* Scan a non-alphanumeric token */
 
 	CHECK_SIZE_TOKEN(3);		/* things like "<<=" */
-	*e_token++ = *buf_ptr;	/* if it is only a one-character token, it is
+	*e_token++ = *buf_ptr;		/* if it is only a one-character token, it is
 				 * moved here */
 	*e_token = '\0';
 	if (++buf_ptr >= buf_end)
@@ -412,34 +415,30 @@ lexi(struct parser_state *state)
 		 */
 		break;
 
-	case '\'':		/* start of quoted character */
-	case '"':		/* start of string */
+	case '\'':			/* start of quoted character */
+	case '"':			/* start of string */
 		qchar = *token;
-		do {		/* copy the string */
-			while (1) {	/* move one character or
-					 * [/<char>]<char> */
+		do {			/* copy the string */
+			while (1) {		/* move one character or [/<char>]<char> */
 				if (*buf_ptr == '\n') {
-					printf("%d: Unterminated literal\n", line_no);
+					diag(1, "Unterminated literal");
 					goto stop_lit;
 				}
 				CHECK_SIZE_TOKEN(2);
 				*e_token = *buf_ptr++;
 				if (buf_ptr >= buf_end)
 					fill_buffer();
-				if (*e_token == BACKSLASH) {	/* if escape, copy extra
-								 * char */
-					if (*buf_ptr == '\n')	/* check for escaped
-								 * newline */
+				if (*e_token == BACKSLASH) {	/* if escape, copy extra char */
+					if (*buf_ptr == '\n')	/* check for escaped newline */
 						++line_no;
 					*++e_token = *buf_ptr++;
-					++e_token;	/* we must increment
-							 * this again because we
+					++e_token;	/* we must increment this again because we
 							 * copied two chars */
 					if (buf_ptr >= buf_end)
 						fill_buffer();
 				} else
 					break;	/* we copied one character */
-			}	/* end of while (1) */
+			}			/* end of while (1) */
 		} while (*e_token++ != qchar);
 stop_lit:
 		code = ident;
@@ -492,7 +491,7 @@ stop_lit:
 		code = rbrace;
 		break;
 
-	case 014:		/* a form feed */
+	case 014:			/* a form feed */
 		unary_delim = state->last_u_d;
 		state->last_nl = true;	/* remember this so we can set
 					 * 'state->col_1' right */
@@ -510,7 +509,7 @@ stop_lit:
 		break;
 
 	case '-':
-	case '+':		/* check for -, +, --, ++ */
+	case '+':			/* check for -, +, --, ++ */
 		code = (state->last_u_d ? unary_op : binary_op);
 		unary_delim = true;
 
@@ -535,19 +534,17 @@ stop_lit:
 					code = unary_op;
 					state->want_blank = false;
 				}
-		break;		/* buffer overflow will be checked at end of
+		break;			/* buffer overflow will be checked at end of
 				 * switch */
 
 	case '=':
 		if (state->in_or_st)
 			state->block_init = 1;
-
-		if (*buf_ptr == '=') {	/* == */
+		if (*buf_ptr == '=') {/* == */
 			*e_token++ = '=';	/* Flip =+ to += */
 			buf_ptr++;
 			*e_token = 0;
 		}
-
 		code = binary_op;
 		unary_delim = true;
 		break;
@@ -555,7 +552,7 @@ stop_lit:
 
 	case '>':
 	case '<':
-	case '!':		/* ops like <, <<, <=, !=, etc */
+	case '!':			/* ops like <, <<, <=, !=, etc */
 		if (*buf_ptr == '>' || *buf_ptr == '<' || *buf_ptr == '=') {
 			*e_token++ = *buf_ptr;
 			if (++buf_ptr >= buf_end)
@@ -622,12 +619,12 @@ stop_lit:
 		unary_delim = true;
 
 
-	}			/* end of switch */
+	}				/* end of switch */
 	if (buf_ptr >= buf_end)	/* check for input buffer empty */
 		fill_buffer();
 	state->last_u_d = unary_delim;
 	CHECK_SIZE_TOKEN(1);
-	*e_token = '\0';	/* null terminate the token */
+	*e_token = '\0';		/* null terminate the token */
 	return (code);
 }
 
@@ -673,7 +670,7 @@ add_typename(const char *key)
 		typenames[++typename_top] = copy = strdup(key);
     else if ((comparison = strcmp(key, typenames[typename_top])) >= 0) {
 		/* take advantage of sorted input */
-		if (comparison == 0) /* remove duplicates */
+		if (comparison == 0)	/* remove duplicates */
 			return;
 		typenames[++typename_top] = copy = strdup(key);
     }

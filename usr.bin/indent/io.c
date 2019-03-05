@@ -81,11 +81,11 @@ __RCSID("$NetBSD: io.c,v 1.17 2016/02/25 13:23:27 ginsbach Exp $");
 #include <stdlib.h>
 #include <string.h>
 #include "indent_globs.h"
+#include "indent.h"
 
-int     comment_open;
-static  int paren_target;
+int			comment_open;
+static int  paren_target;
 static int pad_output(int current, int target);
-
 
 void
 dump_line(void)
@@ -94,7 +94,7 @@ dump_line(void)
 				 * prints the label section, followed by the
 				 * code section with the appropriate nesting
 				 * level, followed by any comments */
-	int     cur_col, 
+	int cur_col, 
 			target_col = 1;
 	static int	not_first_line;
 
@@ -148,11 +148,9 @@ dump_line(void)
 				cur_col = pad_output(1, compute_label_target());
 				if (s_lab[0] == '#' && (strncmp(s_lab, "#else", 5) == 0
 					|| strncmp(s_lab, "#endif", 6) == 0)) {
-					char   *s = s_lab;
-					if (e_lab[-1] == '\n')
-						e_lab--;
-					do
-						putc(*s++, output);
+					char *s = s_lab;
+					if (e_lab[-1] == '\n') e_lab--;
+					do putc(*s++, output);
 					while (s < e_lab && 'a' <= *s && *s <= 'z');
 					while ((*s == ' ' || *s == '\t') && s < e_lab)
 						s++;
@@ -168,7 +166,7 @@ dump_line(void)
 			ps.pcase = false;
 
 			if (s_code != e_code) {	/* print code section, if any */
-				char   *p;
+				char *p;
 
 				if (comment_open) {
 					comment_open = 0;
@@ -176,7 +174,7 @@ dump_line(void)
 				}
 				target_col = compute_code_target();
 				{
-					int     i;
+					int i;
 
 					for (i = 0; i < ps.p_l_follow; i++)
 						if (ps.paren_indents[i] >= 0)
@@ -242,7 +240,7 @@ dump_line(void)
 						 * a declaration */
 	ps.use_ff = false;
 	ps.dumped_decl_indent = 0;
-	*(e_lab = s_lab) = '\0';/* reset buffers */
+	*(e_lab = s_lab) = '\0';	/* reset buffers */
 	*(e_code = s_code) = '\0';
 	*(e_com = s_com = combuf + 1) = '\0';
 	ps.ind_level = ps.i_l_follow;
@@ -255,17 +253,17 @@ dump_line(void)
 int
 compute_code_target(void)
 {
-	int     target_col = opt.ind_size * ps.ind_level + 1;
+	int target_col = opt.ind_size * ps.ind_level + 1;
 
-	if (ps.paren_level) {
+	if (ps.paren_level)
 		if (!opt.lineup_to_parens)
 	    	target_col += opt.continuation_indent *
 				(2 * opt.continuation_indent == opt.ind_size ? 1 : ps.paren_level);
 		else if (opt.lineup_to_parens_always)
 	    	target_col = paren_target;
 		else {
-			int     w;
-			int     t = paren_target;
+			int w;
+			int t = paren_target;
 
 			if ((w = count_spaces(t, s_code) - opt.max_col) > 0
 			    && count_spaces(target_col, s_code) <= opt.max_col) {
@@ -274,10 +272,9 @@ compute_code_target(void)
 					target_col = t;
 			} else
 				target_col = t;
-		}
-	} else
-		if (ps.ind_stmt)
-			target_col += opt.continuation_indent;
+		} else
+			if (ps.ind_stmt)
+	target_col += opt.continuation_indent;
 	return target_col;
 }
 
@@ -314,12 +311,11 @@ fill_buffer(void)
 	FILE   *f = input;
 	char   *n;
 	if (bp_save != NULL) {	/* there is a partly filled input buffer left */
-		buf_ptr = bp_save;	/* donot read anything, just switch
-					 * buffers */
+		buf_ptr = bp_save;	/* do not read anything, just switch buffers */
 		buf_end = be_save;
 		bp_save = be_save = NULL;
 		if (buf_ptr < buf_end)
-			return;	/* only return if there is really something in
+			return;		/* only return if there is really something in
 				 * this buffer */
 	}
 	for (p = in_buffer;;) {
@@ -366,14 +362,11 @@ fill_buffer(void)
 						p++;
 					if (*p == '*')
 						com = 1;
-					else {
-						if (*p == 'O') {
-							if (*++p == 'N')
-								p++, com = 1;
-							else
-								if (*p == 'F' && *++p == 'F')
-									p++, com = 2;
-						}
+					else if (*p == 'O') {
+						if (*++p == 'N')
+							p++, com = 1;
+						else if (*p == 'F' && *++p == 'F')
+							p++, com = 2;
 					}
 					while (*p == ' ' || *p == '\t')
 						p++;
@@ -398,6 +391,7 @@ fill_buffer(void)
 		while (*p++ != '\n');
 	}
 }
+
 /*
  * Copyright (C) 1976 by the Board of Trustees of the University of Illinois
  *
@@ -412,7 +406,7 @@ fill_buffer(void)
  * ALGORITHM: Put tabs and/or blanks into pobuf, then write pobuf.
  *
  * PARAMETERS: current		integer		The current column target
- * 	       target		integer		The desired column
+ *integer		The desired column
  *
  * RETURNS: Integer value of the new column.  (If current >= target, no action is
  * taken, and current is returned.
@@ -428,6 +422,11 @@ fill_buffer(void)
  */
 static int
 pad_output(int current, int target)
+				/* writes tabs and blanks (if necessary) to
+				 * get the current output position up to the
+				 * target column */
+    /* current: the current column value */
+    /* target: position we want it at */
 {
 	int curr;			/* internal column pointer */
 
@@ -447,6 +446,7 @@ pad_output(int current, int target)
 
 	return (target);
 }
+
 /*
  * Copyright (C) 1976 by the Board of Trustees of the University of Illinois
  *
@@ -474,29 +474,29 @@ count_spaces_until(int cur, char *buffer, char *end)
  * printing the text in buffer starting at column "current"
  */
 {
-	char   *buf;		/* used to look thru buffer */
+	char *buf;		/* used to look thru buffer */
 
 	for (buf = buffer; *buf != '\0' && buf != end; ++buf) {
 		switch (*buf) {
 
 		case '\n':
-		case 014:	/* form feed */
+		case 014:		/* form feed */
 			cur = 1;
 			break;
 
 		case '\t':
-			cur = opt.tabsize * (1 + (cur - 1) / opt.tabsize) + 1;;
+			cur = opt.tabsize * (1 + (cur - 1) / opt.tabsize) + 1;
 			break;
 
-		case 010:	/* backspace */
+		case 010:		/* backspace */
 			--cur;
 			break;
 
 		default:
 			++cur;
 			break;
-		}		/* end of switch */
-	}			/* end of for loop */
+		}			/* end of switch */
+	}				/* end of for loop */
 	return (cur);
 }
 
@@ -505,7 +505,6 @@ count_spaces(int cur, char *buffer)
 {
 	return (count_spaces_until(cur, buffer, NULL));
 }
-int     found_err;
 
 void
 diag(int level, const char *msg, ...)
@@ -527,3 +526,4 @@ diag(int level, const char *msg, ...)
 	}
 	va_end(ap);
 }
+
