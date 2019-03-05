@@ -74,18 +74,12 @@
 				 * of code */
 
 
-
 #define false 0
 #define true  1
 
 
-#ifndef EXTERN
-#define EXTERN extern
-#endif
-
-
-EXTERN FILE   *input;			/* the fid for the input file */
-EXTERN FILE   *output;			/* the output file */
+FILE		*input;			/* the fid for the input file */
+FILE    	*output;		/* the output file */
 
 #define CHECK_SIZE_CODE(desired_size) \
 	if (e_code + (desired_size) >= l_code) { \
@@ -139,45 +133,45 @@ EXTERN FILE   *output;			/* the output file */
 	    s_token = tokenbuf + 1; \
 	}
 
-EXTERN char   *labbuf;			/* buffer for label */
-EXTERN char   *s_lab;			/* start ... */
-EXTERN char   *e_lab;			/* .. and end of stored label */
-EXTERN char   *l_lab;			/* limit of label buffer */
+char   *labbuf;			/* buffer for label */
+char   *s_lab;			/* start ... */
+char   *e_lab;			/* .. and end of stored label */
+char   *l_lab;			/* limit of label buffer */
 
-EXTERN char   *codebuf;			/* buffer for code section */
-EXTERN char   *s_code;			/* start ... */
-EXTERN char   *e_code;			/* .. and end of stored code */
-EXTERN char   *l_code;			/* limit of code section */
+char   *codebuf;			/* buffer for code section */
+char   *s_code;			/* start ... */
+char   *e_code;			/* .. and end of stored code */
+char   *l_code;			/* limit of code section */
 
-EXTERN char   *combuf;			/* buffer for comments */
-EXTERN char   *s_com;			/* start ... */
-EXTERN char   *e_com;			/* ... and end of stored comments */
-EXTERN char   *l_com;			/* limit of comment buffer */
+char   *combuf;			/* buffer for comments */
+char   *s_com;			/* start ... */
+char   *e_com;			/* ... and end of stored comments */
+char   *l_com;			/* limit of comment buffer */
 
 #define token s_token
-EXTERN char   *tokenbuf;		/* the last token scanned */
-EXTERN char   *s_token;
-EXTERN char   *e_token;
-EXTERN char   *l_token;
+char   *tokenbuf;		/* the last token scanned */
+char   *s_token;
+char   *e_token;
+char   *l_token;
 
-EXTERN char   *in_buffer;		/* input buffer */
-EXTERN char   *in_buffer_limit;		/* the end of the input buffer */
-EXTERN char   *buf_ptr;			/* ptr to next character to be taken from
+char   *in_buffer;		/* input buffer */
+char   *in_buffer_limit;		/* the end of the input buffer */
+char   *buf_ptr;			/* ptr to next character to be taken from
 					 * in_buffer */
-EXTERN char   *buf_end;			/* ptr to first after last char in in_buffer */
+char   *buf_end;			/* ptr to first after lastchar  in in_buffer */
 
-EXTERN char    sc_buf[sc_size];	/* input text is saved here when looking for
+char     sc_buf[sc_size];	/* input text is saved here when looking for
 				 	 * the brace after an if, while, etc */
-EXTERN char   *save_com;		/* start of the comment stored in sc_buf */
-EXTERN char   *sc_end;			/* pointer into save_com buffer */
+char    *save_com;		/* start of the comment stored in sc_buf */
+char    *sc_end;			/* pointer into save_com buffer */
 
-EXTERN char   *bp_save;			/* saved value of buf_ptr when taking input
+char    *bp_save;			/* saved value of buf_ptr when taking input
 					 * from save_com */
-EXTERN char   *be_save;			/* similarly saved value of buf_end */
+char    *be_save;			/* similarly saved value of buf_end */
 
-EXTERN struct options {
-	int     blanklines_around_conditional_compilation;
-	int     blanklines_after_declarations_at_proctop;	/* This is vaguely
+ struct options {
+	int         blanklines_around_conditional_compilation;
+	int         blanklines_after_declarations_at_proctop; /* This is vaguely
 								 * similar to
 								 * blanklines_after_decla
 								 * rations except that
@@ -190,30 +184,29 @@ EXTERN struct options {
 								 * to be generated even
 								 * if there are no
 								 * declarations */
-	int     blanklines_after_declarations;
-	int     blanklines_after_procs;
-	int     blanklines_before_blockcomments;
-	int     leave_comma;	/* if true, never break declarations after
+	int     	blanklines_after_declarations;
+	int     	blanklines_after_procs;
+	int     	blanklines_before_blockcomments;
+	int     	leave_comma;	/* if true, never break declarations after
 							 * commas */
-	int     btype_2;	/* when true, brace should be on same line as
+	int     	btype_2;	/* when true, brace should be on same line as
 						 * if, while, etc */
-	int     Bill_Shannon;	/* true iff a blank should always be inserted
+	int     	Bill_Shannon;	/* true iff a blank should always be inserted
 							 * after sizeof */
-	int     comment_delimiter_on_blankline;
-	int     decl_com_ind;	/* the column in which comments after
+	int     	comment_delimiter_on_blankline;
+	int     	decl_com_ind;	/* the column in which comments after
 							 * declarations should be put */
-	int     cuddle_else;	/* true if else should cuddle up to '}' */
-	int     continuation_indent;	/* set to the indentation between the edge of
+	int     	cuddle_else;	/* true if else should cuddle up to '}' */
+	int     	continuation_indent;	/* set to the indentation between the edge of
 									 * code and continuation lines */
-	float   case_indent;	/* The distance to indent case labels from the
+	float   	case_indent;	/* The distance to indent case labels from the
 							 * switch statement */
-	int     com_ind;	/* the column in which comments to the right
+	int     	com_ind;	/* the column in which comments to the right
 						 * of code should start */
-	int     decl_indent;	/* column to indent declared identifiers to */
-	int     local_decl_indent;	/* like decl_indent but for locals */
-	int     ljust_decl;	/* true if declarations should be left
+	int     	decl_indent;	/* column to indent declared identifiers to */
+	int     	ljust_decl;	/* true if declarations should be left
 						 * justified */
-	int     unindent_displace;	/* comments not to the right of code
+	int     	unindent_displace;	/* comments not to the right of code
 					 * will be placed this many
 					 * indentation levels to the left of
 					 * code */
@@ -234,6 +227,7 @@ EXTERN struct options {
 	int     indent_parameters;
 	int     ind_size;	/* the size of one indentation level */
 	int     block_comment_max_col;
+	int     local_decl_indent;	/* like decl_indent but for locals */
 	int 	lineup_to_parens_always;		/* if true, do not attempt to keep
 					 * lined-up code within the margin */
 	int     lineup_to_parens;	/* if true, continued code within parens will
@@ -261,126 +255,103 @@ EXTERN struct options {
 
 } opt;
 
-EXTERN int     n_real_blanklines;
-EXTERN int     prefix_blankline_requested;
-EXTERN int     postfix_blankline_requested;
-EXTERN int     break_comma;		/* when true and not in parens, break after a
+int		found_err;
+int     n_real_blanklines;
+int     prefix_blankline_requested;
+int     postfix_blankline_requested;
+int     break_comma;		/* when true and not in parens, break after a
 					 * comma */
-EXTERN float   case_ind;		/* indentation level to be used for a "case
+float   case_ind;		/* indentation level to be used for a "case
 					 * n:" */
-EXTERN int     code_lines;		/* count of lines with code */
-EXTERN int     had_eof;			/* set to true when input is exhausted */
-EXTERN int     line_no;			/* the current line number. */
-EXTERN int 	   found_err;
-EXTERN int     inhibit_formatting;	/* true if INDENT OFF is in effect */
-EXTERN int     suppress_blanklines;	/* set iff following blanklines should be
+int     code_lines;		/* count of lines with code */
+int     had_eof;			/* set to true when input is exhausted */
+int     line_no;			/* the current line number. */
+int     inhibit_formatting;	/* true if INDENT OFF is in effect */
+int     suppress_blanklines;	/* set iff following blanklines should be
 					 * suppressed */
 
+#define	STACKSIZE 256
 
-#define STACK_SIZE 256
-
-EXTERN struct parser_state {
-	int     last_token;
-	
-    int     p_stack[STACK_SIZE];	/* this is the parsers stack */
-    int     il[STACK_SIZE];	/* this stack stores indentation levels */
-    float   cstk[STACK_SIZE];/* used to store case stmt indentation levels */
-	int     box_com;	/* set to true when we are in a "boxed"
+ struct parser_state {
+	int     	last_token;	
+    int     	p_stack[STACKSIZE];	/* this is the parsers stack */
+    int     	il[STACKSIZE];	/* this stack stores indentation levels */
+    float   	cstk[STACKSIZE];/* used to store case stmt indentation levels */
+	int     	box_com;	/* set to true when we are in a "boxed"
 				 * comment. In that case, the first non-blank
 				 * char should be lined up with the comment / */
-	int     comment_delta; /* used to set up indentation for all lines
+	int     	comment_delta; /* used to set up indentation for all lines
 						    * of a boxed comment after the first one */
 			
-	int		n_comment_delta; /* remembers how many columns there were
+	int			n_comment_delta; /* remembers how many columns there were
 							  * before the start of a box comment so that
 							  * forthcoming lines of the comment are
 							  * indented properly */
-	int     cast_mask;	/* indicates which close parens potentially
+	int     	cast_mask;	/* indicates which close parens potentially
 				 * close off casts */
-	int     not_cast_mask;	/* indicates which close parens definitely
+	int     	not_cast_mask;	/* indicates which close parens definitely
 				 * close off sizeof''s */
-	int     block_init;	/* true iff inside a block initialization */
-	int     block_init_level;	/* The level of brace nesting in an
+	int     	block_init;	/* true iff inside a block initialization */
+	int     	block_init_level;	/* The level of brace nesting in an
 					 * initialization */
-	int     last_nl;	/* this is true if the last thing scanned was
+	int     	last_nl;	/* this is true if the last thing scanned was
 				 * a newline */
-	int     in_or_st;	/* Will be true iff there has been a
+	int     	in_or_st;	/* Will be true iff there has been a
 				 * declarator (e.g. int or char) and no left
 				 * paren since the last semicolon. When true,
 				 * a '{' is starting a structure definition or
 				 * an initialization list */
-	int     bl_line;	/* set to 1 by dump_line if the line is blank */
-	int     col_1;		/* set to true if the last token started in
+	int     	bl_line;	/* set to 1 by dump_line if the line is blank */
+	int     	col_1;		/* set to true if the last token started in
 				 * column 1 */
-	int     com_col;	/* this is the column in which the current
+	int     	com_col;	/* this is the column in which the current
 				 * coment should start */
-	int     com_lines;	/* the number of lines with comments, set by
+	int     	com_lines;	/* the number of lines with comments, set by
 				 * dump_line */
-	int     dec_nest;	/* current nesting level for structure or init */
-	int     decl_on_line;	/* set to true if this line of code has part
+	int     	dec_nest;	/* current nesting level for structure or init */
+	int     	decl_on_line;	/* set to true if this line of code has part
 				 * of a declaration on it */
-	int     i_l_follow;	/* the level to which ind_level should be set
+	int     	i_l_follow;	/* the level to which ind_level should be set
 				 * after the current line is printed */
-	int     in_decl;	/* set to true when we are in a declaration
+	int     	in_decl;	/* set to true when we are in a declaration
 				 * stmt.  The processing of braces is then
 				 * slightly different */
-	int     in_stmt;	/* set to 1 while in a stmt */
-	int     ind_level;	/* the current indentation level */
-	int     ind_stmt;	/* set to 1 if next line should have an extra
+	int     	in_stmt;	/* set to 1 while in a stmt */
+	int     	ind_level;	/* the current indentation level */
+	int     	ind_stmt;	/* set to 1 if next line should have an extra
 				 * indentation level because we are in the
 				 * middle of a stmt */
-	int     last_u_d;	/* set to true after scanning a token which
+	int     	last_u_d;	/* set to true after scanning a token which
 				 * forces a following operator to be unary */
-	int     out_coms;	/* the number of comments processed, set by
+	int     	out_coms;	/* the number of comments processed, set by
 				 * pr_comment */
-	int     out_lines;	/* the number of lines written, set by
+	int     	out_lines;	/* the number of lines written, set by
 				 * dump_line */
-	int     p_l_follow;	/* used to remember how to indent following
+	int     	p_l_follow;	/* used to remember how to indent following
 				 * statement */
-	int     paren_level;	/* parenthesization level. used to indent
+	int     	paren_level;	/* parenthesization level. used to indent
 				 * within stmts */
-	short   paren_indents[20];	/* column positions of each paren */
-	int     pcase;		/* set to 1 if the current line label is a
+	short   	paren_indents[20];	/* column positions of each paren */
+	int     	pcase;		/* set to 1 if the current line label is a
 				 * case.  It is printed differently from a
 				 * regular label */
-	int     search_brace;	/* set to true by parse when it is necessary
+	int     	search_brace;	/* set to true by parse when it is necessary
 				 * to buffer up all info up to the start of a
 				 * stmt after an if, while, etc */
-	int     use_ff;		/* set to one if the current line should be
+	int     	use_ff;		/* set to one if the current line should be
 				 * terminated with a form feed */
-	int     want_blank;	/* set to true when the following token should
+	int     	want_blank;	/* set to true when the following token should
 				 * be prefixed by a blank. (Said prefixing is
 				 * ignored in some cases.) */
 	
-	int     keyword;	/* the type of a keyword or 0 */
-	int     dumped_decl_indent;
-	int     in_parameter_declaration;
-	int     tos;		/* pointer to top of stack */
-	char    procname[100];	/* The name of the current procedure */
-	int     just_saw_decl;
-}       ps;
+	int     	keyword;	/* the type of a keyword or 0 */
+	int     	dumped_decl_indent;
+	int     	in_parameter_declaration;
+	int     	tos;		/* pointer to top of stack */
+	char    	procname[100];	/* The name of the current procedure */
+	int     	just_saw_decl;
+}       	ps;
 
-EXTERN int     ifdef_level;
-EXTERN struct parser_state state_stack[5];
-EXTERN struct parser_state match_state[5];
-
-#define nitems(array) (sizeof (array) / sizeof (array[0]))
-
-int compute_code_target(void);
-int compute_label_target(void);
-int count_spaces(int, char *);
-int count_spaces_until(int, char *, char *);
-void diag(int, const char *,...) __attribute__((__format__(__printf__, 2, 3)));
-void dump_line(void);
-void fill_buffer(void);
-void init_constant_tt(void);
-void scan_profile(FILE *);
-void set_defaults(void);
-void set_option(char *);
-void add_typename(const char *);
-void alloc_typenames(void);
-void set_profile(const char *);
-int lexi(struct parser_state *);
-void reduce(void);
-void parse(int);
-void pr_comment(void);
+ int     	ifdef_level;
+ struct parser_state state_stack[5];
+ struct parser_state match_state[5];

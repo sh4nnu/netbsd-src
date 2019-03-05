@@ -78,12 +78,14 @@ __RCSID("$NetBSD: parse.c,v 1.7 2003/08/07 11:14:09 agc Exp $");
 #include <stdio.h>
 #include "indent_globs.h"
 #include "indent_codes.h"
+#include "indent.h"
 
-/* tk: the code for the construct scanned */
+static void reduce(void);
+
 void
-parse(int tk)
+parse(int tk) /* tk: the code for the construct scanned */
 {
-	int     i;
+	int    i;
 
 #ifdef debug
 	printf("%2d - %s\n", tk, token);
@@ -91,28 +93,27 @@ parse(int tk)
 
 	while (ps.p_stack[ps.tos] == ifhead && tk != elselit) {
 		/* true if we have an if without an else */
-		ps.p_stack[ps.tos] = stmt;	/* apply the if(..) stmt ::=
-						 * stmt reduction */
-		reduce();	/* see if this allows any reduction */
+		ps.p_stack[ps.tos] = stmt;	/* apply the if(..) stmt ::= stmt
+									 * reduction */
+		reduce();		/* see if this allows any reduction */
 	}
 
 
 	switch (tk) {		/* go on and figure out what to do with the
 				 * input */
 
-	case decl:		/* scanned a declaration word */
+	case decl:			/* scanned a declaration word */
 		ps.search_brace = opt.btype_2;
 		/* indicate that following brace should be on same line */
-		if (ps.p_stack[ps.tos] != decl) {	/* only put one
-							 * declaration onto
-							 * stack */
+		if (ps.p_stack[ps.tos] != decl) {	/* only put one declaration 
+							 * onto stack */
 			break_comma = true;	/* while in declaration,
 						 * newline should be forced
 						 * after comma */
 			ps.p_stack[++ps.tos] = decl;
 			ps.il[ps.tos] = ps.i_l_follow;
 
-			if (opt.ljust_decl) {	/* only do if we want left
+			if (opt.ljust_decl) {/* only do if we want left
 						 * justified declarations */
 				ps.ind_level = 0;
 				for (i = ps.tos - 1; i > 0; --i)
@@ -126,7 +127,7 @@ parse(int tk)
 		break;
 
 	case ifstmt:		/* scanned if (...) */
-		if (ps.p_stack[ps.tos] == elsehead && opt.else_if)	/* "else if ..." */
+		if (ps.p_stack[ps.tos] == elsehead && opt.else_if) /* "else if ..." */
 			/*
 			 * Note that the stack pointer here is decremented, effectively
 			 * reducing "else if" to "if". This saves a lot of stack space
@@ -134,18 +135,16 @@ parse(int tk)
 			 */
 			ps.i_l_follow = ps.il[ps.tos--];
 		/* the rest is the same as for dolit and forstmt */
-
 	case dolit:		/* 'do' */
 	case forstmt:		/* for (...) */
 		ps.p_stack[++ps.tos] = tk;
 		ps.il[ps.tos] = ps.ind_level = ps.i_l_follow;
-		++ps.i_l_follow;/* subsequent statements should be indented 1 */
+		++ps.i_l_follow;	/* subsequent statements should be indented 1 */
 		ps.search_brace = opt.btype_2;
 		break;
 
 	case lbrace:		/* scanned { */
-		break_comma = false;	/* don't break comma in an initial
-					 * list */
+		break_comma = false;	/* don't break comma in an initial list */
 		if (ps.p_stack[ps.tos] == stmt || ps.p_stack[ps.tos] == decl
 		    || ps.p_stack[ps.tos] == stmtl)
 			++ps.i_l_follow;	/* it is a random, isolated
@@ -174,13 +173,13 @@ parse(int tk)
 		ps.il[ps.tos] = ps.i_l_follow;
 		break;
 
-	case whilestmt:	/* scanned while (...) */
+	case whilestmt:		/* scanned while (...) */
 		if (ps.p_stack[ps.tos] == dohead) {
 			/* it is matched with do stmt */
 			ps.ind_level = ps.i_l_follow = ps.il[ps.tos];
 			ps.p_stack[++ps.tos] = whilestmt;
 			ps.il[ps.tos] = ps.ind_level = ps.i_l_follow;
-		} else {	/* it is a while loop */
+		} else {			/* it is a while loop */
 			ps.p_stack[++ps.tos] = whilestmt;
 			ps.il[ps.tos] = ps.i_l_follow;
 			++ps.i_l_follow;
@@ -234,17 +233,17 @@ parse(int tk)
 		ps.il[ps.tos] = ps.ind_level;
 		break;
 
-	default:		/* this is an error */
+	default:			/* this is an error */
 		diag(1, "Unknown code to parser");
 		return;
 
 
-	}			/* end of switch */
+	}				/* end of switch */
 
-	if (ps.tos >= STACK_SIZE - 1)
-		errx(1, "Parser stack overflow.");
+	if (ps.tos >= STACKSIZE - 1)
+		errx(1, "Parser stack overflow");
 	
-	reduce();		/* see if any reduction can be done */
+	reduce();			/* see if any reduction can be done */
 
 #ifdef debug
 	for (i = 1; i <= ps.tos; ++i)
@@ -254,6 +253,7 @@ parse(int tk)
 
 	return;
 }
+
 /*
  * NAME: reduce
  *
@@ -293,13 +293,12 @@ parse(int tk)
 /*----------------------------------------------*\
 |   REDUCTION PHASE				    |
 \*----------------------------------------------*/
-void
+static void
 reduce(void)
 {
+	int i;
 
-	int     i;
-
-	for (;;) {		/* keep looping until there is nothing left to
+	for (;;) {			/* keep looping until there is nothing left to
 				 * reduce */
 
 		switch (ps.p_stack[ps.tos]) {
@@ -341,9 +340,8 @@ reduce(void)
 			case swstmt:
 				/* <switch> <stmt> */
 				case_ind = ps.cstk[ps.tos - 1];
-
 				/* FALLTHROUGH */
-			case decl:	/* finish of a declaration */
+			case decl:		/* finish of a declaration */
 			case elsehead:
 				/* <<if> <stmt> else> <stmt> */
 			case forstmt:
@@ -354,13 +352,13 @@ reduce(void)
 				ps.i_l_follow = ps.il[ps.tos];
 				break;
 
-			default:	/* <anything else> <stmt> */
+			default:		/* <anything else> <stmt> */
 				return;
 
-			}	/* end of section for <stmt> on top of stack */
+			}			/* end of section for <stmt> on top of stack */
 			break;
 
-		case whilestmt:/* while (...) on top */
+		case whilestmt:	/* while (...) on top */
 			if (ps.p_stack[ps.tos - 1] == dohead) {
 				/* it is termination of a do while */
 				ps.tos -= 2;
@@ -368,7 +366,7 @@ reduce(void)
 			} else
 				return;
 
-		default:	/* anything else on top */
+		default:		/* anything else on top */
 			return;
 
 		}

@@ -85,8 +85,9 @@ __RCSID("$NetBSD: args.c,v 1.13 2016/02/22 21:20:29 ginsbach Exp $");
 #include <stdlib.h>
 #include <string.h>
 #include "indent_globs.h"
+#include "indent.h"
 
-#define INDENT_VERSION "2.0"
+#define INDENT_VERSION	"2.0"
 
 /* profile types */
 #define	PRO_SPECIAL	1	/* special case */
@@ -103,7 +104,7 @@ __RCSID("$NetBSD: args.c,v 1.13 2016/02/22 21:20:29 ginsbach Exp $");
 #define	STDIN		3	/* use stdin */
 #define	KEY		4	/* type (keyword) */
 
-void scan_profile(FILE *);
+static void scan_profile(FILE *);
 
 #define	KEY_FILE		5	/* only used for args */
 #define VERSION			6	/* only used for args */
@@ -119,12 +120,12 @@ void add_typedefs_from_file(const char *str);
  * default value is the one actually assigned.
  */
 struct pro {
-	const char *p_name;	/* name, e.g. -bl, -cli */
-	int     p_type;		/* type (int, bool, special) */
-	int     p_default;	/* the default value (if int) */
-	int     p_special;	/* depends on type */
-	int    *p_obj;		/* the associated variable */
-}       pro[] = {
+	const char *p_name;		/* name, e.g. -bl, -cli */
+	int     		p_type;		/* type (int, bool, special) */
+	int     		p_default;	/* the default value (if int) */
+	int     		p_special;	/* depends on type */
+	int    			*p_obj;		/* the associated variable */
+}       		pro[] = {
 	{
 		"T", PRO_SPECIAL, 0, KEY, 0
 	},
@@ -300,10 +301,10 @@ struct pro {
 		"nsc", PRO_BOOL, true, OFF, &opt.star_comment_cont
 	},
 	{
-		"nut", PRO_BOOL, true, OFF, &opt.use_tabs
+		"nsob", PRO_BOOL, false, OFF, &opt.swallow_optional_blanklines
 	},
 	{
-		"nsob", PRO_BOOL, false, OFF, &opt.swallow_optional_blanklines
+		"nut", PRO_BOOL, true, OFF, &opt.use_tabs
 	},
 	{
 		"nv", PRO_BOOL, false, OFF, &opt.verbose
@@ -324,6 +325,9 @@ struct pro {
 		"st", PRO_SPECIAL, 0, STDIN, 0
 	},
 	{
+		"ta", PRO_BOOL, false, ON, &opt.auto_typedefs
+	},
+	{
 		"ts", PRO_INT, 8, 0, &opt.tabsize
 	},
 	{
@@ -337,6 +341,7 @@ struct pro {
 		0, 0, 0, 0, 0
 	}
 };
+
 /*
  * set_profile reads $HOME/.indent.pro and ./.indent.pro and handles arguments
  * given in these files.
@@ -344,8 +349,8 @@ struct pro {
 void
 set_profile(const char *profile_name)
 {
-	FILE   *f;
-	char    fname[PATH_MAX];
+	FILE *f;
+	char fname[PATH_MAX];
 	static char prof[] = ".indent.pro";
 
 	if (profile_name == NULL)
@@ -363,12 +368,13 @@ set_profile(const char *profile_name)
 	option_source = "Command line";
 }
 
-void
+static void
 scan_profile(FILE *f)
 {
 	int		comment, i;
   char	*p;
   char        buf[BUFSIZ];
+
 	while (1) {
 		p = buf;
 		comment = 0;
@@ -394,11 +400,8 @@ scan_profile(FILE *f)
 	}
 	else if (i == EOF)
 	    return;
-	}
-	
+	}	
 }
-
-
 
 static const char *
 eqin(const char *s1, const char *s2)
@@ -409,6 +412,7 @@ eqin(const char *s1, const char *s2)
 	}
 	return (s2);
 }
+
 /*
  * Set the defaults.
  */
@@ -430,8 +434,8 @@ set_defaults(void)
 void
 set_option(char *arg)
 {
-	struct pro *p;
-	const char *param_start;
+	struct	pro *p;
+	const char	*param_start;
 
 	arg++;			/* ignore leading "-" */
 	for (p = pro; p->p_name; p++)
@@ -477,8 +481,7 @@ found:
 	    exit(0);
 
 		default:
-			errx(1, "set_option: internal error: p_special %d",
-			     p->p_special);
+			errx(1, "set_option: internal error: p_special %d", p->p_special);
 		}
 		break;
 
@@ -492,8 +495,7 @@ found:
 	case PRO_INT:
 		if (!isdigit((unsigned char)*param_start)) {
 	need_param:
-			errx(1, "%s: ``%s'' requires a parameter",
-			     option_source, p->p_name);
+			errx(1, "%s: ``%s'' requires a parameter", option_source, p->p_name);
 		}
 		*p->p_obj = atoi(param_start);
 		break;
