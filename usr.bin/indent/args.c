@@ -80,6 +80,7 @@ __RCSID("$NetBSD: args.c,v 1.13 2016/02/22 21:20:29 ginsbach Exp $");
 
 #include <ctype.h>
 #include <err.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -327,7 +328,7 @@ void
 set_profile(void)
 {
 	FILE   *f;
-	char    fname[BUFSIZ];
+	char    fname[PATH_MAX];
 	static char prof[] = ".indent.pro";
 
 	snprintf(fname, sizeof(fname), "%s/%s", getenv("HOME"), prof);
@@ -443,9 +444,7 @@ found:
 			if (*param_start == 0)
 				goto need_param;
 			{
-				char   *str;
-
-				str = strdup(param_start);
+				char   *str = strdup(param_start);
 				addkey(str, 4);
 			}
 			break;
