@@ -87,9 +87,9 @@
 EXTERN FILE   *input;			/* the fid for the input file */
 EXTERN FILE   *output;			/* the output file */
 
-#define CHECK_SIZE_CODE \
-	if (e_code >= l_code) { \
-	    int nsize = l_code-s_code+400; \
+#define CHECK_SIZE_CODE(desired_size) \
+	if (e_code + (desired_size) >= l_code) { \
+	    int nsize = l_code-s_code + 400 + desired_size; \
 		int code_len = e_code-s_code; \
 	    codebuf = (char *) realloc(codebuf, nsize); \
 	    if (codebuf == NULL) \
@@ -98,9 +98,9 @@ EXTERN FILE   *output;			/* the output file */
 	    l_code = codebuf + nsize - 5; \
 	    s_code = codebuf + 1; \
 	}
-#define CHECK_SIZE_COM \
-	if (e_com >= l_com) { \
-	    int nsize = l_com-s_com+400; \
+#define CHECK_SIZE_COM(desired_size) \
+	if (e_com + (desired_size) >= l_com) { \
+	    int nsize = l_com-s_com + 400 + desired_size; \
 		int com_len = e_com - s_com; \
 	    int blank_pos; \
 		if (last_bl != NULL) \
@@ -125,10 +125,9 @@ EXTERN FILE   *output;			/* the output file */
 	    l_lab = labbuf + nsize - 5; \
 	    s_lab = labbuf + 1; \
 	}
-#define CHECK_SIZE_TOKEN \
-	if (e_token >= l_token) { \
-	    int nsize = l_token-s_token+400; \
-		int label_len = e_lab - s_lab; \
+#define CHECK_SIZE_TOKEN(desired_size) \
+	if (e_token + (desired_size) >= l_token) { \
+	    int nsize = l_token-s_token + 400 + desired_size; \
 	    tokenbuf = (char *) realloc(tokenbuf, nsize); \
 		if (tokenbuf == NULL) \
 			err(1, NULL); \
