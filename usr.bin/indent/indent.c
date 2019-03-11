@@ -856,8 +856,17 @@ check_type:
 				} else
 					if (ps.in_parameter_declaration && !ps.in_or_st) {
 						ps.i_l_follow = 0;
-						dump_line();
-						ps.want_blank = false;
+						if if (function_brace_split) {	/* dump the line prior to the
+						 * brace ... */
+			dump_line();
+			ps.want_blank = false;
+		    } else	/* add a space between the decl and brace */
+			ps.want_blank = true;(function_brace_split) {	/* dump the line prior to the
+							 * brace ... */
+							dump_line();
+							ps.want_blank = false;
+					    } else	/* add a space between the decl and brace */
+						ps.want_blank = true;
 					}
 			}
 			if (ps.in_parameter_declaration)
@@ -1030,7 +1039,7 @@ check_type:
 			if (ps.ind_level == 0 || ps.dec_nest > 0) {
 				/* global variable or struct member in local variable */
 				dec_ind = ps.decl_indent > 0 ? ps.decl_indent : i;
-				tabs_to_var = (ps.use_tabs ? ps.decl_indent > 0 : 0);
+				tabs_to_var = (use_tabs ? ps.decl_indent > 0 : 0);
 	    	} else {
 				/* local variable */
 				dec_ind = ps.local_decl_indent > 0 ? ps.local_decl_indent : i;
