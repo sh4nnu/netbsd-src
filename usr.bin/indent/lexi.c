@@ -198,6 +198,13 @@ strcmp_type(const void *e1, const void *e2)
     return (strcmp(e1, *(const char * const *)e2));
 }
 
+static int 
+strcmp_specials(const void *e1, const void *e2)
+{
+	const struct templ *t = e2;
+	return (strcmp((const char*)e1, t->rwd));
+}
+
 
 
 int
@@ -296,7 +303,7 @@ lexi(struct parser_state *state)
 	    	specials,
 		    sizeof(specials) / sizeof(specials[0]),
 		    sizeof(specials[0]),
-		    strcmp_type);
+		    strcmp_specials);
 		if (p == NULL) {	/* not a special keyword... */
 		    char *u;
 		    /* ... so maybe a type_t or a typedef */
