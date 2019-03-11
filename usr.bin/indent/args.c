@@ -195,6 +195,9 @@ struct pro {
 		"fbc", PRO_FONT, 0, 0, (int *) &blkcomf
 	},
 	{
+		"fbs", PRO_BOOL, true, ON, &function_brace_split
+	},
+	{
 		"fbx", PRO_FONT, 0, 0, (int *) &boxcomf
 	},
 	{
@@ -258,6 +261,9 @@ struct pro {
 		"nei", PRO_BOOL, true, OFF, &ps.else_if
 	},
 	{
+		"nfbs", PRO_BOOL, true, OFF, &function_brace_split
+	},
+	{
 		"nfc1", PRO_BOOL, true, OFF, &format_col1_comments
 	},
 	{
@@ -286,6 +292,9 @@ struct pro {
 	},
 	{
 		"nsob", PRO_BOOL, false, OFF, &swallow_optional_blanklines
+	},
+	{
+		"nut", PRO_BOOL, true, OFF, &use_tabs
 	},
 	{
 		"nv", PRO_BOOL, false, OFF, &verbose
