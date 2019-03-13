@@ -281,7 +281,7 @@ EXTERN struct parser_state {
 	int     col_1;		/* set to true if the last token started in
 				 * column 1 */
 	int     com_col;	/* this is the column in which the current
-				 * coment should start */
+				 * comment should start */
 	int     com_ind;	/* the column in which comments to the right
 				 * of code should start */
 	int     com_lines;	/* the number of lines with comments, set by
@@ -315,7 +315,7 @@ EXTERN struct parser_state {
 	int     p_l_follow;	/* used to remember how to indent following
 				 * statement */
 	int     paren_level;	/* parenthesization level. used to indent
-				 * within stmts */
+				 * within statemrnts */
 	short   paren_indents[20];	/* column positions of each paren */
 	int     pcase;		/* set to 1 if the current line label is a
 				 * case.  It is printed differently from a

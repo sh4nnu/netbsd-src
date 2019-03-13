@@ -203,7 +203,7 @@ parse(int tk)
 			ps.ind_level = ps.i_l_follow = ps.il[--ps.tos];
 			ps.p_stack[ps.tos] = stmt;
 		} else
-			diag(1, "Stmt nesting error.");
+			diag(1, "Statement nesting error.");
 		break;
 
 	case swstmt:		/* had switch (...) */
