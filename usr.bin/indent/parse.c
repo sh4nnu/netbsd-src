@@ -251,6 +251,8 @@ parse(int tk)
 		printf("(%d %d)", ps.p_stack[i], ps.il[i]);
 	printf("\n");
 #endif
+
+	return;
 }
 /*
  * NAME: reduce
