@@ -1238,7 +1238,7 @@ check_type:
 					while ((c = getc(input)) == '\n');
 					ungetc(c, input);
 				}
-				if (ifdef_level < (int)(sizeof state_stack / sizeof state_stack[0])) {
+				if ((size_t)ifdef_level < nitems(state_stack)) {
 					match_state[ifdef_level].tos = -1;
 					state_stack[ifdef_level++] = ps;
 				} else
