@@ -72,8 +72,10 @@ static char sccsid[] = "@(#)indent.c	5.17 (Berkeley) 6/7/93";
 
 #include <sys/cdefs.h>
 #include <sys/param.h>
+#ifdef HAVE_CAPSICUM
 #include <sys/capsicum.h>
 #include <capsicum_helpers.h>
+#endif
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -100,7 +102,9 @@ char        bakfile[MAXPATHLEN] = "";
 int
 main(int argc, char **argv)
 {
-    cap_rights_t rights;
+#ifdef HAVE_CAPSICUM
+	cap_rights_t rights;
+#endif
 
     int         dec_ind;	/* current indentation for declarations */
     int         di_stack[20];	/* a stack of structure indentation levels */
@@ -270,6 +274,7 @@ main(int argc, char **argv)
 	}
     }
 
+#ifdef HAVE_CAPSICUM
     /* Restrict input/output descriptors and enter Capsicum sandbox. */
     cap_rights_init(&rights, CAP_FSTAT, CAP_WRITE);
     if (caph_rights_limit(fileno(output), &rights) < 0)
@@ -279,6 +284,7 @@ main(int argc, char **argv)
 	err(EXIT_FAILURE, "unable to limit rights for %s", in_name);
     if (caph_enter() < 0)
 	err(EXIT_FAILURE, "unable to enter capability mode");
+#endif
 
     if (opt.com_ind <= 1)
 	opt.com_ind = 2;	/* don't put normal comments before column 2 */
