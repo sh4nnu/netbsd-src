@@ -3803,6 +3803,7 @@
 ./usr/tests/usr.bin/id/t_groups			tests-usr.bin-tests	compattestfile,atf
 ./usr/tests/usr.bin/id/t_id			tests-usr.bin-tests	compattestfile,atf
 ./usr/tests/usr.bin/id/t_whoami			tests-usr.bin-tests	compattestfile,atf
+./usr/tests/usr.bin/indent          tests-usr.bin-tests compattestfile,atf
 ./usr/tests/usr.bin/infocmp			tests-usr.bin-tests	compattestfile,atf
 ./usr/tests/usr.bin/infocmp/Atffile		tests-usr.bin-tests	compattestfile,atf
 ./usr/tests/usr.bin/infocmp/Kyuafile		tests-usr.bin-tests	compattestfile,atf,kyua

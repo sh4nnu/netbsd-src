@@ -5,5 +5,6 @@ PROG=	indent
 SRCS=	indent.c io.c lexi.c parse.c pr_comment.c args.c
 
 NO_WMISSING_VARIABLE_DECLARATIONS=
+COPTS.io.c += -Wno-error=format-nonliteral
 
 .include <bsd.prog.mk>

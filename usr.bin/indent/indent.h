@@ -70,7 +70,9 @@ __RCSID("$NetBSD: io.c,v 1.17 2016/02/25 13:23:27 ginsbach Exp $");
 
 #endif				/* not lint */
 #endif
-
+#ifndef nitems
+    #define nitems(array) (sizeof (array) / sizeof (array[0]))
+#endif
 void	add_typename(const char *);
 void	alloc_typenames(void);
 int	compute_code_target(void);
