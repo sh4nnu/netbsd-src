@@ -1228,6 +1228,7 @@ check_type:
 	    ps.last_token = type_code;
     }				/* end of main while (1) loop */
 }
+
 /*
  * copy input file to backup file if in_name is /blah/blah/blah/file, then
  * backup file will be ".Bfile" then make the backup file the input and
@@ -1299,39 +1300,6 @@ indent_declaration(int cur_dec_ind, int tabs_to_var)
     while (pos < cur_dec_ind) {
 	*e_code++ = ' ';
 	pos++;
-    }
-    if (e_code == startpos && ps.want_blank) {
-	*e_code++ = ' ';
-	ps.want_blank = false;
-    }
-}
-
-static void
-indent_declaration(int cur_dec_ind, int tabs_to_var)
-{
-    int pos = e_code - s_code;
-    char *startpos = e_code;
-
-    /*
-     * get the tab math right for indentations that are not multiples of tabsize
-     */
-    if ((ps.ind_level * opt.ind_size) % opt.tabsize != 0) {
-	pos += (ps.ind_level * opt.ind_size) % opt.tabsize;
-	cur_dec_ind += (ps.ind_level * opt.ind_size) % opt.tabsize;
-    }
-    if (tabs_to_var) {
-		int tpos;
-		
-		CHECK_SIZE_CODE(cur_dec_ind / opt.tabsize);
-		while ((tpos = opt.tabsize * (1 + pos / opt.tabsize)) <= cur_dec_ind) {
-	    	*e_code++ = '\t';
-	    	pos = tpos;
-		}
-	}
-	CHECK_SIZE_CODE(cur_dec_ind - pos + 1);
-    while (pos < cur_dec_ind) {
-		*e_code++ = ' ';
-		pos++;
     }
     if (e_code == startpos && ps.want_blank) {
 	*e_code++ = ' ';

@@ -68,8 +68,6 @@ __FBSDID("$FreeBSD: head/usr.bin/indent/args.c 336318 2018-07-15 21:04:21Z pstef
 
 #define INDENT_VERSION	"2.0"
 
-#define INDENT_VERSION "2.0"
-
 /* profile types */
 #define	PRO_SPECIAL	1	/* special case */
 #define	PRO_BOOL	2	/* boolean */
@@ -359,24 +357,6 @@ add_typedefs_from_file(const char *str)
 	/* Remove trailing whitespace */
 	line[strcspn(line, " \t\n\r")] = '\0';
 	add_typename(line);
-    }
-    fclose(file);
-}
-
-void
-add_typedefs_from_file(const char *str)
-{
-    FILE *file;
-    char line[BUFSIZ];
-
-    if ((file = fopen(str, "r")) == NULL) {
-		fprintf(stderr, "indent: cannot open file %s\n", str);
-		exit(1);
-    }
-    while ((fgets(line, BUFSIZ, file)) != NULL) {
-		/* Remove trailing whitespace */
-		line[strcspn(line, " \t\n\r")] = '\0';
-		add_typename(line);
     }
     fclose(file);
 }
