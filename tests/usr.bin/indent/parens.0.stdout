@@ -1,3 +1,4 @@
+/*	$NetBSD$	*/
 /* $FreeBSD: head/usr.bin/indent/tests/parens.0.stdout 334583 2018-06-03 19:05:20Z pstef $ */
 typedef void (*xxxxxxxxxxx) (int,
 							 char);

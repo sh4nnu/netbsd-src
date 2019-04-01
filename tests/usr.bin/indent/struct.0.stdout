@@ -1,3 +1,4 @@
+/*	$NetBSD$	*/
 /* $FreeBSD: head/usr.bin/indent/tests/struct.0.stdout 334564 2018-06-03 16:21:15Z pstef $ */
 
 int		f(struct x *a);

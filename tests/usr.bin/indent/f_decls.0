@@ -1,3 +1,4 @@
+/*	$NetBSD$	*/
 /* $FreeBSD: head/usr.bin/indent/tests/f_decls.0 334566 2018-06-03 16:42:58Z pstef $ */
 
 char * x(void)

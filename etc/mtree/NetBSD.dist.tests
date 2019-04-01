@@ -401,6 +401,7 @@
 ./usr/tests/usr.bin/gzip
 ./usr/tests/usr.bin/id
 ./usr/tests/usr.bin/netpgpverify
+./usr/tests/usr.bin/indent
 ./usr/tests/usr.bin/infocmp
 ./usr/tests/usr.bin/jot
 ./usr/tests/usr.bin/ld

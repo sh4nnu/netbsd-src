@@ -1,3 +1,0 @@
-/* $NetBSD$ */
-/* See r303735 */
-void		t(a *x, b *y, c * z);
