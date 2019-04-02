@@ -969,27 +969,21 @@ decode_reg_name (const char *name)
 }
 
 
-/*
- * Return true if DECL's initializer is suitable for a BSS section.
- * If there is an explicit section name attribute, assume that it is not
- * for a BSS section, independent of the name.
- */
+/* Return true if DECL's initializer is suitable for a BSS section.  */
 
 bool
-bss_initializer_p (const_tree decl)
+bss_initializer_p (const_tree decl, bool named)
 {
-  if (DECL_SECTION_NAME (decl) != NULL)
-    return false;
-  return (DECL_INITIAL (decl) == NULL
-	  /* In LTO we have no errors in program; error_mark_node is used
-	     to mark offlined constructors.  */
-	  || (DECL_INITIAL (decl) == error_mark_node
-	      && !in_lto_p)
-	  || (flag_zero_initialized_in_bss
-	      /* Leave constant zeroes in .rodata so they
-		 can be shared.  */
-	      && !TREE_READONLY (decl)
-	      && initializer_zerop (DECL_INITIAL (decl))));
+  /* Do not put non-common constants into the .bss section, they belong in
+     a readonly section, except when NAMED is true.  */
+  return ((!TREE_READONLY (decl) || DECL_COMMON (decl) || named)
+	  && (DECL_INITIAL (decl) == NULL
+	      /* In LTO we have no errors in program; error_mark_node is used
+	         to mark offlined constructors.  */
+	      || (DECL_INITIAL (decl) == error_mark_node
+	          && !in_lto_p)
+	      || (flag_zero_initialized_in_bss
+	          && initializer_zerop (DECL_INITIAL (decl)))));
 }
 
 /* Compute the alignment of variable specified by DECL.
@@ -1160,7 +1154,8 @@ get_variable_section (tree decl, bool prefer_noswitch_p)
     {
       section *sect = get_named_section (decl, NULL, reloc);
 
-      if ((sect->common.flags & SECTION_BSS) && !bss_initializer_p (decl))
+      if ((sect->common.flags & SECTION_BSS)
+	  && !bss_initializer_p (decl, true))
 	{
 	  error_at (DECL_SOURCE_LOCATION (decl),
 		    "only zero initializers are allowed in section %qs",
@@ -6471,7 +6466,8 @@ categorize_decl_for_section (const_tree decl, int reloc)
 	ret = SECCAT_BSS;
       else if (! TREE_READONLY (decl)
 	       || TREE_SIDE_EFFECTS (decl)
-	       || (DECL_INITIAL(decl) != NULL && ! TREE_CONSTANT (DECL_INITIAL (decl))))
+	       || (DECL_INITIAL (decl)
+		   && ! TREE_CONSTANT (DECL_INITIAL (decl))))
 	{
 	  /* Here the reloc_rw_mask is not testing whether the section should
 	     be read-only or not, but whether the dynamic link will have to
@@ -6491,8 +6487,8 @@ categorize_decl_for_section (const_tree decl, int reloc)
 	   location.  -fmerge-all-constants allows even that (at the
 	   expense of not conforming).  */
 	ret = SECCAT_RODATA;
-      else if (DECL_INITIAL (decl) != NULL
-               && TREE_CODE (DECL_INITIAL (decl)) == STRING_CST)
+      else if (DECL_INITIAL (decl)
+	       && TREE_CODE (DECL_INITIAL (decl)) == STRING_CST)
 	ret = SECCAT_RODATA_MERGE_STR_INIT;
       else
 	ret = SECCAT_RODATA_MERGE_CONST;
@@ -6516,7 +6512,6 @@ categorize_decl_for_section (const_tree decl, int reloc)
 	 no concept of a read-only thread-local-data section.  */
       if (ret == SECCAT_BSS
 	       || (flag_zero_initialized_in_bss
-		   && DECL_INITIAL(decl) != NULL
 		   && initializer_zerop (DECL_INITIAL (decl))))
 	ret = SECCAT_TBSS;
       else

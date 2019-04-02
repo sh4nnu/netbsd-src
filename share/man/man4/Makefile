@@ -1,4 +1,4 @@
-#	$NetBSD: Makefile,v 1.676 2018/12/12 08:20:53 maxv Exp $
+#	$NetBSD: Makefile,v 1.680 2019/03/26 12:21:28 pgoyette Exp $
 #	@(#)Makefile	8.1 (Berkeley) 6/18/93
 
 MAN=	aac.4 ac97.4 acardide.4 aceride.4 acphy.4 \
@@ -36,7 +36,7 @@ MAN=	aac.4 ac97.4 acardide.4 aceride.4 acphy.4 \
 	irmce.4 isp.4 ismt.4 isv.4 itesio.4 iteide.4 iwi.4 iwm.4 iwn.4 ixg.4 \
 	ixpide.4 ixv.4 \
 	jme.4 jmide.4 joy.4 \
-	kloader.4 kse.4 ksyms.4 kttcp.4 \
+	kcov.4 kloader.4 kse.4 ksyms.4 kttcp.4 \
 	l2tp.4 lc.4 ld.4 lii.4 lo.4 lua.4 lxtphy.4 \
 	mainbus.4 makphy.4 malo.4 mbe.4 mca.4 mcclock.4 md.4 mfb.4 \
 	mfi.4 mfii.4 mhzc.4 \
@@ -58,8 +58,8 @@ MAN=	aac.4 ac97.4 acardide.4 aceride.4 acphy.4 \
 	scsi.4 sctp.4 sd.4 se.4 seeprom.4 sem.4 \
 	ses.4 sf.4 sfb.4 sgsmix.4 shb.4 shmif.4 shpcic.4 si70xxtemp.4 \
 	siisata.4 siop.4 sip.4 siside.4 sk.4 sl.4 slide.4 \
-	sm.4 smsh.4 sn.4 sony.4 spc.4 speaker.4 spif.4 sqphy.4 ss.4 \
-	st.4 ste.4 stge.4 sti.4 stpcide.4 sv.4 strip.4 \
+	sm.4 smsh.4 sn.4 sony.4 spc.4 speaker.4 spif.4 sqphy.4 srt.4 ss.4 \
+	ssdfb.4 st.4 ste.4 stge.4 sti.4 stpcide.4 sv.4 strip.4 \
 	svwsata.4 swsensor.4 swwdog.4 sysmon.4 \
 	tap.4 tc.4 tcds.4 tcp.4 tcu.4 tdvfb.4 tea5767radio.4 termios.4 tfb.4 \
 	thinkpad.4 ti.4 tl.4 tlp.4 tlphy.4 tpm.4 tprof.4 tr.4 tra.4 \
@@ -82,7 +82,7 @@ MAN+=	atu.4 aubtfwl.4 aue.4 axe.4 axen.4 cdce.4 cue.4 ehci.4 kue.4 mue.4 \
 	ucom.4 ucycom.4 udav.4 udsbr.4 uftdi.4 ugen.4 ugensa.4 uhci.4 uhid.4 \
 	uhidev.4 uhmodem.4 uhso.4 uipad.4 uipaq.4 uirda.4 ukbd.4 ukyopon.4 \
 	ulpt.4 umass.4 umcs.4 umct.4 umidi.4 umodem.4 ums.4 upgt.4 upl.4 \
-	uplcom.4 urio.4 url.4 urndis.4 urtw.4 urtwn.4 \
+	uplcom.4 ure.4 urio.4 url.4 urndis.4 urtw.4 urtwn.4 \
 	usb.4 uscanner.4 uslsa.4 usmsc.4 usscanner.4 \
 	ustir.4 uthum.4 utoppy.4 uts.4 uvideo.4 uvisor.4 uvscom.4 uyap.4 \
 	uyurex.4 \

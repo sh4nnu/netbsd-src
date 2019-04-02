@@ -1,4 +1,4 @@
-/*	$NetBSD: sockin_user.c,v 1.2 2018/12/12 00:48:44 alnsn Exp $	*/
+/*	$NetBSD: sockin_user.c,v 1.4 2019/03/26 08:56:17 bad Exp $	*/
 
 /*
  * Copyright (c) 2008 Antti Kantee.  All Rights Reserved.
@@ -26,7 +26,9 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: sockin_user.c,v 1.2 2018/12/12 00:48:44 alnsn Exp $");
+#ifdef __KERNEL_RCSID
+__KERNEL_RCSID(0, "$NetBSD: sockin_user.c,v 1.4 2019/03/26 08:56:17 bad Exp $");
+#endif
 
 /* for struct msghdr content visibility */
 #define _XOPEN_SOURCE 4

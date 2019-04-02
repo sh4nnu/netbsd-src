@@ -1,4 +1,4 @@
-# $NetBSD: Makefile,v 1.13 2018/01/08 14:17:15 martin Exp $
+# $NetBSD: Makefile,v 1.15 2019/02/23 03:10:06 kamil Exp $
 
 .include <bsd.own.mk>
 
@@ -12,16 +12,19 @@ CPPFLAGS+=	-D_KERNTYPES
 # Atffile into it.
 TESTS_C=	t_modctl
 TESTS_C+=	t_builtin
+TESTS_C+=	t_kcov
 LDADD=		-lprop
 LDADD+=		-lrumpfs_kernfs -lrumpvfs -lrump -lrumpuser -lrump -lpthread
 
 TESTS_SH=	t_abi_uvm
 TESTS_SH+=	t_modload
 TESTS_SH+= 	t_klua_pr_52864
+TESTS_SH+=	t_threadpool
 
 SUBDIR=		k_helper
 SUBDIR+=	k_helper2
 SUBDIR+=	k_helper3
 SUBDIR+=	k_uvm
+SUBDIR+=	threadpool_tester
 
 .include <bsd.test.mk>

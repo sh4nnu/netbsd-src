@@ -1,4 +1,4 @@
-# $NetBSD: files.fdt,v 1.41 2018/10/19 21:09:10 jakllsch Exp $
+# $NetBSD: files.fdt,v 1.44 2019/03/13 12:17:45 jmcneill Exp $
 
 include	"external/bsd/libfdt/conf/files.libfdt"
 
@@ -45,6 +45,10 @@ device	panel: fdt_port
 attach	panel at fdt with fdt_panel
 file	dev/fdt/panel_fdt.c			fdt_panel
 
+device	dispcon: fdt_port, drmkms, ddc_read_edid
+attach	dispcon at fdt with dispcon_hdmi
+file	dev/fdt/hdmi_connector.c		dispcon_hdmi
+
 file	dev/fdt/fdt_openfirm.c			fdtbase
 file	dev/fdt/fdt_subr.c			fdtbase
 file	dev/fdt/fdt_clock.c			fdt
@@ -68,8 +72,10 @@ attach	cpus at fdt
 file	dev/fdt/cpus.c				cpus
 
 device	mmcpwrseq
-attach	mmcpwrseq at fdt
-file	dev/fdt/mmc_pwrseq_simple.c		mmcpwrseq
+attach	mmcpwrseq at fdt with mmcpwrseq_simple
+file	dev/fdt/mmc_pwrseq_simple.c		mmcpwrseq_simple
+attach	mmcpwrseq at fdt with mmcpwrseq_emmc
+file	dev/fdt/mmc_pwrseq_emmc.c		mmcpwrseq_emmc
 
 device	syscon { } : fdt
 attach	syscon at fdt
@@ -138,3 +144,7 @@ file	dev/fdt/dwiic_fdt.c			dwiic_fdt
 # AMD Cryptographic Coprocessor
 attach	amdccp at fdt with amdccp_fdt
 file	dev/fdt/amdccp_fdt.c			amdccp_fdt
+
+# Arasan SDHCI controller
+attach	sdhc at fdt with arasan_sdhc_fdt
+file	dev/fdt/arasan_sdhc_fdt.c		arasan_sdhc_fdt

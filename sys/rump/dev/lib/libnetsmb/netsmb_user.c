@@ -1,4 +1,4 @@
-/*	$NetBSD: netsmb_user.c,v 1.4 2018/12/12 00:48:43 alnsn Exp $	*/
+/*	$NetBSD: netsmb_user.c,v 1.6 2019/03/26 08:56:17 bad Exp $	*/
 
 /*
  * Copyright (c) 2014 Takeshi Nakayama.
@@ -26,7 +26,9 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: netsmb_user.c,v 1.4 2018/12/12 00:48:43 alnsn Exp $");
+#ifdef __KERNEL_RCSID
+__KERNEL_RCSID(0, "$NetBSD: netsmb_user.c,v 1.6 2019/03/26 08:56:17 bad Exp $");
+#endif
 
 #ifndef _KERNEL
 #include <stddef.h>

@@ -1,14 +1,15 @@
-#	$NetBSD: Makefile,v 1.3 2015/08/20 11:05:02 christos Exp $
+#	$NetBSD: Makefile,v 1.5 2019/02/17 04:06:00 rin Exp $
 
 .include "../Makefile.inc"
 
-CPPFLAGS+= -DVND_COMPRESSION -DCOMPAT_30 -DCOMPAT_50
+CPPFLAGS+= -DVND_COMPRESSION -DCOMPAT_50
 
 .PATH:	${S}/dev
-
 
 KMOD=	vnd
 IOCONF=	vnd.ioconf
 SRCS=	vnd.c
+
+WARNS=	3
 
 .include <bsd.kmodule.mk>

@@ -1,4 +1,4 @@
-/* $NetBSD: fdt_machdep.c,v 1.57 2018/12/23 11:45:39 skrll Exp $ */
+/* $NetBSD: fdt_machdep.c,v 1.61 2019/03/30 13:17:23 jmcneill Exp $ */
 
 /*-
  * Copyright (c) 2015-2017 Jared McNeill <jmcneill@invisible.ca>
@@ -27,7 +27,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: fdt_machdep.c,v 1.57 2018/12/23 11:45:39 skrll Exp $");
+__KERNEL_RCSID(0, "$NetBSD: fdt_machdep.c,v 1.61 2019/03/30 13:17:23 jmcneill Exp $");
 
 #include "opt_machdep.h"
 #include "opt_bootconfig.h"
@@ -158,8 +158,7 @@ static struct consdev earlycons = {
 #endif
 
 /*
- * ARM: Get the first physically contiguous region of memory.
- * ARM64: Get all of physical memory, including holes.
+ * Get all of physical memory, including holes.
  */
 static void
 fdt_get_memory(uint64_t *pstart, uint64_t *pend)
@@ -184,14 +183,8 @@ fdt_get_memory(uint64_t *pstart, uint64_t *pend)
 		VPRINTF("FDT /memory [%d] @ 0x%" PRIx64 " size 0x%" PRIx64 "\n",
 		    index, cur_addr, cur_size);
 
-#ifdef __aarch64__
 		if (cur_addr + cur_size > *pend)
 			*pend = cur_addr + cur_size;
-#else
-		/* If subsequent entries follow the previous, append them. */
-		if (*pend == cur_addr)
-			*pend = cur_addr + cur_size;
-#endif
 	}
 }
 
@@ -545,12 +538,18 @@ initarm(void *arg)
 	u_int sp = initarm_common(KERNEL_VM_BASE, KERNEL_VM_SIZE, fdt_physmem,
 	     nfdt_physmem);
 
+	/*
+	 * initarm_common flushes cache if required before AP start
+	 */
+	error = 0;
 	if ((boothowto & RB_MD1) == 0) {
 		VPRINTF("mpstart\n");
 		if (plat->ap_mpstart)
-			plat->ap_mpstart();
+			error = plat->ap_mpstart();
 	}
 
+	if (error)
+		return sp;
 	/*
 	 * Now we have APs started the pages used for stacks and L1PT can
 	 * be given to uvm

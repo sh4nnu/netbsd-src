@@ -1,38 +1,12 @@
-/*	$NetBSD: indent.c,v 1.23 2016/09/05 00:40:29 sevan Exp $	*/
+/*	$NetBSD$	*/
 
-/*
+/*-
+ * SPDX-License-Identifier: BSD-4-Clause
+ *
+ * Copyright (c) 1985 Sun Microsystems, Inc.
+ * Copyright (c) 1976 Board of Trustees of the University of Illinois.
  * Copyright (c) 1980, 1993
  *	The Regents of the University of California.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
-
-/*
- * Copyright (c) 1976 Board of Trustees of the University of Illinois.
- * Copyright (c) 1985 Sun Microsystems, Inc.
- * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -63,7 +37,6 @@
  * SUCH DAMAGE.
  */
 
-
 #if 0
 #ifndef lint
 static char sccsid[] = "@(#)indent.c	5.17 (Berkeley) 6/7/93";
@@ -71,8 +44,17 @@ static char sccsid[] = "@(#)indent.c	5.17 (Berkeley) 6/7/93";
 #endif
 
 #include <sys/cdefs.h>
+#ifndef lint
+#if defined(__NetBSD__)
+__RCSID("$NetBSD$");
+#elif defined(__FreeBSD__)
+__FBSDID("$FreeBSD: head/usr.bin/indent/indent.c 340138 2018-11-04 19:24:49Z oshogbo $");
+#endif
+#endif
+
+#include <sys/cdefs.h>
 #include <sys/param.h>
-#ifdef HAVE_CAPSICUM
+#if HAVE_CAPSICUM
 #include <sys/capsicum.h>
 #include <capsicum_helpers.h>
 #endif
@@ -102,8 +84,8 @@ char        bakfile[MAXPATHLEN] = "";
 int
 main(int argc, char **argv)
 {
-#ifdef HAVE_CAPSICUM
-	cap_rights_t rights;
+#if HAVE_CAPSICUM
+    cap_rights_t rights;
 #endif
 
     int         dec_ind;	/* current indentation for declarations */
@@ -274,7 +256,7 @@ main(int argc, char **argv)
 	}
     }
 
-#ifdef HAVE_CAPSICUM
+#if HAVE_CAPSICUM
     /* Restrict input/output descriptors and enter Capsicum sandbox. */
     cap_rights_init(&rights, CAP_FSTAT, CAP_WRITE);
     if (caph_rights_limit(fileno(output), &rights) < 0)
@@ -976,6 +958,7 @@ check_type:
 	case structure:
 	    if (ps.p_l_follow > 0)
 		goto copy_id;
+	    /* FALLTHROUGH */
 	case decl:		/* we have a declaration type (int, etc.) */
 	    parse(decl);	/* let parser worry about indentation */
 	    if (ps.last_token == rparen && ps.tos <= 1) {

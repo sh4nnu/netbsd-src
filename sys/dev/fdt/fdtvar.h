@@ -1,4 +1,4 @@
-/* $NetBSD: fdtvar.h,v 1.46 2019/01/23 04:21:55 thorpej Exp $ */
+/* $NetBSD: fdtvar.h,v 1.50 2019/02/27 17:01:57 jakllsch Exp $ */
 
 /*-
  * Copyright (c) 2015 Jared D. McNeill <jmcneill@invisible.ca>
@@ -62,6 +62,14 @@ struct fdt_attach_args {
 
 /* flags for fdtbus_intr_establish */
 #define FDT_INTR_MPSAFE	__BIT(0)
+
+/* Interrupt trigger types defined by the FDT "interrupts" bindings. */
+#define	FDT_INTR_TYPE_POS_EDGE		__BIT(0)
+#define	FDT_INTR_TYPE_NEG_EDGE		__BIT(1)
+#define	FDT_INTR_TYPE_DOUBLE_EDGE	(FDT_INTR_TYPE_POS_EDGE | \
+					 FDT_INTR_TYPE_NEG_EDGE)
+#define	FDT_INTR_TYPE_HIGH_LEVEL	__BIT(2)
+#define	FDT_INTR_TYPE_LOW_LEVEL		__BIT(3)
 
 struct fdtbus_interrupt_controller_func {
 	void *	(*establish)(device_t, u_int *, int, int,
@@ -272,7 +280,10 @@ int		fdtbus_get_reg64(int, u_int, uint64_t *, uint64_t *);
 int		fdtbus_get_phandle(int, const char *);
 int		fdtbus_get_phandle_from_native(int);
 i2c_tag_t	fdtbus_get_i2c_tag(int);
+i2c_tag_t	fdtbus_i2c_acquire(int, const char *);
 void *		fdtbus_intr_establish(int, u_int, int, int,
+		    int (*func)(void *), void *arg);
+void *		fdtbus_intr_establish_byname(int, const char *, int, int,
 		    int (*func)(void *), void *arg);
 void *		fdtbus_intr_establish_raw(int, const u_int *, int, int,
 		    int (*func)(void *), void *arg);
@@ -336,6 +347,7 @@ int		fdtbus_reset_deassert(struct fdtbus_reset *);
 struct fdtbus_phy *fdtbus_phy_get(int, const char *);
 struct fdtbus_phy *fdtbus_phy_get_index(int, u_int);
 void		fdtbus_phy_put(struct fdtbus_phy *);
+device_t	fdtbus_phy_device(struct fdtbus_phy *);
 int		fdtbus_phy_enable(struct fdtbus_phy *, bool);
 
 struct fdtbus_mmc_pwrseq *fdtbus_mmc_pwrseq_get(int);
@@ -369,6 +381,7 @@ bool		fdtbus_status_okay(int);
 const void *	fdtbus_get_prop(int, const char *, int *);
 const char *	fdtbus_get_string(int, const char *);
 const char *	fdtbus_get_string_index(int, const char *, u_int);
+int		fdtbus_get_index(int, const char *, const char *, u_int *);
 
 void		fdt_add_bus(device_t, int, struct fdt_attach_args *);
 void		fdt_add_bus_match(device_t, int, struct fdt_attach_args *,

@@ -1,4 +1,4 @@
-/* $NetBSD: udp6_usrreq.c,v 1.145 2018/12/27 16:59:17 maxv Exp $ */
+/* $NetBSD: udp6_usrreq.c,v 1.147 2019/02/25 07:31:32 maxv Exp $ */
 /* $KAME: udp6_usrreq.c,v 1.86 2001/05/27 17:33:00 itojun Exp $ */
 /* $KAME: udp6_output.c,v 1.43 2001/10/15 09:19:52 itojun Exp $ */
 
@@ -63,7 +63,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: udp6_usrreq.c,v 1.145 2018/12/27 16:59:17 maxv Exp $");
+__KERNEL_RCSID(0, "$NetBSD: udp6_usrreq.c,v 1.147 2019/02/25 07:31:32 maxv Exp $");
 
 #ifdef _KERNEL_OPT
 #include "opt_inet.h"
@@ -1045,6 +1045,11 @@ udp6_attach(struct socket *so, int proto)
 	KASSERT(sotoin6pcb(so) == NULL);
 	sosetlock(so);
 
+	error = soreserve(so, udp6_sendspace, udp6_recvspace);
+	if (error) {
+		return error;
+	}
+
 	/*
 	 * MAPPED_ADDR implementation spec:
 	 *  Always attach for IPv6, and only when necessary for IPv4.
@@ -1055,10 +1060,7 @@ udp6_attach(struct socket *so, int proto)
 	if (error) {
 		return error;
 	}
-	error = soreserve(so, udp6_sendspace, udp6_recvspace);
-	if (error) {
-		return error;
-	}
+
 	in6p = sotoin6pcb(so);
 	in6p->in6p_cksum = -1;	/* just to be sure */
 
@@ -1279,10 +1281,8 @@ udp6_sendoob(struct socket *so, struct mbuf *m, struct mbuf *control)
 {
 	KASSERT(solocked(so));
 
-	if (m)
-		m_freem(m);
-	if (control)
-		m_freem(control);
+	m_freem(m);
+	m_freem(control);
 
 	return EOPNOTSUPP;
 }

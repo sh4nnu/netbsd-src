@@ -1,4 +1,4 @@
-/*	$NetBSD: if.h,v 1.266 2018/10/18 11:34:54 knakahara Exp $	*/
+/*	$NetBSD: if.h,v 1.269 2019/03/23 09:48:04 pgoyette Exp $	*/
 
 /*-
  * Copyright (c) 1999, 2000, 2001 The NetBSD Foundation, Inc.
@@ -88,6 +88,7 @@
 #include <sys/pslist.h>
 #include <sys/pserialize.h>
 #include <sys/psref.h>
+#include <sys/module_hook.h>
 #endif
 
 /*
@@ -412,7 +413,7 @@ typedef struct ifnet {
 #define	IFF_DEBUG	0x0004		/* turn on debugging */
 #define	IFF_LOOPBACK	0x0008		/* is a loopback net */
 #define	IFF_POINTOPOINT	0x0010		/* interface is point-to-point link */
-#define	IFF_NOTRAILERS	0x0020		/* avoid use of trailers */
+/*			0x0020		   was IFF_NOTRAILERS */
 #define	IFF_RUNNING	0x0040		/* resources allocated */
 #define	IFF_NOARP	0x0080		/* no address resolution protocol */
 #define	IFF_PROMISC	0x0100		/* receive all packets */
@@ -572,7 +573,7 @@ if_is_link_state_changeable(struct ifnet *ifp)
 #endif /* _KERNEL */
 
 #define	IFFBITS \
-    "\020\1UP\2BROADCAST\3DEBUG\4LOOPBACK\5POINTOPOINT\6NOTRAILERS" \
+    "\020\1UP\2BROADCAST\3DEBUG\4LOOPBACK\5POINTOPOINT" \
     "\7RUNNING\10NOARP\11PROMISC\12ALLMULTI\13OACTIVE\14SIMPLEX" \
     "\15LINK0\16LINK1\17LINK2\20MULTICAST"
 
@@ -1329,6 +1330,11 @@ int	sysctl_ifq(int *name, u_int namelen, void *oldp,
 #define IFQCTL_MAXLEN	2
 #define IFQCTL_PEAK	3
 #define IFQCTL_DROPS	4
+
+/* 
+ * Hook for if_vlan - needed by if_agr
+ */
+MODULE_HOOK(if_vlan_vlan_input_hook, void, (struct ifnet *, struct mbuf *));
 
 #endif /* _KERNEL */
 

@@ -108,30 +108,18 @@ along with GCC; see the file COPYING3.  If not see
    use string concatenation.  */
 
 #ifdef NETBSD_ENABLE_PTHREADS
-#define NETBSD_LIB_SPEC		\
+#define NETBSD_LIB_SPEC_PTHREAD \
   "%{pthread:			\
      %{!p:			\
        %{!pg:-lpthread}}	\
      %{p:-lpthread_p}		\
-     %{pg:-lpthread_p}}		\
-   %{posix:			\
-     %{!p:			\
-       %{!pg:-lposix}}		\
-     %{p:-lposix_p}		\
-     %{pg:-lposix_p}}		\
-   %{shared:			\
-     %{!p:			\
-       %{!pg:-lc}}		\
-     %{p:-lc_p}			\
-       %{pg:-lc_p}}		\
-   %{!shared:			\
-     %{!symbolic:		\
-       %{!p:			\
-	 %{!pg:-lc}}		\
-       %{p:-lc_p}		\
-       %{pg:-lc_p}}}"
+     %{pg:-lpthread_p}}"
 #else
+#define NETBSD_LIB_SPEC_PTHREAD
+#endif
+
 #define NETBSD_LIB_SPEC		\
+  NETBSD_LIB_SPEC_PTHREAD       \
   "%{posix:			\
      %{!p:			\
        %{!pg:-lposix}}		\
@@ -148,7 +136,6 @@ along with GCC; see the file COPYING3.  If not see
 	 %{!pg:-lc}}		\
        %{p:-lc_p}		\
        %{pg:-lc_p}}}"
-#endif
 
 #undef LIB_SPEC
 #define LIB_SPEC NETBSD_LIB_SPEC
@@ -156,9 +143,18 @@ along with GCC; see the file COPYING3.  If not see
 #define LIBSTDCXX_PROFILE "stdc++_p"
 #define MATH_LIBRARY_PROFILE "m_p"
 
-#if 0 // XXXMRG
-#undef STATIC_LIBASAN_LIBS
-#define STATIC_LIBASAN_LIBS "-lstdc++ -lpthread"
+/* Provide a LIBGCC_SPEC appropriate for NetBSD.  */
+#ifdef NETBSD_NATIVE
+#define NETBSD_LIBGCC_SPEC	\
+  "%{!symbolic:			\
+     %{!shared:			\
+       %{!p:			\
+	 %{!pg: -lgcc}}}	\
+     %{shared: -lgcc_pic}	\
+     %{p: -lgcc_p}		\
+     %{pg: -lgcc_p}}"
+#else
+#define NETBSD_LIBGCC_SPEC "-lgcc"
 #endif
 
 /* Provide a LIBGCC_SPEC appropriate for NetBSD.  */

@@ -1,4 +1,4 @@
-#	$NetBSD: bsd.own.mk,v 1.1095 2019/01/19 12:58:37 mrg Exp $
+#	$NetBSD: bsd.own.mk,v 1.1119 2019/03/28 15:45:23 christos Exp $
 
 # This needs to be before bsd.init.mk
 .if defined(BSD_MK_COMPAT_FILE)
@@ -58,7 +58,14 @@ TOOLCHAIN_MISSING?=	no
 #
 # What GCC is used?
 #
+.if \
+    ${MACHINE_CPU} == "hppa"	|| \
+    ${MACHINE_CPU} == "ia64"	|| \
+    ${MACHINE_ARCH} == "powerpc64"	|| \
+    ${MACHINE_CPU} == "vax"
 HAVE_GCC?=	6
+.endif
+HAVE_GCC?=	7
 
 #
 # Platforms that can't run a modern GCC natively
@@ -160,6 +167,12 @@ EXTERNAL_BINUTILS_SUBDIR=	binutils.old
 .else
 EXTERNAL_BINUTILS_SUBDIR=	/does/not/exist
 .endif
+
+#
+# What version of jemalloc we use (100 is the one
+# built-in to libc from 2005 (pre version 3).
+#
+HAVE_JEMALLOC?=		510
 
 .if empty(.MAKEFLAGS:tW:M*-V .OBJDIR*)
 .if defined(MAKEOBJDIRPREFIX) || defined(MAKEOBJDIR)
@@ -320,7 +333,7 @@ TOOL_CXX.pcc=		${TOOLDIR}/bin/${MACHINE_GNU_PLATFORM}-p++
 #
 DESTDIR?=
 
-# Don't append another copy of sysroot (coming from COMPATCPPFLAGS etc.
+# Don't append another copy of sysroot (coming from COMPATCPPFLAGS etc.)
 # because it confuses Coverity. Still we need to cov-configure specially
 # for each specific sysroot argument.
 .if !defined(HOSTPROG) && !defined(HOSTLIB)
@@ -620,16 +633,6 @@ MACHINES.sparc64=	sparc64
 MACHINES.vax=		vax
 MACHINES.x86_64=	amd64
 
-# for crunchide & ldd, define the OBJECT_FMTS used by a MACHINE_ARCH
-#
-OBJECT_FMTS=
-.if	${MACHINE_ARCH} != "alpha" && ${MACHINE_ARCH} != "ia64"
-OBJECT_FMTS+=	elf32
-.endif
-.if	${MACHINE_ARCH} == "alpha" || ${MACHINE_ARCH:M*64*} != ""
-OBJECT_FMTS+=	elf64
-.endif
-
 # OBJCOPY flags to create a.out binaries for old firmware
 # shared among src/distrib and ${MACHINE}/conf/Makefile.${MACHINE}.inc
 .if ${MACHINE_CPU} == "arm"
@@ -811,7 +814,6 @@ NOPROFILE=	# defined
 #
 # The ia64 port is incomplete.
 #
-MKLINT.ia64=	no
 MKGDB.ia64=	no
 
 #
@@ -1064,7 +1066,7 @@ _MKVARS.yes= \
 	MKGCC MKGDB MKGROFF \
 	MKHESIOD MKHTML \
 	MKIEEEFP MKINET6 MKINFO MKIPFILTER MKISCSI \
-	MKKERBEROS \
+	MKKERBEROS MKLLVMCMDS \
 	MKKMOD \
 	MKLDAP MKLIBSTDCXX MKLINKLIB MKLVM \
 	MKMAN MKMANDOC \
@@ -1105,11 +1107,6 @@ USE_LIBCSANITIZER?=	undefined
 #
 # Exceptions to the above:
 #
-
-# Rump doesn't work yet on ia64
-.if ${MACHINE} == "ia64"
-MKRUMP=		no
-.endif
 
 # RUMP uses -nostdinc which coverity does not like
 # It also does not use many new files, so disable it
@@ -1230,6 +1227,16 @@ MKXORG_SERVER=yes
 .endif
 
 #
+# MesaLib.old and MesaLib7 go together, and MesaLib is alone.
+#
+HAVE_MESA_VER?=	10
+.if ${HAVE_MESA_VER} == "10"
+EXTERNAL_MESALIB_DIR?=	MesaLib.old
+.else
+EXTERNAL_MESALIB_DIR?=	MesaLib
+.endif
+
+#
 # Force some options off if their dependencies are off.
 #
 
@@ -1292,6 +1299,23 @@ MKLIBCXX:=	yes
 .endif
 
 #
+# If we're building X11 (not the default) on x86, and we're using
+# Mesa >= 18, turn on LLVM libs, and maybe turn off building clang.
+#
+.if ${HAVE_MESA_VER} == "18"
+_NEEDS_LLVMLIB.x86_64=		yes
+_NEEDS_LLVMLIB.i386=		yes
+.endif
+
+.if ${MKX11} != "no" && ${_NEEDS_LLVMLIB.${MACHINE_ARCH}:Uno} == "yes"
+MKLLVM:=			yes
+.endif
+
+.if ${HAVE_LLVM:Uno} != "yes"
+MKLLVMCMDS:=			no
+.endif
+
+#
 # install(1) parameters.
 #
 COPY?=		-c
@@ -1321,6 +1345,18 @@ INSTALL_DIR?=		${INSTALL} ${INSTPRIV} -d
 INSTALL_FILE?=		${INSTALL} ${INSTPRIV} ${COPY} ${PRESERVE} ${RENAME}
 INSTALL_LINK?=		${INSTALL} ${INSTPRIV} ${HRDLINK} ${RENAME}
 INSTALL_SYMLINK?=	${INSTALL} ${INSTPRIV} ${SYMLINK} ${RENAME}
+.endif
+
+# for crunchide & ldd, define the OBJECT_FMTS used by a MACHINE_ARCH
+#
+OBJECT_FMTS=
+.if	${MACHINE_ARCH} != "alpha" && ${MACHINE_ARCH} != "ia64"
+OBJECT_FMTS+=	elf32
+.endif
+.if	${MACHINE_ARCH} == "alpha" || ${MACHINE_ARCH:M*64*} != ""
+. if !(${MKCOMPAT:Uyes} == "no" && ${MACHINE_CPU} == "mips")
+OBJECT_FMTS+=	elf64
+. endif
 .endif
 
 #
@@ -1421,7 +1457,7 @@ X11SRCDIRMIT?=		${X11SRCDIR}/external/mit
 	FS ICE SM X11 XScrnSaver XTrap Xau Xcomposite Xcursor Xdamage \
 	Xdmcp Xevie Xext Xfixes Xfont Xfont2 Xft Xi Xinerama Xmu Xpresent Xpm \
 	Xrandr Xrender Xres Xt Xtst Xv XvMC Xxf86dga Xxf86misc Xxf86vm drm \
-	epoxy fontenc xkbfile xkbui Xaw pciaccess xcb xshmfence \
+	epoxy fontenc vdpau xkbfile xkbui Xaw pciaccess xcb xshmfence \
 	pthread-stubs
 X11SRCDIR.${_lib}?=		${X11SRCDIRMIT}/lib${_lib}/dist
 .endfor
@@ -1470,10 +1506,10 @@ HAVE_XORG_GLAMOR?=	no
 	xorg-cf-files imake xbiff xkeyboard-config \
 	xbitmaps appres xeyes xev xedit sessreg pixman \
 	beforelight bitmap editres makedepend fonttosfnt fslsfonts fstobdf \
-	glu glw mesa-demos MesaGLUT MesaLib MesaLib7 \
+	glu glw mesa-demos MesaGLUT MesaLib MesaLib.old MesaLib7 \
 	ico iceauth listres lndir \
 	luit xproxymanagementprotocol mkfontdir oclock proxymngr rgb \
-	rstart setxkbmap showfont smproxy twm viewres \
+	rstart setxkbmap showfont smproxy transset twm viewres \
 	x11perf xauth xcalc xclipboard \
 	xclock xcmsdb xconsole xditview xdpyinfo xdriinfo xdm \
 	xfd xf86dga xfindproxy xfontsel xfwp xgamma xgc xhost xinit \
@@ -1494,6 +1530,9 @@ HAVE_XORG_GLAMOR?=	no
 	font-sony-misc font-util ttf-bitstream-vera encodings
 X11SRCDIR.${_dir}?=		${X11SRCDIRMIT}/${_dir}/dist
 .endfor
+
+# X11SRCDIR.Mesa points to the currently used Mesa sources
+X11SRCDIR.Mesa?=		${X11SRCDIRMIT}/${EXTERNAL_MESALIB_DIR}/dist
 
 .for _i in \
 	elographics keyboard mouse synaptics vmmouse void ws

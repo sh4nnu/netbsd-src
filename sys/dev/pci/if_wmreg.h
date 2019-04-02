@@ -1,4 +1,4 @@
-/*	$NetBSD: if_wmreg.h,v 1.111 2018/12/20 09:32:13 msaitoh Exp $	*/
+/*	$NetBSD: if_wmreg.h,v 1.113 2019/02/28 16:56:35 khorben Exp $	*/
 
 /*
  * Copyright (c) 2001 Wasabi Systems, Inc.
@@ -906,7 +906,8 @@ struct livengood_tcpip_ctxdesc {
 #define	DEFAULT_80003ES2LAN_TCTL_EXT_GCEX 0x00010000
 
 #define	WMREG_TIPG	0x0410	/* Transmit IPG Register */
-#define	TIPG_IPGT(x)	(x)		/* IPG transmit time */
+#define	TIPG_IPGT_MASK	__BITS(0, 9)	/* IPG transmit time MASK */
+#define	TIPG_IPGT(x)	__SHIFTIN((x), TIPG_IPGT_MASK) /* IPG transmit time */
 #define	TIPG_IPGR1(x)	((x) << 10)	/* IPG receive time 1 */
 #define	TIPG_IPGR2(x)	((x) << 20)	/* IPG receive time 2 */
 #define	TIPG_WM_DFLT	(TIPG_IPGT(0x0a) | TIPG_IPGR1(0x02) | TIPG_IPGR2(0x0a))
@@ -1492,7 +1493,7 @@ struct livengood_tcpip_ctxdesc {
 #define WM_INVM_DATA_REG(reg)	(0x12120 + 4*(reg))
 #define INVM_SIZE			64 /* Number of INVM Data Registers */
 
-/* iNVM default vaule */
+/* iNVM default value */
 #define NVM_INIT_CTRL_2_DEFAULT_I211	0x7243
 #define NVM_INIT_CTRL_4_DEFAULT_I211	0x00c1
 #define NVM_LED_1_CFG_DEFAULT_I211	0x0184

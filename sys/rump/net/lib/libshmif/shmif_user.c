@@ -1,4 +1,4 @@
-/*      $NetBSD: shmif_user.c,v 1.3 2018/12/12 00:48:44 alnsn Exp $	*/
+/*      $NetBSD: shmif_user.c,v 1.5 2019/03/26 08:56:17 bad Exp $	*/
 
 /*-
  * Copyright (c) 2009, 2010 Antti Kantee.  All Rights Reserved.
@@ -26,7 +26,9 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: shmif_user.c,v 1.3 2018/12/12 00:48:44 alnsn Exp $");
+#ifdef __KERNEL_RCSID
+__KERNEL_RCSID(0, "$NetBSD: shmif_user.c,v 1.5 2019/03/26 08:56:17 bad Exp $");
+#endif
 
 #ifndef _KERNEL
 #include <sys/types.h>

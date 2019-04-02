@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #	$NetBSD: Makefile.inc,v 1.101 2019/01/20 10:50:06 skrll Exp $
+=======
+#	$NetBSD: Makefile.inc,v 1.105 2019/03/31 13:04:54 jmcneill Exp $
+>>>>>>> 3e876a66cc5b78165d46b246ac87694086538afe
 #
 #	etc.evbarm/Makefile.inc -- evbarm-specific etc Makefile targets
 #
@@ -24,8 +28,11 @@ EVBARM_BOARDS.armv7+=		BCM5301X
 EVBARM_BOARDS.armv7hf+=		BCM5301X
 #EVBARM_BOARDS.armv7+=		BCM56340
 #EVBARM_BOARDS.armv7hf+= 	BCM56340
+<<<<<<< HEAD
 KERNEL_SETS.armv7+=		SUNXI
 KERNEL_SETS.armv7hf+=		SUNXI
+=======
+>>>>>>> 3e876a66cc5b78165d46b246ac87694086538afe
 .else
 IMAGEENDIAN=	le
 # little endian boards
@@ -112,10 +119,13 @@ EVBARM_BOARDS.armv7+=		PANDABOARD
 EVBARM_BOARDS.armv7hf+= 	PANDABOARD
 EVBARM_BOARDS.armv7+=		RPI2
 EVBARM_BOARDS.armv7hf+=	 	RPI2
+<<<<<<< HEAD
 #KERNEL_SETS.armv7+=		SUNXI
 #KERNEL_SETS.armv7hf+=		SUNXI
 #KERNEL_SETS.armv7+=		TEGRA
 #KERNEL_SETS.armv7hf+=		TEGRA
+=======
+>>>>>>> 3e876a66cc5b78165d46b246ac87694086538afe
 
 KERNEL_SETS.arm64+=		GENERIC64
 .endif
@@ -177,6 +187,13 @@ KERNEL_SETS+=		GENERIC
 smp_efibootaa64:
 	cd ${KERNSRCDIR}/stand/efiboot/bootaa64 && ${MAKE} release
 SNAP_MD_POST_DEPS+=	smp_efibootaa64
+INSTALLATION_DIRS+=	installation/misc
+.endif
+
+.if !empty(MACHINE_ARCH:Mearmv7hf)
+smp_efibootarm:
+	cd ${KERNSRCDIR}/stand/efiboot/bootarm && ${MAKE} release
+SNAP_MD_POST_DEPS+=	smp_efibootarm
 INSTALLATION_DIRS+=	installation/misc
 .endif
 

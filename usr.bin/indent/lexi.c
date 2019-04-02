@@ -1,37 +1,11 @@
-/*	$NetBSD: lexi.c,v 1.14 2016/06/05 18:35:32 dholland Exp $	*/
+/*	$NetBSD$	*/
 
-/*
+/*-
+ * SPDX-License-Identifier: BSD-4-Clause
+ *
+ * Copyright (c) 1985 Sun Microsystems, Inc.
  * Copyright (c) 1980, 1993
  *	The Regents of the University of California.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
-
-/*
- * Copyright (c) 1976 Board of Trustees of the University of Illinois.
- * Copyright (c) 1985 Sun Microsystems, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,14 +37,20 @@
  * SUCH DAMAGE.
  */
 
+#if 0
+#ifndef lint
+static char sccsid[] = "@(#)lexi.c	8.1 (Berkeley) 6/6/93";
+#endif /* not lint */
+#endif
+
 #include <sys/cdefs.h>
 #ifndef lint
-#if 0
-static char sccsid[] = "@(#)lexi.c	8.1 (Berkeley) 6/6/93";
-#else
-__RCSID("$NetBSD: lexi.c,v 1.14 2016/06/05 18:35:32 dholland Exp $");
+#if defined(__NetBSD__)
+__RCSID("$NetBSD$");
+#elif defined(__FreeBSD__)
+__FBSDID("$FreeBSD: head/usr.bin/indent/lexi.c 337862 2018-08-15 18:19:45Z pstef $");
 #endif
-#endif				/* not lint */
+#endif
 
 /*
  * Here we have the token scanner for indent.  It scans off one token and puts
@@ -642,6 +622,42 @@ alloc_typenames(void)
     typenames = (const char **)malloc(sizeof(typenames[0]) *
         (typename_count = 16));
     if (typenames == NULL)
+	err(1, NULL);
+}
+
+void
+add_typename(const char *key)
+{
+    int comparison;
+    const char *copy;
+
+    if (typename_top + 1 >= typename_count) {
+	typenames = realloc((void *)typenames,
+	    sizeof(typenames[0]) * (typename_count *= 2));
+	if (typenames == NULL)
+	    err(1, NULL);
+    }
+    if (typename_top == -1)
+	typenames[++typename_top] = copy = strdup(key);
+    else if ((comparison = strcmp(key, typenames[typename_top])) >= 0) {
+	/* take advantage of sorted input */
+	if (comparison == 0)	/* remove duplicates */
+	    return;
+	typenames[++typename_top] = copy = strdup(key);
+    }
+    else {
+	int p;
+
+	for (p = 0; (comparison = strcmp(key, typenames[p])) > 0; p++)
+	    /* find place for the new key */;
+	if (comparison == 0)	/* remove duplicates */
+	    return;
+	memmove(&typenames[p + 1], &typenames[p],
+	    sizeof(typenames[0]) * (++typename_top - p));
+	typenames[p] = copy = strdup(key);
+    }
+
+    if (copy == NULL)
 	err(1, NULL);
 }
 

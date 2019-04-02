@@ -1,4 +1,4 @@
-$NetBSD: acronyms.comp,v 1.225 2019/01/22 01:32:30 htodd Exp $
+$NetBSD: acronyms.comp,v 1.237 2019/04/01 02:15:00 uwe Exp $
 3WHS	three-way handshake
 8VSB	8-state vestigial side band modulation
 AA	anti-aliasing
@@ -90,6 +90,8 @@ ASIC	application-specific integrated circuit
 ASK	amplitude shift keying
 ASLR	address space layout randomization
 ASN	autonomous system number
+ASP	active server pages
+ASP	auxiliary storage pool
 ASPM	active state power management
 ASQ	automated software quality
 ASR	address space register
@@ -103,6 +105,7 @@ ATC	address translation cache
 ATM	asynchronous transfer mode
 ATX	advanced technology extended
 AV	anti virus
+AVB	audio video bridging
 AVL	Adelson-Velsky-Landis
 AVX	advanced vector extensions
 BA	byte align
@@ -175,6 +178,7 @@ BT	BitTorrent
 BT	Bluetooth
 BT	bit test
 BTC	bit test [and] complement
+BTM	bus transport mechanism
 BTR	bit test [and] reset
 BTS	bit test [and] set
 BTS	bug tracking system
@@ -250,6 +254,7 @@ COF	current operating frequency
 COFDM	coded orthogonal frequency division multiplexing
 COFF	common object file format
 COM	component object model
+COM	computer on module
 COMA	cache-only memory architecture
 CORBA	common object request broker architecture
 COS	class of service
@@ -289,6 +294,7 @@ CSR	control [and] status registers
 CSRG	Computer Systems Research Group
 CSS	cascading style sheets
 CSV	comma-separated values
+CTF	compact c type format
 CTM	close to metal
 CTR	counter [mode]
 CTS	clear to send
@@ -372,6 +378,7 @@ DMT	discrete multitone modulation
 DMU	data management layer
 DNARD	Digital network appliance reference design
 DND	drag and drop
+DNLC	directory name lookup cache
 DNS	Domain Name System
 DNSSEC	DNS Security Extensions
 DOE	distributed object environment
@@ -667,15 +674,18 @@ IMC	integrated memory controller
 IMCR	interrupt mode configuration register
 IMR	interrupt mask register
 IMS	information management system
+IMSI	international mobile subscriber identity
 INCITS	InterNational Committee for Information Technology Standards
 IO	input/output
 IOCTL	input/output control
+IOM	input/output managers
 IOMMU	input/output memory management unit
 IOT	Internet of Things
 IP	Internet Protocol
 IP	intellectual property
 IPC	instructions per cycle
 IPC	interprocess communication
+IPCF	interprocess communication facility
 IPE	integrated programming environment
 IPI	intelligent peripheral interface
 IPI	interprocessor interrupt
@@ -715,6 +725,7 @@ ITSM	IT service management
 IV	initialization vector
 IVT	interrupt vector table
 JBOD	just a bunch of disks
+JCL	Jenkins Control Language
 JFET	junction [gate] field-effect transistor
 JIT	just in time
 JPEG	Joint Photographic Experts Group
@@ -842,7 +853,9 @@ MESI	modified, exclusive, shared, invalid
 MFC	merge from current
 MFC	Microsoft Foundation Classes
 MFM	modified frequency modulation
+MFU	most frequently used
 MI	machine-independent
+MI	machine interface
 MIB	management information base
 MIC	message integrity {check,code}
 MID	mobile Internet device
@@ -915,6 +928,7 @@ MVCC	multiversion concurrency control
 MWE	module width encoding
 MX	mail exchange
 NACK	negative acknowledgement
+NAK	negative acknowledgement
 NAN	not a number
 NAPT	Network Address Port Translation
 NAS	network attached storage
@@ -1086,8 +1100,10 @@ PM	power management
 PM	{phase,pulse} modulation
 PMC	performance monitoring counters
 PME	power management event
+PMEG	page map entry group
 PMI	performance monitoring infrastructure
 PMI	platform management interrupt
+PMIC	power management integrated circut
 PMIO	port-mapped input/output
 PMT	photo-multiplier tube
 PMU	performance monitoring units
@@ -1135,6 +1151,7 @@ PTLA	pseudo top level aggregator
 PTP	page table page
 PTV	perceived target value
 PU	processing unit
+PUC	personal unblocking code
 PUN	physical unit number
 PV	physical volume
 PVG	physical volume group
@@ -1288,7 +1305,7 @@ SDT	syntax-directed translation
 SEA	synchronous external abort
 SEGV	segmentation violation
 SEO	search engine optimization
-SES	scsi enclosure services
+SES	SCSI enclosure services
 SFC	sequential function chart
 SFI	simple firmware interface
 SFI	software fault isolation
@@ -1302,6 +1319,7 @@ SIDH	supersingular isogeny Diffie-Hellman
 SIEM	security information and event management
 SIF	source input format
 SIFS	short inter-frame space
+SIM	subscriber identity module
 SIMD	single instruction, multiple data
 SIMM	single inline memory module
 SIP	Session Initiation Protocol
@@ -1314,6 +1332,7 @@ SLDRAM	synchronous-link dynamic random access memory
 SLED	single large expensive disk
 SLI	scalable link interface
 SLI	scan-line interleave
+SLIC	system license internal code
 SLOC	source lines of code
 SLRU	segmented LRU
 SMA	smart memory access
@@ -1335,6 +1354,7 @@ SMP	symmetric multiprocessing
 SMT	simultaneous multithreading
 SMTP	Simple Mail Transfer Protocol
 SMU	system management unit
+SNA	systems network architecture
 SNAP	Sub-Network Access Protocol
 SNIA	Storage Networking Industry Association
 SNMP	Simple Network Management Protocol
@@ -1346,6 +1366,7 @@ SOF	start of frame
 SOH	start of header
 SOHO	small office/home office
 SOL	serial over LAN
+SOM	system on module
 SP	service pack
 SP	stack pointer
 SPA	storage pool allocator
@@ -1366,7 +1387,7 @@ SQCIF	sub quarter common intermediate format
 SQL	Structured Query Language
 SRAM	static random access memory
 SRC	sample rate conversion
-SRP	scsi rdma protocol
+SRP	SCSI RDMA protocol
 SS	self-snoop
 SS	stack segment
 SSA	static single assignment
@@ -1385,6 +1406,7 @@ STD	state transition diagram
 STOMP	Streaming Text Oriented Messaging Protocol
 STP	Spanning Tree Protocol
 STP	shielded twisted pair
+SUN	Stanford University Network
 SUS	Single Unix Specification
 SUT	system under test
 SVG	scalable vector graphics
@@ -1429,6 +1451,7 @@ TKIP	Temporal Key Integrity Protocol
 TLA	top level aggregator
 TLB	translation lookaside buffer
 TLD	top level domain
+TLI	transport layer interface
 TLS	thread local storage
 TLS	transport layer security
 TM	Turing machine
@@ -1490,6 +1513,7 @@ UFS	Unix File System
 UGA	universal graphics adapter
 UI	unit interval
 UI	user interface
+UICC	universal integrated circuit card
 UID	unique identifier
 UID	user identifier
 UL	upload
@@ -1527,6 +1551,7 @@ VCO	voltage-controlled oscillator
 VCS	version control system
 VESA	Video Electronics Standards Association
 VFO	variable-frequency oscillator
+VFS	virtual file system
 VG	volume group
 VGA	Video Graphics Array
 VHDCI	very high density cable interconnect
@@ -1592,12 +1617,15 @@ XGA	Extended Graphics Array
 XHR	XMLHttpRequest
 XIP	execute in place
 XML	Extensible Markup Language
+XNA	XNA's not acronymed
+XNS	Xerox network systems
 XOR	exclusive or
 XP	extreme programming
 XSI	X/Open System Interface
 XSL	extensible stylesheet language
 XSS	cross site scripting
 XT	extended technology
+XTI	X/Open transport interface
 XUL	XML user interface language
 YACC	yet another compiler compiler
 YAML	YAML ain't markup language

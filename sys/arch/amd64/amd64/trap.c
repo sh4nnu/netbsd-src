@@ -1,4 +1,4 @@
-/*	$NetBSD: trap.c,v 1.114 2018/07/26 09:29:08 maxv Exp $	*/
+/*	$NetBSD: trap.c,v 1.118 2019/03/08 08:12:39 msaitoh Exp $	*/
 
 /*
  * Copyright (c) 1998, 2000, 2017 The NetBSD Foundation, Inc.
@@ -64,7 +64,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: trap.c,v 1.114 2018/07/26 09:29:08 maxv Exp $");
+__KERNEL_RCSID(0, "$NetBSD: trap.c,v 1.118 2019/03/08 08:12:39 msaitoh Exp $");
 
 #include "opt_ddb.h"
 #include "opt_kgdb.h"
@@ -102,7 +102,7 @@ __KERNEL_RCSID(0, "$NetBSD: trap.c,v 1.114 2018/07/26 09:29:08 maxv Exp $");
 
 #include <x86/nmi.h>
 
-#ifndef XEN
+#ifndef XENPV
 #include "isa.h"
 #endif
 
@@ -296,7 +296,7 @@ trap(struct trapframe *frame)
 	 * A trap can occur while DTrace executes a probe. Before
 	 * executing the probe, DTrace blocks re-scheduling and sets
 	 * a flag in its per-cpu flags to indicate that it doesn't
-	 * want to fault. On returning from the the probe, the no-fault
+	 * want to fault. On returning from the probe, the no-fault
 	 * flag is cleared and finally re-scheduling is enabled.
 	 *
 	 * If the DTrace kernel module has registered a trap handler,
@@ -351,6 +351,11 @@ trap(struct trapframe *frame)
 
 	case T_PROTFLT|T_USER:		/* protection fault */
 #if defined(COMPAT_NETBSD32) && defined(COMPAT_10)
+
+/*
+ * XXX This code currently not included in loadable module;  it is
+ * only included in built-in modules.
+ */
 	{
 		static const char lcall[7] = { 0x9a, 0, 0, 0, 0, 7, 0 };
 		const size_t sz = sizeof(lcall);
@@ -371,6 +376,7 @@ trap(struct trapframe *frame)
 		}
 	}
 #endif
+		/* FALLTHROUGH */
 	case T_TSSFLT|T_USER:
 	case T_SEGNPFLT|T_USER:
 	case T_STKFLT|T_USER:
@@ -584,7 +590,7 @@ faultcommon:
 				 * the copy functions, and so visible
 				 * to cpu_kpreempt_exit().
 				 */
-#ifndef XEN
+#ifndef XENPV
 				x86_disable_intr();
 #endif
 				l->l_nopreempt--;
@@ -592,7 +598,7 @@ faultcommon:
 				    pfail) {
 					return;
 				}
-#ifndef XEN
+#ifndef XENPV
 				x86_enable_intr();
 #endif
 				/*

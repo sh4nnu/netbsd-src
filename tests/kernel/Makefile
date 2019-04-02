@@ -1,4 +1,4 @@
-# $NetBSD: Makefile,v 1.55 2018/12/24 16:58:54 thorpej Exp $
+# $NetBSD: Makefile,v 1.58 2019/02/04 05:24:18 mrg Exp $
 
 NOMAN=		# defined
 
@@ -14,6 +14,7 @@ TESTS_C+=	t_mqueue
 TESTS_C+=	t_sysv
 TESTS_C+=	t_subr_prf
 TESTS_C+=	t_kauth_pr_47598
+TESTS_C+=	t_ksem
 TESTS_C+=	t_sysctl
 TESTS_C+=	t_timeleft
 TESTS_C+=	t_zombie
@@ -24,9 +25,6 @@ TESTS_SH+=	t_ps_strings
 TESTS_SH+=	t_trapsignal
 TESTS_SH+=	t_interp
 TESTS_SH+=	t_procpath
-
-SUBDIR+=	threadpool_tester
-TESTS_SH+=	t_threadpool
 
 BINDIR=		${TESTSDIR}
 PROGS=		h_ps_strings1
@@ -67,6 +65,11 @@ CPPFLAGS.subr_extent.c=	-D_EXTENT_TESTING -D__POOL_EXPOSE -D_KERNTYPES
 t_subr_prf.c: gen_t_subr_prf ${NETBSDSRCDIR}/sys/kern/subr_prf.c
 	${HOST_SH} ${.ALLSRC} ${.TARGET}
 CPPFLAGS.t_subr_prf.c=	-Wno-pointer-sign	# XXX platform vs kernel SHA2
+
+.if defined(HAVE_GCC) && ${HAVE_GCC} == 7 && ${ACTIVE_CC} == "gcc"
+# Test explicitly tests failure modes.
+CPPFLAGS.t_subr_prf.c+=	-Wno-error=format-truncation
+.endif
 
 CLEANFILES+=	t_subr_prf.c
 

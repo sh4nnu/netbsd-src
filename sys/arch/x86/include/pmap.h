@@ -1,4 +1,4 @@
-/*	$NetBSD: pmap.h,v 1.93 2018/12/17 06:58:54 maxv Exp $	*/
+/*	$NetBSD: pmap.h,v 1.100 2019/03/10 16:30:01 maxv Exp $	*/
 
 /*
  * Copyright (c) 1997 Charles D. Cranor and Washington University.
@@ -111,7 +111,16 @@
 
 #if defined(_KERNEL)
 #include <sys/kcpuset.h>
+#include <x86/pmap_pv.h>
 #include <uvm/pmap/pmap_pvt.h>
+
+#define	PATENTRY(n, type)	(type << ((n) * 8))
+#define	PAT_UC		0x0ULL
+#define	PAT_WC		0x1ULL
+#define	PAT_WT		0x4ULL
+#define	PAT_WP		0x5ULL
+#define	PAT_WB		0x6ULL
+#define	PAT_UCMINUS	0x7ULL
 
 #define BTSEG_NONE	0
 #define BTSEG_TEXT	1
@@ -262,7 +271,15 @@ struct pmap {
 
 	/* Used by NVMM. */
 	int (*pm_enter)(struct pmap *, vaddr_t, paddr_t, vm_prot_t, u_int);
+	bool (*pm_extract)(struct pmap *, vaddr_t, paddr_t *);
 	void (*pm_remove)(struct pmap *, vaddr_t, vaddr_t);
+	int (*pm_sync_pv)(struct vm_page *, vaddr_t, paddr_t, int, uint8_t *,
+	    pt_entry_t *);
+	void (*pm_pp_remove_ent)(struct pmap *, struct vm_page *, pt_entry_t,
+	    vaddr_t);
+	void (*pm_write_protect)(struct pmap *, vaddr_t, vaddr_t, vm_prot_t);
+	void (*pm_unwire)(struct pmap *, vaddr_t);
+
 	void (*pm_tlb_flush)(struct pmap *);
 	void *pm_data;
 };
@@ -306,15 +323,15 @@ extern long nkptp[PTP_LEVELS];
 #define	pmap_resident_count(pmap)	((pmap)->pm_stats.resident_count)
 #define	pmap_wired_count(pmap)		((pmap)->pm_stats.wired_count)
 
-#define pmap_clear_modify(pg)		pmap_clear_attrs(pg, PG_M)
-#define pmap_clear_reference(pg)	pmap_clear_attrs(pg, PG_U)
+#define pmap_clear_modify(pg)		pmap_clear_attrs(pg, PP_ATTRS_M)
+#define pmap_clear_reference(pg)	pmap_clear_attrs(pg, PP_ATTRS_U)
 #define pmap_copy(DP,SP,D,L,S)		__USE(L)
-#define pmap_is_modified(pg)		pmap_test_attrs(pg, PG_M)
-#define pmap_is_referenced(pg)		pmap_test_attrs(pg, PG_U)
+#define pmap_is_modified(pg)		pmap_test_attrs(pg, PP_ATTRS_M)
+#define pmap_is_referenced(pg)		pmap_test_attrs(pg, PP_ATTRS_U)
 #define pmap_move(DP,SP,D,L,S)
 #define pmap_phys_address(ppn)		(x86_ptob(ppn) & ~X86_MMAP_FLAG_MASK)
 #define pmap_mmap_flags(ppn)		x86_mmap_flags(ppn)
-#define pmap_valid_entry(E) 		((E) & PG_V) /* is PDE or PTE valid? */
+#define pmap_valid_entry(E) 		((E) & PTE_P) /* is PDE or PTE valid? */
 
 #if defined(__x86_64__) || defined(PAE)
 #define X86_MMAP_FLAG_SHIFT	(64 - PGSHIFT)
@@ -355,11 +372,14 @@ void		pmap_map_ptes(struct pmap *, struct pmap **, pd_entry_t **,
 		    pd_entry_t * const **);
 void		pmap_unmap_ptes(struct pmap *, struct pmap *);
 
-int		pmap_pdes_invalid(vaddr_t, pd_entry_t * const *, pd_entry_t *);
+bool		pmap_pdes_valid(vaddr_t, pd_entry_t * const *, pd_entry_t *,
+		    int *lastlvl);
 
 u_int		x86_mmap_flags(paddr_t);
 
 bool		pmap_is_curpmap(struct pmap *);
+
+void		pmap_ept_transform(struct pmap *);
 
 #ifndef __HAVE_DIRECT_MAP
 void		pmap_vpage_cpu_init(struct cpu_info *);
@@ -405,12 +425,6 @@ bool	pmap_pageidlezero(paddr_t);
  * inline functions
  */
 
-__inline static bool __unused
-pmap_pdes_valid(vaddr_t va, pd_entry_t * const *pdes, pd_entry_t *lastpde)
-{
-	return pmap_pdes_invalid(va, pdes, lastpde) == 0;
-}
-
 /*
  * pmap_update_pg: flush one page from the TLB (or flush the whole thing
  *	if hardware doesn't support one-page flushing)
@@ -436,7 +450,7 @@ pmap_page_protect(struct vm_page *pg, vm_prot_t prot)
 {
 	if ((prot & VM_PROT_WRITE) == 0) {
 		if (prot & (VM_PROT_READ|VM_PROT_EXECUTE)) {
-			(void) pmap_clear_attrs(pg, PG_RW);
+			(void)pmap_clear_attrs(pg, PP_ATTRS_W);
 		} else {
 			pmap_page_remove(pg);
 		}
@@ -453,7 +467,7 @@ pmap_pv_protect(paddr_t pa, vm_prot_t prot)
 {
 	if ((prot & VM_PROT_WRITE) == 0) {
 		if (prot & (VM_PROT_READ|VM_PROT_EXECUTE)) {
-			(void) pmap_pv_clear_attrs(pa, PG_RW);
+			(void)pmap_pv_clear_attrs(pa, PP_ATTRS_W);
 		} else {
 			pmap_pv_remove(pa);
 		}
@@ -519,7 +533,7 @@ vaddr_t	pmap_map(vaddr_t, paddr_t, paddr_t, vm_prot_t);
 void	pmap_cpu_init_late(struct cpu_info *);
 bool	sse2_idlezero_page(void *);
 
-#ifdef XEN
+#ifdef XENPV
 #include <sys/bitops.h>
 
 #define XPTE_MASK	L1_FRAME
@@ -550,7 +564,7 @@ xpmap_ptetomach(pt_entry_t *pte)
 
 paddr_t	vtomach(vaddr_t);
 #define vtomfn(va) (vtomach(va) >> PAGE_SHIFT)
-#endif	/* XEN */
+#endif	/* XENPV */
 
 /* pmap functions with machine addresses */
 void	pmap_kenter_ma(vaddr_t, paddr_t, vm_prot_t, u_int);

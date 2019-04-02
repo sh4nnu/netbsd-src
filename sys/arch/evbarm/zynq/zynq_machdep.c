@@ -1,4 +1,4 @@
-/*	$NetBSD: zynq_machdep.c,v 1.7 2019/01/22 07:51:25 skrll Exp $	*/
+/*	$NetBSD: zynq_machdep.c,v 1.10 2019/03/16 10:45:06 skrll Exp $	*/
 /*-
  * Copyright (c) 2012 The NetBSD Foundation, Inc.
  * All rights reserved.
@@ -29,7 +29,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: zynq_machdep.c,v 1.7 2019/01/22 07:51:25 skrll Exp $");
+__KERNEL_RCSID(0, "$NetBSD: zynq_machdep.c,v 1.10 2019/03/16 10:45:06 skrll Exp $");
 
 #include "opt_evbarm_boardtype.h"
 #include "opt_arm_debug.h"
@@ -189,9 +189,10 @@ zynq_platform_early_putchar(char c)
 	}
 }
 
-static void
+static int
 zynq_mpstart(void)
 {
+	int ret = 0;
 #ifdef MULTIPROCESSOR
 	/*
 	 * Invalidate all SCU cache tags. That is, for all cores (0-3)
@@ -234,6 +235,7 @@ zynq_mpstart(void)
 	}
 	for (size_t i = 1; i < arm_cpu_max; i++) {
 		if ((arm_cpu_hatched & __BIT(i)) == 0) {
+			ret++;
 			printf("%s: warning: cpu%zu failed to hatch\n",
 			    __func__, i);
 		}
@@ -243,6 +245,7 @@ zynq_mpstart(void)
 	    arm_cpu_max, arm_cpu_max ? "s" : "",
 	    arm_cpu_hatched);
 #endif /* MULTIPROCESSOR */
+	return ret;
 }
 
 
@@ -337,6 +340,9 @@ initarm(void *arg)
 
 	u_int sp = initarm_common(KERNEL_VM_BASE, KERNEL_VM_SIZE, NULL, 0);
 
+	/*
+	 * initarm_common flushes cache if required before AP start
+	 */
 	VPRINTF("mpstart\n");
 	zynq_mpstart();
 

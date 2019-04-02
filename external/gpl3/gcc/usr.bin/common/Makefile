@@ -1,4 +1,4 @@
-#	$NetBSD: Makefile,v 1.6 2018/02/04 10:16:07 mrg Exp $
+#	$NetBSD: Makefile,v 1.9 2019/02/04 04:49:20 mrg Exp $
 
 LIBISPRIVATE=	yes
 
@@ -7,17 +7,8 @@ LIBISPRIVATE=	yes
 
 LIB=		common
 
-SRCS=		diagnostic.c \
-		diagnostic-color.c \
-		diagnostic-show-locus.o \
-		pretty-print.c \
-		vec.c \
-		intl.c \
-		input.c \
-		version.c \
-		hash-table.c \
-		ggc-none.c \
-		memory-block.cc
+.include "${.CURDIR}/defs.mk"
+SRCS=	${G_OBJS-libcommon:S/memory-block.o/memory-block.cc/:.o=.c}
 
 # XXX make sure this doesn't have more than it needs
 CPPFLAGS+=	-I${GCCARCH} -I${BACKENDOBJ} -I. \
